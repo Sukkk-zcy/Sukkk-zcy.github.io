@@ -1,0 +1,127 @@
+# Hugo 基础配置
+baseURL: "https://sukkk-zcy.github.io/"
+title: Sukkk's Blog
+copyright: "[©2026 Sukkk's Blog](https://sukkk-zcy.github.io/)"
+theme: PaperMod
+languageCode: zh-cn
+
+enableInlineShortcodes: true
+hasCJKLanguage: true
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+pygmentsUseClasses: true
+defaultContentLanguage: zh
+defaultContentLanguageInSubdir: false
+
+languages:
+  zh:
+    languageName: "中文"
+    weight: 1
+    taxonomies:
+      category: categories
+      tag: tags
+    menus:
+      main:
+        - name: 首页
+          pageRef: /
+          weight: 4
+        - name: 归档
+          pageRef: archives/
+          weight: 5
+        - name: 分类
+          pageRef: categories/
+          weight: 10
+        - name: 标签
+          pageRef: tags/
+          weight: 10
+        - name: 搜索
+          pageRef: search/
+          weight: 20
+        - name: 关于
+          pageRef: about/
+          weight: 21
+
+paginate: 8
+
+params:
+  env: production
+  description: "Sukkk's Blog - 记录技术笔记和成长历程"
+  author: Sukkk
+  defaultTheme: dark
+  ShowShareButtons: false
+  ShowReadingTime: true
+  displayFullLangName: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: false
+  ShowCodeCopyButtons: true
+  ShowRssButtonInSectionTermList: true
+  ShowAllPagesInArchive: true
+  ShowPageNums: true
+  ShowToc: true
+  comments: true
+  images: []
+  DateFormat: "2006-01-02"
+
+  homeInfoParams:
+    Title: "Hi, I'm Sukkk 👋"
+    Content: >
+      一个热爱学习的开发者，记录技术笔记和成长历程。
+      欢迎来到我的博客，这里主要记录了我的学习笔记、技术教程和成长历程。
+
+  socialIcons:
+    - name: github
+      title: Follow my Github
+      url: "https://github.com/Sukkk-zcy"
+
+  fuseOpts:
+      isCaseSensitive: false
+      shouldSort: true
+      location: 0
+      distance: 1000
+      threshold: 0.4
+      minMatchCharLength: 0
+      keys: ["title", "permalink", "summary", "content"]
+      includeMatches: true
+
+  assets:
+      favicon: ""
+      favicon16x16: ""
+      favicon32x32: ""
+      apple_touch_icon: ""
+      safari_pinned_tab: ""
+      disableHLJS: true
+
+  giscus:
+    repo: "Sukkk-zcy/Sukkk-zcy.github.io"
+    repoId: ""
+    category: "Announcements"
+    categoryId: ""
+    mapping: "pathname"
+    strict: "0"
+    reactionsEnabled: "1"
+    emitMetadata: "0"
+    inputPosition: "bottom"
+    lightTheme: "light"
+    darkTheme: "dark"
+    lang: "zh-CN"
+    crossorigin: "anonymous"
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    anchorLineNos: false
+    codeFences: true
+    noClasses: false
+    lineNos: true
+    lineNumbersInTable: false

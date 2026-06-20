@@ -1,4 +1,3 @@
-/* Light Theme - Tokyo Night Day */
 /* Background */ .bg { color:#3760bf;background-color:#e1e2e7; }
 /* PreWrapper */ .chroma { color:#3760bf;background-color:#e1e2e7; }
 /* Other */ .chroma .x { color: #000 }
@@ -86,7 +85,6 @@
 /* GenericUnderline */ .chroma .gl { text-decoration:underline }
 /* TextWhitespace */ .chroma .w { color: #000 }
 
-/* Dark Theme - GitHub Dark */
 .dark {
   /* Background */ .bg { color:#e6edf3;background-color:#0d1117; }
   /* PreWrapper */ .chroma { color:#e6edf3;background-color:#0d1117; }

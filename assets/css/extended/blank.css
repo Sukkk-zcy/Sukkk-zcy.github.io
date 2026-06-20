@@ -1,6 +1,66 @@
+:root {
+  --link-color: #a8e6cf;
+}
+
+.dark {
+  .entry-content {
+    a {
+      color: var(--link-color);
+    }
+  }
+  .post-content {
+    a {
+      color: var(--link-color);
+    }
+  }
+  .pagination a {
+    background: rgb(168, 168, 242);
+  }
+}
+
+.pagination a {
+  background: rgb(80, 104, 81);
+}
+
+body {
+  font-size: 1rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
 .post-content pre,
 code {
   font-family: "JetBrains Mono", monospace;
   font-size: 1rem;
   line-height: 1.2;
+}
+
+.toc details[open] summary {
+  cursor: pointer;
+}
+
+.toc details summary {
+  cursor: pointer;
+}
+
+#tw-comment {
+  margin-top: 3rem;
+}
+
+.medium-zoom-overlay {
+  background: rgba(255, 255, 255, 0.5) !important;
+}
+.dark {
+  .medium-zoom-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+.paginav span:hover:not(.title) {
+  box-shadow: none;
+}
+.paginav {
+  a {
+    padding-bottom: 0.5em;
+  }
 }

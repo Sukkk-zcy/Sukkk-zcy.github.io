@@ -2,10 +2,8 @@
 title: "关于"
 layout: "about"
 url: "/about/"
-summary: "关于我"
+summary: about
 ---
-
-## 关于我
 
 你好！我是 Sukkk，一个热爱技术、热爱学习的开发者。
 
@@ -16,13 +14,6 @@ summary: "关于我"
 - **前端**: HTML / CSS / JavaScript / Vue / React
 - **后端**: Python / Go / Node.js
 - **工具**: Git / Docker / Linux / VS Code
-- **其他**: 数据库 / 网络 / 算法
-
-## 关于这个博客
-
-- **技术栈**: Hugo + PaperMod 主题
-- **部署**: GitHub Pages + GitHub Actions
-- **特点**: Markdown 写作、代码高亮、全文搜索、暗色模式、数学公式、Mermaid 图表
 
 ## 联系我
 

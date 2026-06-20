@@ -32,12 +32,10 @@ defaultContentLanguage = "zh"
 
   [params.homeInfoParams]
     Title = "Hi, I'm Sukkk 👋"
-    Content = "一个热爱学习的开发者，记录技术笔记和成长历程。"
+    Content = "一个热爱学习的开发者，记录技术笔记和成长历程。欢迎来到我的博客，这里主要记录了我的学习笔记、技术教程和成长历程。"
 
-  [params.homeInfoParams.Image]
-    url = ""
-    width = 120
-    height = 120
+  [params.profileMode]
+    enabled = false
 
   [params.cover]
     hiddenInList = false
@@ -54,30 +52,6 @@ defaultContentLanguage = "zh"
     favicon16x16 = ""
     favicon32x32 = ""
     apple_touch_icon = ""
-
-  [params.profileMode]
-    enabled = true
-    title = "Sukkk's Blog"
-    subtitle = "代码 · 笔记 · 成长"
-    imageUrl = ""
-    imageTitle = "avatar"
-    imageWidth = 150
-    imageHeight = 150
-    [[buttons]]
-      name = "文章"
-      url = "/posts"
-    [[buttons]]
-      name = "教程"
-      url = "/tutorials"
-    [[buttons]]
-      name = "标签"
-      url = "/tags"
-    [[buttons]]
-      name = "搜索"
-      url = "/search"
-    [[buttons]]
-      name = "归档"
-      url = "/archives"
 
   [[params.socialIcons]]
     name = "github"
@@ -113,40 +87,40 @@ defaultContentLanguage = "zh"
     crossorigin = "anonymous"
 
 [[menu.main]]
-  identifier = "posts"
-  name = "文章"
-  url = "/posts/"
-  weight = 10
-
-[[menu.main]]
-  identifier = "tutorials"
-  name = "教程"
-  url = "/tutorials/"
-  weight = 20
+  identifier = "home"
+  name = "首页"
+  url = "/"
+  weight = 1
 
 [[menu.main]]
   identifier = "archives"
   name = "归档"
   url = "/archives/"
-  weight = 30
+  weight = 5
 
 [[menu.main]]
   identifier = "categories"
   name = "分类"
   url = "/categories/"
-  weight = 40
+  weight = 10
 
 [[menu.main]]
   identifier = "tags"
   name = "标签"
   url = "/tags/"
-  weight = 50
+  weight = 10
 
 [[menu.main]]
   identifier = "search"
   name = "搜索"
   url = "/search/"
-  weight = 60
+  weight = 20
+
+[[menu.main]]
+  identifier = "about"
+  name = "关于"
+  url = "/about/"
+  weight = 21
 
 [outputs]
   home = ["HTML", "RSS", "JSON"]

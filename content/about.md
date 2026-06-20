@@ -1,8 +1,7 @@
 ---
-title: "关于我"
+title: "关于"
 layout: "about"
-image: ""
-description: "关于这个博客和我自己"
+url: "/about/"
 summary: "关于我"
 ---
 
@@ -28,7 +27,3 @@ summary: "关于我"
 ## 联系我
 
 - GitHub: [Sukkk-zcy](https://github.com/Sukkk-zcy)
-
----
-
-> "学而不思则罔，思而不学则殆。" — 孔子

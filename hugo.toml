@@ -1,0 +1,66 @@
+baseURL = "https://sukkk-zcy.github.io/"
+locale = "zh-cn"
+title = "我的学习笔记"
+theme = "PaperMod"
+paginate = 10
+
+[params]
+  homeInfoParams = { Title = "你好", Content = "这里是学习笔记和教程，记录成长的每一步。" }
+  ShowShareButtons = false
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+  ShowToc = true
+  TocOpen = true
+  [params.search]
+    enable = true
+    provider = "fuse"
+
+  [params.defaultTheme]
+    # "auto" follows system preference
+
+  [params.comments]
+    giscus = { repo = "Sukkk-zcy/Sukkk-zcy.github.io", repoId = "", category = "Announcements", categoryId = "" }
+
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/Sukkk-zcy"
+
+[[menu.main]]
+  identifier = "posts"
+  name = "文章"
+  url = "/posts/"
+  weight = 10
+
+[[menu.main]]
+  identifier = "tutorials"
+  name = "教程"
+  url = "/tutorials/"
+  weight = 20
+
+[[menu.main]]
+  identifier = "tags"
+  name = "标签"
+  url = "/tags/"
+  weight = 30
+
+[[menu.main]]
+  identifier = "search"
+  name = "搜索"
+  url = "/search/"
+  weight = 40
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[markup]
+  [markup.highlight]
+    style = "monokai"
+    lineNos = false
+    codeFences = true
+  [markup.goldmark.renderer]
+    unsafe = true
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 4

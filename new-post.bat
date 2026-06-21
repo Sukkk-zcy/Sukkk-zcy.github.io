@@ -1,12 +1,10 @@
 @echo off
-setlocal enabledelayedexpansion
-
-set /p title="输入文章标题: "
+chcp 65001 >nul
+set /p title="Title: "
 if "%title%"=="" (
-    echo 标题不能为空
+    echo Empty title!
     pause
     exit /b 1
 )
-
 powershell -ExecutionPolicy Bypass -File "%~dp0new-post.ps1" -Title "%title%"
 pause

@@ -65,7 +65,7 @@ params:
   DateFormat: "2006-01-02"
 
   homeInfoParams:
-    Title: "Hi, I'm Sukkk 👋"
+    Title: "Hi, I am Sukkk"
     Content: "一个热爱学习的开发者，记录技术笔记和成长历程。欢迎来到我的博客。"
 
   socialIcons:

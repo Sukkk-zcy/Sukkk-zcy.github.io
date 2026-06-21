@@ -64,3 +64,35 @@ code {
     padding-bottom: 0.5em;
   }
 }
+
+/* Theme toggle fixed to top-right */
+.theme-toggle-fixed {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  z-index: 100;
+}
+
+.theme-toggle-fixed .theme-toggle {
+  background: var(--entry);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.theme-toggle-fixed .theme-toggle:hover {
+  border-color: var(--tertiary);
+}
+
+/* Logo styling */
+.logo a {
+  display: flex;
+  align-items: center;
+}

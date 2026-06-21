@@ -67,9 +67,7 @@ params:
 
   homeInfoParams:
     Title: "Hi, I'm Sukkk 👋"
-    Content: >
-      一个热爱学习的开发者，记录技术笔记和成长历程。
-      欢迎来到我的博客，这里主要记录了我的学习笔记、技术教程和成长历程。
+    Content: "一个热爱学习的开发者，记录技术笔记和成长历程。欢迎来到我的博客，这里主要记录了我的学习笔记、技术教程和成长历程。"
 
   socialIcons:
     - name: github

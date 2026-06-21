@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "发布博客",
+            "type": "shell",
+            "command": "powershell",
+            "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\deploy.ps1"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        },
+        {
+            "label": "本地预览",
+            "type": "shell",
+            "command": "hugo",
+            "args": ["server", "-D"],
+            "group": "test",
+            "isBackground": true,
+            "problemMatcher": []
+        }
+    ]
+}

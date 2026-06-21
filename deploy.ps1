@@ -18,6 +18,9 @@ Write-Host "=== Step 3: Deploy ===" -ForegroundColor Cyan
 Remove-Item -Path "E:\bk\deploy" -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path "E:\bk\deploy" | Out-Null
 Copy-Item -Path "E:\bk\blog\public\*" -Destination "E:\bk\deploy\" -Recurse -Force
+if (Test-Path "E:\bk\blog\static") {
+    Copy-Item -Path "E:\bk\blog\static\*" -Destination "E:\bk\deploy\" -Recurse -Force
+}
 New-Item -ItemType File -Force -Path "E:\bk\deploy\.nojekyll" | Out-Null
 Set-Content -Path "E:\bk\deploy\.nojekyll" -Value "" -NoNewline
 

@@ -87,11 +87,11 @@ params:
       includeMatches: true
 
   assets:
-      favicon: ""
-      favicon16x16: ""
-      favicon32x32: ""
-      apple_touch_icon: ""
-      safari_pinned_tab: ""
+      favicon: "favicon.svg"
+      favicon16x16: "favicon.svg"
+      favicon32x32: "favicon.svg"
+      apple_touch_icon: "favicon.svg"
+      safari_pinned_tab: "favicon.svg"
       disableHLJS: true
 
   giscus:

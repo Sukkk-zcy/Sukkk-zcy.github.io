@@ -23,21 +23,6 @@
             "group": "test",
             "isBackground": true,
             "problemMatcher": []
-        },
-        {
-            "label": "新建文章",
-            "type": "shell",
-            "command": "powershell",
-            "args": ["-ExecutionPolicy", "Bypass", "-File", "${workspaceFolder}\\new-post.ps1", "-Title", "${input:postTitle}"],
-            "group": "none"
-        }
-    ],
-    "inputs": [
-        {
-            "id": "postTitle",
-            "type": "promptString",
-            "description": "输入文章标题",
-            "default": "未命名文章"
         }
     ]
 }

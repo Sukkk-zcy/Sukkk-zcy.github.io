@@ -10,16 +10,18 @@ $filename = "E:\bk\blog\content\posts\$slug.md"
 $template = "E:\bk\blog\templates\post.md"
 
 if (Test-Path $filename) {
-    Write-Host "文件已存在: $filename" -ForegroundColor Yellow
+    Write-Host "File exists: $filename" -ForegroundColor Yellow
     exit 1
 }
 
-$content = Get-Content -Path $template -Raw -Encoding UTF8
-$content = $content -replace '\{\{TITLE\}\}', $Title
-$content = $content -replace '\{\{DATE\}\}', $date
+# Read template as UTF-8
+$utf8 = New-Object System.Text.UTF8Encoding($false)
+$templateContent = [System.IO.File]::ReadAllText($template, (New-Object System.Text.UTF8Encoding($false)))
+$templateContent = $templateContent -replace '\{\{TITLE\}\}', $Title
+$templateContent = $templateContent -replace '\{\{DATE\}\}', $date
 
-$utf8Bom = New-Object System.Text.UTF8Encoding($true)
-[System.IO.File]::WriteAllText($filename, $content, $utf8Bom)
+# Write as UTF-8 without BOM
+[System.IO.File]::WriteAllText($filename, $templateContent, $utf8)
 
-Write-Host "已创建: $filename" -ForegroundColor Green
+Write-Host "Created: $filename" -ForegroundColor Green
 Start-Process "code" -ArgumentList $filename

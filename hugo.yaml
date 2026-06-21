@@ -1,7 +1,6 @@
-# Hugo 基础配置
 baseURL: "https://sukkk-zcy.github.io/"
 title: Sukkk's Blog
-copyright: "[©2026 Sukkk's Blog](https://sukkk-zcy.github.io/)"
+copyright: "©2026 Sukkk's Blog"
 theme: PaperMod
 languageCode: zh-cn
 
@@ -48,7 +47,7 @@ paginate: 8
 
 params:
   env: production
-  description: "Sukkk's Blog - 记录技术笔记和成长历程"
+  description: "Sukkk's Blog"
   author: Sukkk
   defaultTheme: dark
   ShowShareButtons: false
@@ -67,7 +66,7 @@ params:
 
   homeInfoParams:
     Title: "Hi, I'm Sukkk 👋"
-    Content: "一个热爱学习的开发者，记录技术笔记和成长历程。欢迎来到我的博客，这里主要记录了我的学习笔记、技术教程和成长历程。"
+    Content: "一个热爱学习的开发者，记录技术笔记和成长历程。欢迎来到我的博客。"
 
   socialIcons:
     - name: github
@@ -75,22 +74,22 @@ params:
       url: "https://github.com/Sukkk-zcy"
 
   fuseOpts:
-      isCaseSensitive: false
-      shouldSort: true
-      location: 0
-      distance: 1000
-      threshold: 0.4
-      minMatchCharLength: 0
-      keys: ["title", "permalink", "summary", "content"]
-      includeMatches: true
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+    includeMatches: true
 
   assets:
-      favicon: "favicon.svg"
-      favicon16x16: "favicon.svg"
-      favicon32x32: "favicon.svg"
-      apple_touch_icon: "favicon.svg"
-      safari_pinned_tab: "favicon.svg"
-      disableHLJS: true
+    favicon: "favicon.svg"
+    favicon16x16: "favicon.svg"
+    favicon32x32: "favicon.svg"
+    apple_touch_icon: "favicon.svg"
+    safari_pinned_tab: "favicon.svg"
+    disableHLJS: true
 
   giscus:
     repo: "Sukkk-zcy/Sukkk-zcy.github.io"

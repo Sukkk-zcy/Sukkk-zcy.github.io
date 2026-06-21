@@ -93,9 +93,9 @@ params:
 
   giscus:
     repo: "Sukkk-zcy/Sukkk-zcy.github.io"
-    repoId: ""
+    repoId: "R_kgDOTAOSug"
     category: "Announcements"
-    categoryId: ""
+    categoryId: "DIC_kwDOTAOSus4C_lyu"
     mapping: "pathname"
     strict: "0"
     reactionsEnabled: "1"

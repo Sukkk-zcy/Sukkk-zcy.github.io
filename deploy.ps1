@@ -3,7 +3,7 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 Write-Host "=== Step 1: Build ===" -ForegroundColor Cyan
 Remove-Item -Path "E:\bk\blog\public" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -Path "E:\bk\blog\resources" -Recurse -Force -ErrorAction SilentlyContinue
-hugo -D --gc --minify --baseURL "https://sukkk-zcy.github.io/"
+hugo -D --gc --baseURL "https://sukkk-zcy.github.io/"
 
 Write-Host "=== Step 2: Remove integrity hashes ===" -ForegroundColor Cyan
 $files = Get-ChildItem -Path "E:\bk\blog\public" -Filter "*.html" -Recurse

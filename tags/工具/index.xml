@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>工具 on Sukkk&#39;s Blog</title>
+    <link>https://sukkk-zcy.github.io/tags/%E5%B7%A5%E5%85%B7/</link>
+    <description>Recent content in 工具 on Sukkk&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <copyright>©2026 Sukkk&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Sun, 21 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://sukkk-zcy.github.io/tags/%E5%B7%A5%E5%85%B7/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>QSextend - Chrome浏览器扩展合集</title>
+      <link>https://sukkk-zcy.github.io/posts/qsextend-overview/</link>
+      <pubDate>Sun, 21 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/qsextend-overview/</guid>
+      <description>5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化</description>
+    </item>
+  </channel>
+</rss>

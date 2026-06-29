@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Blinker 开发入门指南 | Sukkk&#39;s Blog</title>
+<meta name="keywords" content="ESP32, 嵌入式, 物联网, Blinker">
+<meta name="description" content="Blinker开发规范，适合嵌入式开发者快速上手">
+<meta name="author" content="Sukkk">
+<link rel="canonical" href="https://sukkk-zcy.github.io/posts/blinker-getting-started/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ddd19700063bc32eae3281dbb422d2d847c9772dbccb6a41abf77fb437dd0ba2.css" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="apple-touch-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="mask-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://sukkk-zcy.github.io/posts/blinker-getting-started/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<script type="text/javascript"
+        async
+        src="https://cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[\[','\]\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<style>
+code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+    border: inherit;
+    color: #515151;
+}
+</style>
+<meta property="og:url" content="https://sukkk-zcy.github.io/posts/blinker-getting-started/">
+  <meta property="og:site_name" content="Sukkk&#39;s Blog">
+  <meta property="og:title" content="Blinker 开发入门指南">
+  <meta property="og:description" content="Blinker开发规范，适合嵌入式开发者快速上手">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-25T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-06-25T00:00:00+00:00">
+    <meta property="article:tag" content="ESP32">
+    <meta property="article:tag" content="嵌入式">
+    <meta property="article:tag" content="物联网">
+    <meta property="article:tag" content="Blinker">
+      <meta property="og:see_also" content="https://sukkk-zcy.github.io/posts/esp32-blinker-web-config/">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Blinker 开发入门指南">
+  <meta name="twitter:description" content="Blinker开发规范，适合嵌入式开发者快速上手">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://sukkk-zcy.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Blinker 开发入门指南",
+      "item": "https://sukkk-zcy.github.io/posts/blinker-getting-started/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Blinker 开发入门指南",
+  "name": "Blinker 开发入门指南",
+  "description": "Blinker开发规范，适合嵌入式开发者快速上手",
+  "keywords": [
+    "ESP32", "嵌入式", "物联网", "Blinker"
+  ],
+  "articleBody": "什么是 Blinker？ Blinker 是一套跨硬件、跨平台的物联网解决方案，提供 APP 端、设备端、服务器端支持，使用公有云服务进行数据传输存储。适用于智能家居、数据监测等场景。\nGitHub: https://github.com/blinker-iot/ 官网: https://diandeng.tech/ APP: 点灯科技 APP（iOS / Android） 许可证: MIT License 硬件平台支持 Blinker 目前支持三大主流开发板：\n平台 WiFi BLE NB-IoT GPRS ESP32 ✅ ✅ 内置 ✅ SIM7020/SIM7000 ✅ Air202 ESP8266 ✅ ✅ 外接透传模块 ✅ ✅ Arduino R4 ✅ AT固件 ✅ - - ESP32 凭借内置蓝牙和丰富的外设接口，是目前最推荐的入门选择。\n通信模式 WiFi 和蓝牙不能同时启用，通过宏定义切换：\n1#define WIFIMODE // 启用WiFi模式 2//#define BLEMODE // 启用蓝牙模式 3 4#if defined(WIFIMODE) 5 #define BLINKER_WIFI 6#endif 7#if defined(BLEMODE) 8 #define BLINKER_BLE 9#endif 10 11#include // 必须在通信模式宏定义之后 关键规则：#include 必须放在通信模式宏定义之后，否则编译会出错。\nWiFi 模式初始化：\n1Blinker.begin(auth, ssid, pswd); BLE 模式初始化（ESP32 内置蓝牙）：\n1Blinker.begin(); 程序结构：九大标准模块 Blinker 标准程序按以下顺序组织：\n程序版本备注 — 记录日期和功能 通信模式宏定义 — WIFIMODE / BLEMODE 切换 包含库 — #include 全局变量声明 — WiFi 信息、引脚、状态变量 组件声明 — 必须放在回调函数前面 回调函数 — APP 发来数据时由 Blinker.run() 调用 功能函数 — WiFi 掉线检测等 setup() 初始化 — 开机后只执行一次 loop() 主循环 — 循环执行到关机 这个结构清晰地分离了配置、声明和逻辑，是编写 Blinker 程序的基本骨架。\n组件：APP 端的交互元素 Blinker 提供丰富的内置组件：\n组件 类名 用途 按钮 BlinkerButton 开关、模式切换 滑块 BlinkerSlider 阈值、亮度、速度 数值 BlinkerNumber 显示传感器数据 文本 BlinkerText 显示字符串 RGB BlinkerRGB 颜色控制 摇杆 BlinkerJoystick 方向控制 开关 BlinkerSwitch 内置开关 声明示例：\n1BlinkerButton Button1(\"b1\"); // 键名 \"b1\"，对应APP中组件名 2BlinkerSlider Slider1(\"s1\"); // 键名 \"s1\" 3BlinkerNumber NUM1(\"abcd\"); // 键名 \"abcd\" 4BlinkerText Text1(\"1234\"); // 键名 \"1234\" 核心规则：组件声明必须放在回调函数前面，键名必须与 APP 中的组件名完全一致。\n回调函数：设备与 APP 的数据桥梁 按钮回调 1void button1_callback(const String\u0026 state) 2{ 3 if (state == \"tap\") { b1_state = !b1_state; } // 普通按键：反转 4 else if (state == \"on\") { b1_state = true; } // 开关：开启 5 else if (state == \"off\") { b1_state = false; } // 开关：关闭 6 else if (state == \"press\") { b1_state = true; } // 长按：开启 7 else if (state == \"pressup\") { b1_state = false; } // 松开：关闭 8 Button1.print(b1_state ? \"on\" : \"off\"); // 立即反馈到APP 9} 重要：不要简化按钮的五种处理，防止 APP 设置不同出现逻辑错误。\n滑块回调 1void slider1_callback(int32_t value) 2{ 3 s1_value = value; // 赋值全局变量即可 4} 注意：滑块不可在回调函数里调用 print，否则拖不动。\n注册回调 1void setup() 2{ 3 Button1.attach(button1_callback); 4 Slider1.attach(slider1_callback); 5 Blinker.attachHeartbeat(heartbeat); 6 Blinker.attachDataStorage(dataStorage); 7} 心跳包：APP 获取设备数据的核心机制 心跳包是 APP 获取设备数据的主要方式，间隔约 30 秒一次。\n1void heartbeat() 2{ 3 Button1.print(b1_state ? \"on\" : \"off\"); // 按钮：回调+心跳包双保险 4 Slider1.print(s1_value); // 滑块：仅心跳包 5 NUM1.print(100); // 数值：仅心跳包 6 Text1.print(\"Hello Blinker\"); // 文本：仅心跳包 7 Blinker.notify(\"页面数据已刷新\"); // APP内弹窗推送 8} 数据上报位置规则 数据类型 上报位置 原因 按钮状态 回调函数 + 心跳包 即时反馈 + 兜底 滑块值 仅心跳包 回调里 print 会拖不动 数值/文本 仅心跳包 统一管理 关键：print 必须放心跳包回调或按钮回调，不能放 loop()，否则触发 MQTT NOT ALIVE OR MESSAGE LIMIT 错误。\n数据存储与图表 生成传感器数据折线图表：\n1void dataStorage() 2{ 3 Blinker.dataStorage(\"data1\", random(0, 120)); 4} 5 6void setup() 7{ 8 Blinker.attachDataStorage(dataStorage); 9} 实时数据（RT_DATA） 实时数据每秒以上一次，适用于高频刷新场景。不支持文本组件，只支持数值组件。\n1void rtData() 2{ 3 Blinker.sendRtData(\"data1\", (int32_t)random(0, 120)); 4 Blinker.sendRtData(\"data2\", random(0, 120) / (float)1.5); 5 Blinker.printRtData(); // 刷新到 APP 6} 7 8void setup() 9{ 10 Blinker.attachRTData(rtData); 11} WiFi 掉线检测 WiFi 模式下必须实现掉线重启检测：\n1void wifiOfflineMonitor() 2{ 3 if (Blinker.connect()) { 4 offline_millis = 0; 5 offline_flag = false; 6 } 7 else if (!Blinker.connect() \u0026\u0026 millis() \u003e 180000) { 8 offline_flag = true; 9 } 10 11 if (millis() \u003e 180000 \u0026\u0026 offline_millis \u0026\u0026 millis() - offline_millis \u003e= 180000) { 12 ESP.restart(); // 掉线超三分钟重启 13 } 14} 在 loop() 中调用：\n1void loop() 2{ 3 Blinker.run(); 4 wifiOfflineMonitor(); 5} 调试与日志 1void setup() 2{ 3 Serial.begin(115200); 4 BLINKER_DEBUG.stream(Serial); // 调试信息输出到串口 5 BLINKER_DEBUG.debugAll(); // 开启所有调试信息 6 BLINKER_LOG(\"版本信息\"); // 打印日志 7} 常见错误排查 错误 原因 解决 MQTT NOT ALIVE OR MESSAGE LIMIT print 放在 loop() 中 移到心跳包回调或按钮回调 按钮状态不更新 APP 按钮类型与代码不匹配 保留五种状态处理 滑块拖动不灵敏 回调里调用了 print 滑块 print 只放心跳包 WiFi 连不上 非 2.4GHz / 密码错误 检查频段和密码 授权码错误 引号/空格问题 从点灯 APP 复制 ESP32 Web 配网 ESP32_Blinker_NET 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。\n工作流程：\n开机读取 EEPROM 中的 WiFi 配置 有配置则尝试连接，无配置则进入配网模式 手机连接热点 ESP32_Config，访问 192.168.4.1 在 Web 页面选择 WiFi、输入密码和授权码 保存后 ESP32 重启，自动连接 核心代码：\n1WIFIConnect wifiManager(\"ESP32_Config\"); 2 3void setup() { 4 Serial.begin(115200); 5 wifiManager.begin(); 6 if (wifiManager.isConnected()) { 7 Blinker.begin( 8 wifiManager.getAuth().c_str(), 9 wifiManager.getSSID().c_str(), \"\" 10 ); 11 } 12} 13 14void loop() { 15 wifiManager.loop(); 16 if (wifiManager.isConnected()) Blinker.run(); 17} 完整模板代码 以下是一个包含按钮、滑块、数值、文本、数据存储、心跳包、APP弹窗七大功能的完整模板：\n1#define NOTE \"Blinker 完整模板\" 2 3#define WIFIMODE 4 5#if defined(WIFIMODE) 6 #define BLINKER_WIFI 7#endif 8 9#include 10 11char ssid[] = \"WiFi名称\"; 12char pswd[] = \"WiFi密码\"; 13char auth[] = \"授权码\"; 14 15#define RELAYPIN_1 2 16bool b1_state = false; 17int s1_value = 0; 18 19BlinkerButton Button1(\"b1\"); 20BlinkerSlider Slider1(\"s1\"); 21BlinkerNumber NUM1(\"abcd\"); 22BlinkerText Text1(\"1234\"); 23 24void button1_callback(const String\u0026 state) 25{ 26 if (state == \"tap\") { b1_state = !b1_state; } 27 else if (state == \"on\") { b1_state = true; } 28 else if (state == \"off\") { b1_state = false; } 29 else if (state == \"press\") { b1_state = true; } 30 else if (state == \"pressup\") { b1_state = false; } 31 Button1.print(b1_state ? \"on\" : \"off\"); 32 digitalWrite(RELAYPIN_1, !b1_state); 33} 34 35void slider1_callback(int32_t value) { s1_value = value; } 36 37void heartbeat() 38{ 39 Button1.print(b1_state ? \"on\" : \"off\"); 40 Slider1.print(s1_value); 41 NUM1.print(100); 42 Text1.print(\"Hello Blinker\"); 43 Blinker.notify(\"页面数据已刷新\"); 44} 45 46void dataStorage() { Blinker.dataStorage(\"data1\", random(0, 120)); } 47 48void setup() 49{ 50 Serial.begin(115200); 51 BLINKER_DEBUG.stream(Serial); 52 BLINKER_DEBUG.debugAll(); 53 54 pinMode(RELAYPIN_1, OUTPUT); 55 Blinker.begin(auth, ssid, pswd); 56 57 Button1.attach(button1_callback); 58 Slider1.attach(slider1_callback); 59 Blinker.attachDataStorage(dataStorage); 60 Blinker.attachHeartbeat(heartbeat); 61} 62 63void loop() { Blinker.run(); } 总结 Blinker 以其简洁的 API、丰富的组件和跨平台支持，极大降低了物联网开发门槛。掌握以下核心要点即可快速上手：\n宏定义在前，头文件在后 — 通信模式决定编译路径 组件声明在回调前 — 否则绑定失败 print 不放 loop() — 否则触发 MQTT 限流 滑块回调不 print — 否则拖不动 按钮保留五种状态 — 防止 APP 模式不匹配 WiFi 掉线要检测 — 三分钟无响应自动重启 遵循这些规范，你就能用 Blinker 快速搭建出稳定可靠的物联网应用。\n",
+  "wordCount" : "2206",
+  "inLanguage": "zh",
+  "datePublished": "2026-06-25T00:00:00Z",
+  "dateModified": "2026-06-25T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Sukkk"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://sukkk-zcy.github.io/posts/blinker-getting-started/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sukkk's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://sukkk-zcy.github.io/favicon.svg"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://sukkk-zcy.github.io/" accesskey="h" title="Sukkk&#39;s Blog (Alt + H)">
+                <svg viewBox="0 0 64 64" width="32" height="32" style="border-radius:8px;vertical-align:middle;margin-right:6px">
+                    <rect width="64" height="64" rx="14" fill="#0f0f0f"/>
+                    <line x1="18" y1="18" x2="46" y2="46" stroke="#00d4ff" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="46" y1="18" x2="18" y2="46" stroke="#ff6b6b" stroke-width="8" stroke-linecap="round"/>
+                </svg>Sukkk&#39;s Blog</a>
+        </div>
+
+        <div class="theme-toggle-fixed" id="theme-toggle-fixed">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="https://sukkk-zcy.github.io/" title="Sukkk&#39;s Blog">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/research/" title="科研">
+                    <span>科研</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/archives/" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/about/" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Blinker 开发入门指南
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-25 00:00:00 +0000 UTC'>2026-06-25</span>&nbsp;·&nbsp;<span>5 分钟</span>&nbsp;·&nbsp;<span>Sukkk</span>
+
+</div>
+  </header> 
+
+  <div class="post-layout">
+    <aside class="post-toc-sidebar"><div class="toc">
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e4%bb%80%e4%b9%88%e6%98%af-blinker" aria-label="什么是 Blinker？">什么是 Blinker？</a></li>
+            <li>
+                <a href="#%e7%a1%ac%e4%bb%b6%e5%b9%b3%e5%8f%b0%e6%94%af%e6%8c%81" aria-label="硬件平台支持">硬件平台支持</a></li>
+            <li>
+                <a href="#%e9%80%9a%e4%bf%a1%e6%a8%a1%e5%bc%8f" aria-label="通信模式">通信模式</a></li>
+            <li>
+                <a href="#%e7%a8%8b%e5%ba%8f%e7%bb%93%e6%9e%84%e4%b9%9d%e5%a4%a7%e6%a0%87%e5%87%86%e6%a8%a1%e5%9d%97" aria-label="程序结构：九大标准模块">程序结构：九大标准模块</a></li>
+            <li>
+                <a href="#%e7%bb%84%e4%bb%b6app-%e7%ab%af%e7%9a%84%e4%ba%a4%e4%ba%92%e5%85%83%e7%b4%a0" aria-label="组件：APP 端的交互元素">组件：APP 端的交互元素</a></li>
+            <li>
+                <a href="#%e5%9b%9e%e8%b0%83%e5%87%bd%e6%95%b0%e8%ae%be%e5%a4%87%e4%b8%8e-app-%e7%9a%84%e6%95%b0%e6%8d%ae%e6%a1%a5%e6%a2%81" aria-label="回调函数：设备与 APP 的数据桥梁">回调函数：设备与 APP 的数据桥梁</a><ul>
+                    
+            <li>
+                <a href="#%e6%8c%89%e9%92%ae%e5%9b%9e%e8%b0%83" aria-label="按钮回调">按钮回调</a></li>
+            <li>
+                <a href="#%e6%bb%91%e5%9d%97%e5%9b%9e%e8%b0%83" aria-label="滑块回调">滑块回调</a></li>
+            <li>
+                <a href="#%e6%b3%a8%e5%86%8c%e5%9b%9e%e8%b0%83" aria-label="注册回调">注册回调</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e5%bf%83%e8%b7%b3%e5%8c%85app-%e8%8e%b7%e5%8f%96%e8%ae%be%e5%a4%87%e6%95%b0%e6%8d%ae%e7%9a%84%e6%a0%b8%e5%bf%83%e6%9c%ba%e5%88%b6" aria-label="心跳包：APP 获取设备数据的核心机制">心跳包：APP 获取设备数据的核心机制</a><ul>
+                    
+            <li>
+                <a href="#%e6%95%b0%e6%8d%ae%e4%b8%8a%e6%8a%a5%e4%bd%8d%e7%bd%ae%e8%a7%84%e5%88%99" aria-label="数据上报位置规则">数据上报位置规则</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e6%95%b0%e6%8d%ae%e5%ad%98%e5%82%a8%e4%b8%8e%e5%9b%be%e8%a1%a8" aria-label="数据存储与图表">数据存储与图表</a></li>
+            <li>
+                <a href="#%e5%ae%9e%e6%97%b6%e6%95%b0%e6%8d%aert_data" aria-label="实时数据（RT_DATA）">实时数据（RT_DATA）</a></li>
+            <li>
+                <a href="#wifi-%e6%8e%89%e7%ba%bf%e6%a3%80%e6%b5%8b" aria-label="WiFi 掉线检测">WiFi 掉线检测</a></li>
+            <li>
+                <a href="#%e8%b0%83%e8%af%95%e4%b8%8e%e6%97%a5%e5%bf%97" aria-label="调试与日志">调试与日志</a></li>
+            <li>
+                <a href="#%e5%b8%b8%e8%a7%81%e9%94%99%e8%af%af%e6%8e%92%e6%9f%a5" aria-label="常见错误排查">常见错误排查</a></li>
+            <li>
+                <a href="#esp32-web-%e9%85%8d%e7%bd%91" aria-label="ESP32 Web 配网">ESP32 Web 配网</a></li>
+            <li>
+                <a href="#%e5%ae%8c%e6%95%b4%e6%a8%a1%e6%9d%bf%e4%bb%a3%e7%a0%81" aria-label="完整模板代码">完整模板代码</a></li>
+            <li>
+                <a href="#%e6%80%bb%e7%bb%93" aria-label="总结">总结</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+    </aside>
+    <div class="post-content md-content"><h2 id="什么是-blinker">什么是 Blinker？<a hidden class="anchor" aria-hidden="true" href="#什么是-blinker">#</a></h2>
+<p>Blinker 是一套跨硬件、跨平台的物联网解决方案，提供 APP 端、设备端、服务器端支持，使用公有云服务进行数据传输存储。适用于智能家居、数据监测等场景。</p>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/blinker-iot/">https://github.com/blinker-iot/</a></li>
+<li><strong>官网</strong>: <a href="https://diandeng.tech/">https://diandeng.tech/</a></li>
+<li><strong>APP</strong>: 点灯科技 APP（iOS / Android）</li>
+<li><strong>许可证</strong>: MIT License</li>
+</ul>
+<h2 id="硬件平台支持">硬件平台支持<a hidden class="anchor" aria-hidden="true" href="#硬件平台支持">#</a></h2>
+<p>Blinker 目前支持三大主流开发板：</p>
+<table>
+	<thead>
+			<tr>
+					<th>平台</th>
+					<th>WiFi</th>
+					<th>BLE</th>
+					<th>NB-IoT</th>
+					<th>GPRS</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>ESP32</td>
+					<td>✅</td>
+					<td>✅ 内置</td>
+					<td>✅ SIM7020/SIM7000</td>
+					<td>✅ Air202</td>
+			</tr>
+			<tr>
+					<td>ESP8266</td>
+					<td>✅</td>
+					<td>✅ 外接透传模块</td>
+					<td>✅</td>
+					<td>✅</td>
+			</tr>
+			<tr>
+					<td>Arduino R4</td>
+					<td>✅ AT固件</td>
+					<td>✅</td>
+					<td>-</td>
+					<td>-</td>
+			</tr>
+	</tbody>
+</table>
+<p>ESP32 凭借内置蓝牙和丰富的外设接口，是目前最推荐的入门选择。</p>
+<h2 id="通信模式">通信模式<a hidden class="anchor" aria-hidden="true" href="#通信模式">#</a></h2>
+<p>WiFi 和蓝牙<strong>不能同时启用</strong>，通过宏定义切换：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#define WIFIMODE   </span><span class="c1">// 启用WiFi模式
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="c1">//#define BLEMODE  // 启用蓝牙模式
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="cp">#if defined(WIFIMODE)
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="cp">#define BLINKER_WIFI
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="cp">#if defined(BLEMODE)
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="cp">#define BLINKER_BLE
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;Blinker.h&gt;</span><span class="cp">  </span><span class="c1">// 必须在通信模式宏定义之后
+</span></span></span></code></pre></div><p><strong>关键规则</strong>：<code>#include &lt;Blinker.h&gt;</code> 必须放在通信模式宏定义之后，否则编译会出错。</p>
+<p>WiFi 模式初始化：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">Blinker</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">ssid</span><span class="p">,</span> <span class="n">pswd</span><span class="p">);</span>
+</span></span></code></pre></div><p>BLE 模式初始化（ESP32 内置蓝牙）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">Blinker</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+</span></span></code></pre></div><h2 id="程序结构九大标准模块">程序结构：九大标准模块<a hidden class="anchor" aria-hidden="true" href="#程序结构九大标准模块">#</a></h2>
+<p>Blinker 标准程序按以下顺序组织：</p>
+<ol>
+<li><strong>程序版本备注</strong> — 记录日期和功能</li>
+<li><strong>通信模式宏定义</strong> — WIFIMODE / BLEMODE 切换</li>
+<li><strong>包含库</strong> — <code>#include &lt;Blinker.h&gt;</code></li>
+<li><strong>全局变量声明</strong> — WiFi 信息、引脚、状态变量</li>
+<li><strong>组件声明</strong> — 必须放在回调函数前面</li>
+<li><strong>回调函数</strong> — APP 发来数据时由 <code>Blinker.run()</code> 调用</li>
+<li><strong>功能函数</strong> — WiFi 掉线检测等</li>
+<li><strong>setup() 初始化</strong> — 开机后只执行一次</li>
+<li><strong>loop() 主循环</strong> — 循环执行到关机</li>
+</ol>
+<p>这个结构清晰地分离了配置、声明和逻辑，是编写 Blinker 程序的基本骨架。</p>
+<h2 id="组件app-端的交互元素">组件：APP 端的交互元素<a hidden class="anchor" aria-hidden="true" href="#组件app-端的交互元素">#</a></h2>
+<p>Blinker 提供丰富的内置组件：</p>
+<table>
+	<thead>
+			<tr>
+					<th>组件</th>
+					<th>类名</th>
+					<th>用途</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>按钮</td>
+					<td><code>BlinkerButton</code></td>
+					<td>开关、模式切换</td>
+			</tr>
+			<tr>
+					<td>滑块</td>
+					<td><code>BlinkerSlider</code></td>
+					<td>阈值、亮度、速度</td>
+			</tr>
+			<tr>
+					<td>数值</td>
+					<td><code>BlinkerNumber</code></td>
+					<td>显示传感器数据</td>
+			</tr>
+			<tr>
+					<td>文本</td>
+					<td><code>BlinkerText</code></td>
+					<td>显示字符串</td>
+			</tr>
+			<tr>
+					<td>RGB</td>
+					<td><code>BlinkerRGB</code></td>
+					<td>颜色控制</td>
+			</tr>
+			<tr>
+					<td>摇杆</td>
+					<td><code>BlinkerJoystick</code></td>
+					<td>方向控制</td>
+			</tr>
+			<tr>
+					<td>开关</td>
+					<td><code>BlinkerSwitch</code></td>
+					<td>内置开关</td>
+			</tr>
+	</tbody>
+</table>
+<p>声明示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">BlinkerButton</span> <span class="nf">Button1</span><span class="p">(</span><span class="s">&#34;b1&#34;</span><span class="p">);</span>      <span class="c1">// 键名 &#34;b1&#34;，对应APP中组件名
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="n">BlinkerSlider</span> <span class="nf">Slider1</span><span class="p">(</span><span class="s">&#34;s1&#34;</span><span class="p">);</span>      <span class="c1">// 键名 &#34;s1&#34;
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="n">BlinkerNumber</span> <span class="nf">NUM1</span><span class="p">(</span><span class="s">&#34;abcd&#34;</span><span class="p">);</span>       <span class="c1">// 键名 &#34;abcd&#34;
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="n">BlinkerText</span> <span class="nf">Text1</span><span class="p">(</span><span class="s">&#34;1234&#34;</span><span class="p">);</span>        <span class="c1">// 键名 &#34;1234&#34;
+</span></span></span></code></pre></div><p><strong>核心规则</strong>：组件声明<strong>必须放在回调函数前面</strong>，键名必须与 APP 中的组件名完全一致。</p>
+<h2 id="回调函数设备与-app-的数据桥梁">回调函数：设备与 APP 的数据桥梁<a hidden class="anchor" aria-hidden="true" href="#回调函数设备与-app-的数据桥梁">#</a></h2>
+<h3 id="按钮回调">按钮回调<a hidden class="anchor" aria-hidden="true" href="#按钮回调">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">button1_callback</span><span class="p">(</span><span class="k">const</span> <span class="n">String</span><span class="o">&amp;</span> <span class="n">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;tap&#34;</span><span class="p">)</span>      <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="o">!</span><span class="n">b1_state</span><span class="p">;</span> <span class="p">}</span>  <span class="c1">// 普通按键：反转
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;on&#34;</span><span class="p">)</span>  <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>       <span class="c1">// 开关：开启
+</span></span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;off&#34;</span><span class="p">)</span> <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="p">}</span>      <span class="c1">// 开关：关闭
+</span></span></span><span class="line"><span class="ln">6</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;press&#34;</span><span class="p">)</span>   <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>   <span class="c1">// 长按：开启
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;pressup&#34;</span><span class="p">)</span> <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="p">}</span>  <span class="c1">// 松开：关闭
+</span></span></span><span class="line"><span class="ln">8</span><span class="cl">  <span class="n">Button1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">b1_state</span> <span class="o">?</span> <span class="s">&#34;on&#34;</span> <span class="o">:</span> <span class="s">&#34;off&#34;</span><span class="p">);</span>  <span class="c1">// 立即反馈到APP
+</span></span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>重要</strong>：不要简化按钮的五种处理，防止 APP 设置不同出现逻辑错误。</p>
+<h3 id="滑块回调">滑块回调<a hidden class="anchor" aria-hidden="true" href="#滑块回调">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">slider1_callback</span><span class="p">(</span><span class="kt">int32_t</span> <span class="n">value</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">s1_value</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>  <span class="c1">// 赋值全局变量即可
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p><strong>注意</strong>：滑块<strong>不可在回调函数里调用 print</strong>，否则拖不动。</p>
+<h3 id="注册回调">注册回调<a hidden class="anchor" aria-hidden="true" href="#注册回调">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">Button1</span><span class="p">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button1_callback</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="n">Slider1</span><span class="p">.</span><span class="n">attach</span><span class="p">(</span><span class="n">slider1_callback</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">attachHeartbeat</span><span class="p">(</span><span class="n">heartbeat</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">6</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">attachDataStorage</span><span class="p">(</span><span class="n">dataStorage</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="心跳包app-获取设备数据的核心机制">心跳包：APP 获取设备数据的核心机制<a hidden class="anchor" aria-hidden="true" href="#心跳包app-获取设备数据的核心机制">#</a></h2>
+<p>心跳包是 APP 获取设备数据的主要方式，<strong>间隔约 30 秒一次</strong>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">heartbeat</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">Button1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">b1_state</span> <span class="o">?</span> <span class="s">&#34;on&#34;</span> <span class="o">:</span> <span class="s">&#34;off&#34;</span><span class="p">);</span>   <span class="c1">// 按钮：回调+心跳包双保险
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="n">Slider1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">s1_value</span><span class="p">);</span>                   <span class="c1">// 滑块：仅心跳包
+</span></span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="n">NUM1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>                           <span class="c1">// 数值：仅心跳包
+</span></span></span><span class="line"><span class="ln">6</span><span class="cl">  <span class="n">Text1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&#34;Hello Blinker&#34;</span><span class="p">);</span>              <span class="c1">// 文本：仅心跳包
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="s">&#34;页面数据已刷新&#34;</span><span class="p">);</span>           <span class="c1">// APP内弹窗推送
+</span></span></span><span class="line"><span class="ln">8</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="数据上报位置规则">数据上报位置规则<a hidden class="anchor" aria-hidden="true" href="#数据上报位置规则">#</a></h3>
+<table>
+	<thead>
+			<tr>
+					<th>数据类型</th>
+					<th>上报位置</th>
+					<th>原因</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>按钮状态</td>
+					<td>回调函数 + 心跳包</td>
+					<td>即时反馈 + 兜底</td>
+			</tr>
+			<tr>
+					<td>滑块值</td>
+					<td>仅心跳包</td>
+					<td>回调里 print 会拖不动</td>
+			</tr>
+			<tr>
+					<td>数值/文本</td>
+					<td>仅心跳包</td>
+					<td>统一管理</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>关键</strong>：<code>print</code> 必须放心跳包回调或按钮回调，<strong>不能放 loop()</strong>，否则触发 <code>MQTT NOT ALIVE OR MESSAGE LIMIT</code> 错误。</p>
+<h2 id="数据存储与图表">数据存储与图表<a hidden class="anchor" aria-hidden="true" href="#数据存储与图表">#</a></h2>
+<p>生成传感器数据折线图表：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">dataStorage</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">dataStorage</span><span class="p">(</span><span class="s">&#34;data1&#34;</span><span class="p">,</span> <span class="n">random</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">120</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl">
+</span></span><span class="line"><span class="ln">6</span><span class="cl"><span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">8</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">attachDataStorage</span><span class="p">(</span><span class="n">dataStorage</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">9</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="实时数据rt_data">实时数据（RT_DATA）<a hidden class="anchor" aria-hidden="true" href="#实时数据rt_data">#</a></h2>
+<p>实时数据每秒以上一次，适用于高频刷新场景。<strong>不支持文本组件，只支持数值组件</strong>。</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kt">void</span> <span class="nf">rtData</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">sendRtData</span><span class="p">(</span><span class="s">&#34;data1&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int32_t</span><span class="p">)</span><span class="n">random</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">120</span><span class="p">));</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">sendRtData</span><span class="p">(</span><span class="s">&#34;data2&#34;</span><span class="p">,</span> <span class="n">random</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="mf">1.5</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">printRtData</span><span class="p">();</span>  <span class="c1">// 刷新到 APP
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">attachRTData</span><span class="p">(</span><span class="n">rtData</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="wifi-掉线检测">WiFi 掉线检测<a hidden class="anchor" aria-hidden="true" href="#wifi-掉线检测">#</a></h2>
+<p>WiFi 模式下必须实现掉线重启检测：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="kt">void</span> <span class="nf">wifiOfflineMonitor</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">Blinker</span><span class="p">.</span><span class="n">connect</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="n">offline_millis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="n">offline_flag</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">Blinker</span><span class="p">.</span><span class="n">connect</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">millis</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">180000</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">    <span class="n">offline_flag</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">  
+</span></span><span class="line"><span class="ln">11</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">millis</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">180000</span> <span class="o">&amp;&amp;</span> <span class="n">offline_millis</span> <span class="o">&amp;&amp;</span> <span class="n">millis</span><span class="p">()</span> <span class="o">-</span> <span class="n">offline_millis</span> <span class="o">&gt;=</span> <span class="mi">180000</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl">    <span class="n">ESP</span><span class="p">.</span><span class="n">restart</span><span class="p">();</span>  <span class="c1">// 掉线超三分钟重启
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><p>在 <code>loop()</code> 中调用：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">loop</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="n">wifiOfflineMonitor</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">5</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="调试与日志">调试与日志<a hidden class="anchor" aria-hidden="true" href="#调试与日志">#</a></h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln">1</span><span class="cl"><span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">3</span><span class="cl">  <span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">4</span><span class="cl">  <span class="n">BLINKER_DEBUG</span><span class="p">.</span><span class="n">stream</span><span class="p">(</span><span class="n">Serial</span><span class="p">);</span>     <span class="c1">// 调试信息输出到串口
+</span></span></span><span class="line"><span class="ln">5</span><span class="cl">  <span class="n">BLINKER_DEBUG</span><span class="p">.</span><span class="n">debugAll</span><span class="p">();</span>         <span class="c1">// 开启所有调试信息
+</span></span></span><span class="line"><span class="ln">6</span><span class="cl">  <span class="n">BLINKER_LOG</span><span class="p">(</span><span class="s">&#34;版本信息&#34;</span><span class="p">);</span>           <span class="c1">// 打印日志
+</span></span></span><span class="line"><span class="ln">7</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="常见错误排查">常见错误排查<a hidden class="anchor" aria-hidden="true" href="#常见错误排查">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>错误</th>
+					<th>原因</th>
+					<th>解决</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>MQTT NOT ALIVE OR MESSAGE LIMIT</code></td>
+					<td>print 放在 loop() 中</td>
+					<td>移到心跳包回调或按钮回调</td>
+			</tr>
+			<tr>
+					<td>按钮状态不更新</td>
+					<td>APP 按钮类型与代码不匹配</td>
+					<td>保留五种状态处理</td>
+			</tr>
+			<tr>
+					<td>滑块拖动不灵敏</td>
+					<td>回调里调用了 print</td>
+					<td>滑块 print 只放心跳包</td>
+			</tr>
+			<tr>
+					<td>WiFi 连不上</td>
+					<td>非 2.4GHz / 密码错误</td>
+					<td>检查频段和密码</td>
+			</tr>
+			<tr>
+					<td>授权码错误</td>
+					<td>引号/空格问题</td>
+					<td>从点灯 APP 复制</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="esp32-web-配网">ESP32 Web 配网<a hidden class="anchor" aria-hidden="true" href="#esp32-web-配网">#</a></h2>
+<p><code>ESP32_Blinker_NET</code> 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。</p>
+<p><strong>工作流程</strong>：</p>
+<ol>
+<li>开机读取 EEPROM 中的 WiFi 配置</li>
+<li>有配置则尝试连接，无配置则进入配网模式</li>
+<li>手机连接热点 <code>ESP32_Config</code>，访问 <code>192.168.4.1</code></li>
+<li>在 Web 页面选择 WiFi、输入密码和授权码</li>
+<li>保存后 ESP32 重启，自动连接</li>
+</ol>
+<p><strong>核心代码</strong>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="n">WIFIConnect</span> <span class="nf">wifiManager</span><span class="p">(</span><span class="s">&#34;ESP32_Config&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl">    <span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">    <span class="n">wifiManager</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">wifiManager</span><span class="p">.</span><span class="n">isConnected</span><span class="p">())</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl">        <span class="n">Blinker</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">            <span class="n">wifiManager</span><span class="p">.</span><span class="n">getAuth</span><span class="p">().</span><span class="n">c_str</span><span class="p">(),</span>
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">            <span class="n">wifiManager</span><span class="p">.</span><span class="n">getSSID</span><span class="p">().</span><span class="n">c_str</span><span class="p">(),</span> <span class="s">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">10</span><span class="cl">        <span class="p">);</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl">
+</span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="kt">void</span> <span class="nf">loop</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="ln">15</span><span class="cl">    <span class="n">wifiManager</span><span class="p">.</span><span class="n">loop</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">16</span><span class="cl">    <span class="k">if</span> <span class="p">(</span><span class="n">wifiManager</span><span class="p">.</span><span class="n">isConnected</span><span class="p">())</span> <span class="n">Blinker</span><span class="p">.</span><span class="n">run</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="完整模板代码">完整模板代码<a hidden class="anchor" aria-hidden="true" href="#完整模板代码">#</a></h2>
+<p>以下是一个包含按钮、滑块、数值、文本、数据存储、心跳包、APP弹窗七大功能的完整模板：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="cp">#define NOTE &#34;Blinker 完整模板&#34;
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="cp">#define WIFIMODE
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="cp">#if defined(WIFIMODE)
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl">    <span class="cp">#define BLINKER_WIFI
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="cp">#endif
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;Blinker.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl">
+</span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="kt">char</span> <span class="n">ssid</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&#34;WiFi名称&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="kt">char</span> <span class="n">pswd</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&#34;WiFi密码&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="kt">char</span> <span class="n">auth</span><span class="p">[]</span> <span class="o">=</span> <span class="s">&#34;授权码&#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">14</span><span class="cl">
+</span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="cp">#define RELAYPIN_1 2
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="kt">bool</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="kt">int</span> <span class="n">s1_value</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="ln">18</span><span class="cl">
+</span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="n">BlinkerButton</span> <span class="nf">Button1</span><span class="p">(</span><span class="s">&#34;b1&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="n">BlinkerSlider</span> <span class="nf">Slider1</span><span class="p">(</span><span class="s">&#34;s1&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="n">BlinkerNumber</span> <span class="nf">NUM1</span><span class="p">(</span><span class="s">&#34;abcd&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="n">BlinkerText</span> <span class="nf">Text1</span><span class="p">(</span><span class="s">&#34;1234&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">23</span><span class="cl">
+</span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="kt">void</span> <span class="nf">button1_callback</span><span class="p">(</span><span class="k">const</span> <span class="n">String</span><span class="o">&amp;</span> <span class="n">state</span><span class="p">)</span>
+</span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">26</span><span class="cl">  <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;tap&#34;</span><span class="p">)</span>      <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="o">!</span><span class="n">b1_state</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">27</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;on&#34;</span><span class="p">)</span>  <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">28</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;off&#34;</span><span class="p">)</span> <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">29</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;press&#34;</span><span class="p">)</span>   <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">30</span><span class="cl">  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="s">&#34;pressup&#34;</span><span class="p">)</span> <span class="p">{</span> <span class="n">b1_state</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">31</span><span class="cl">  <span class="n">Button1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">b1_state</span> <span class="o">?</span> <span class="s">&#34;on&#34;</span> <span class="o">:</span> <span class="s">&#34;off&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">32</span><span class="cl">  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">RELAYPIN_1</span><span class="p">,</span> <span class="o">!</span><span class="n">b1_state</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">34</span><span class="cl">
+</span></span><span class="line"><span class="ln">35</span><span class="cl"><span class="kt">void</span> <span class="nf">slider1_callback</span><span class="p">(</span><span class="kt">int32_t</span> <span class="n">value</span><span class="p">)</span> <span class="p">{</span> <span class="n">s1_value</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">36</span><span class="cl">
+</span></span><span class="line"><span class="ln">37</span><span class="cl"><span class="kt">void</span> <span class="nf">heartbeat</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">38</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">39</span><span class="cl">  <span class="n">Button1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">b1_state</span> <span class="o">?</span> <span class="s">&#34;on&#34;</span> <span class="o">:</span> <span class="s">&#34;off&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">40</span><span class="cl">  <span class="n">Slider1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">s1_value</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">41</span><span class="cl">  <span class="n">NUM1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">42</span><span class="cl">  <span class="n">Text1</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="s">&#34;Hello Blinker&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">43</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">notify</span><span class="p">(</span><span class="s">&#34;页面数据已刷新&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">44</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">45</span><span class="cl">
+</span></span><span class="line"><span class="ln">46</span><span class="cl"><span class="kt">void</span> <span class="nf">dataStorage</span><span class="p">()</span> <span class="p">{</span> <span class="n">Blinker</span><span class="p">.</span><span class="n">dataStorage</span><span class="p">(</span><span class="s">&#34;data1&#34;</span><span class="p">,</span> <span class="n">random</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">120</span><span class="p">));</span> <span class="p">}</span>
+</span></span><span class="line"><span class="ln">47</span><span class="cl">
+</span></span><span class="line"><span class="ln">48</span><span class="cl"><span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+</span></span><span class="line"><span class="ln">49</span><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="ln">50</span><span class="cl">  <span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">51</span><span class="cl">  <span class="n">BLINKER_DEBUG</span><span class="p">.</span><span class="n">stream</span><span class="p">(</span><span class="n">Serial</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">52</span><span class="cl">  <span class="n">BLINKER_DEBUG</span><span class="p">.</span><span class="n">debugAll</span><span class="p">();</span>
+</span></span><span class="line"><span class="ln">53</span><span class="cl">
+</span></span><span class="line"><span class="ln">54</span><span class="cl">  <span class="n">pinMode</span><span class="p">(</span><span class="n">RELAYPIN_1</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">55</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">auth</span><span class="p">,</span> <span class="n">ssid</span><span class="p">,</span> <span class="n">pswd</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">56</span><span class="cl">
+</span></span><span class="line"><span class="ln">57</span><span class="cl">  <span class="n">Button1</span><span class="p">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button1_callback</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">58</span><span class="cl">  <span class="n">Slider1</span><span class="p">.</span><span class="n">attach</span><span class="p">(</span><span class="n">slider1_callback</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">59</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">attachDataStorage</span><span class="p">(</span><span class="n">dataStorage</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">60</span><span class="cl">  <span class="n">Blinker</span><span class="p">.</span><span class="n">attachHeartbeat</span><span class="p">(</span><span class="n">heartbeat</span><span class="p">);</span>
+</span></span><span class="line"><span class="ln">61</span><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="ln">62</span><span class="cl">
+</span></span><span class="line"><span class="ln">63</span><span class="cl"><span class="kt">void</span> <span class="nf">loop</span><span class="p">()</span> <span class="p">{</span> <span class="n">Blinker</span><span class="p">.</span><span class="n">run</span><span class="p">();</span> <span class="p">}</span>
+</span></span></code></pre></div><h2 id="总结">总结<a hidden class="anchor" aria-hidden="true" href="#总结">#</a></h2>
+<p>Blinker 以其简洁的 API、丰富的组件和跨平台支持，极大降低了物联网开发门槛。掌握以下核心要点即可快速上手：</p>
+<ol>
+<li><strong>宏定义在前，头文件在后</strong> — 通信模式决定编译路径</li>
+<li><strong>组件声明在回调前</strong> — 否则绑定失败</li>
+<li><strong>print 不放 loop()</strong> — 否则触发 MQTT 限流</li>
+<li><strong>滑块回调不 print</strong> — 否则拖不动</li>
+<li><strong>按钮保留五种状态</strong> — 防止 APP 模式不匹配</li>
+<li><strong>WiFi 掉线要检测</strong> — 三分钟无响应自动重启</li>
+</ol>
+<p>遵循这些规范，你就能用 Blinker 快速搭建出稳定可靠的物联网应用。</p>
+
+
+    </div>
+<aside class="post-series-sidebar">
+    <div class="series-title">Blinker 开发教程</div>
+    <ul class="series-list">
+        <li class="active">
+            <a href="https://sukkk-zcy.github.io/posts/blinker-getting-started/">Blinker 开发入门指南</a>
+        </li>
+        <li>
+            <a href="https://sukkk-zcy.github.io/posts/esp32-blinker-web-config/">ESP32 Web 配网实战</a>
+        </li>
+    </ul>
+</aside>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://sukkk-zcy.github.io/tags/esp32/">ESP32</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/%E5%B5%8C%E5%85%A5%E5%BC%8F/">嵌入式</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/%E7%89%A9%E8%81%94%E7%BD%91/">物联网</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/blinker/">Blinker</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://sukkk-zcy.github.io/posts/nushell-starship-guide/">
+    <span class="title">« 上一页</span>
+    <span>Nushell &#43; Starship 终端环境配置指南</span>
+  </a>
+  <a class="next" href="https://sukkk-zcy.github.io/posts/esp32-blinker-web-config/">
+    <span class="title">下一页 »</span>
+    <span>ESP32 Web 配网实战</span>
+  </a>
+</nav>
+
+  </footer><div id="tw-comment"></div>
+<script>
+    const getStoredTheme = () => localStorage.getItem("pref-theme") === "light" ? "light" : "dark";
+    const setGiscusTheme = () => {
+        const sendMessage = (message) => {
+            const iframe = document.querySelector('iframe.giscus-frame');
+            if (iframe) {
+                iframe.contentWindow.postMessage({giscus: message}, 'https://giscus.app');
+            }
+        }
+        sendMessage({setConfig: {theme: getStoredTheme()}})
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const giscusAttributes = {
+            "src": "https://giscus.app/client.js",
+            "data-repo": "Sukkk-zcy\/Sukkk-zcy.github.io",
+            "data-repo-id": "R_kgDOTAOSug",
+            "data-category": "Announcements",
+            "data-category-id": "DIC_kwDOTAOSus4C_lyu",
+            "data-mapping": "pathname",
+            "data-strict": "0",
+            "data-reactions-enabled": "1",
+            "data-emit-metadata": "0",
+            "data-input-position": "bottom",
+            "data-theme": getStoredTheme(),
+            "data-lang": "zh-CN",
+            "data-loading": "lazy",
+            "crossorigin": "anonymous",
+        };
+
+        const giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(
+                ([key, value]) => giscusScript.setAttribute(key, value));
+        document.querySelector("#tw-comment").appendChild(giscusScript);
+
+        const themeSwitcher = document.querySelector("#theme-toggle");
+        if (themeSwitcher) {
+            themeSwitcher.addEventListener("click", setGiscusTheme);
+        }
+        const themeFloatSwitcher = document.querySelector("#theme-toggle-float");
+        if (themeFloatSwitcher) {
+            themeFloatSwitcher.addEventListener("click", setGiscusTheme);
+        }
+    });
+</script>
+
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>©2026 Sukkk&rsquo;s Blog</span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

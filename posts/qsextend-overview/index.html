@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>QSextend - Chrome浏览器扩展合集 | Sukkk&#39;s Blog</title>
+<meta name="keywords" content="Chrome扩展, 工具">
+<meta name="description" content="5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化">
+<meta name="author" content="Sukkk">
+<link rel="canonical" href="https://sukkk-zcy.github.io/posts/qsextend-overview/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ddd19700063bc32eae3281dbb422d2d847c9772dbccb6a41abf77fb437dd0ba2.css" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="apple-touch-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="mask-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://sukkk-zcy.github.io/posts/qsextend-overview/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<script type="text/javascript"
+        async
+        src="https://cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[\[','\]\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<style>
+code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+    border: inherit;
+    color: #515151;
+}
+</style>
+<meta property="og:url" content="https://sukkk-zcy.github.io/posts/qsextend-overview/">
+  <meta property="og:site_name" content="Sukkk&#39;s Blog">
+  <meta property="og:title" content="QSextend - Chrome浏览器扩展合集">
+  <meta property="og:description" content="5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-21T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-06-21T00:00:00+00:00">
+    <meta property="article:tag" content="Chrome扩展">
+    <meta property="article:tag" content="工具">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="QSextend - Chrome浏览器扩展合集">
+  <meta name="twitter:description" content="5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://sukkk-zcy.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "QSextend - Chrome浏览器扩展合集",
+      "item": "https://sukkk-zcy.github.io/posts/qsextend-overview/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "QSextend - Chrome浏览器扩展合集",
+  "name": "QSextend - Chrome浏览器扩展合集",
+  "description": "5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化",
+  "keywords": [
+    "Chrome扩展", "工具"
+  ],
+  "articleBody": "前言 QSextend 是一个 Chrome 浏览器扩展合集，包含 5 款针对特定场景开发的实用工具，涵盖自动化操作、快捷键增强、倒计时提醒、监控检测和界面优化。\n下载地址： QSextend-v1.4.zip\n安装方式 解压下载的压缩包 打开 Chrome 浏览器，访问 chrome://extensions/ 开启右上角「开发者模式」 点击「加载已解压的扩展程序」，选择对应扩展文件夹 扩展一览 扩展 版本 说明 AutoMouseRelease v1.3 自动任务领取，三坐标循环点击抢单 ClockPro v1.3 多功能倒计时提醒，进度条预警 + 自动提交 SandMonitor v1.4 沙子关键词监控，检测关键词组合并提醒记录 SpeedKey v1.3 答题快捷键增强，A/S自动回车，D+数字快速选择 label-optimizer v1.0 做题界面优化助手，隐藏多余元素最大化图片展示空间 AutoMouseRelease v1.3 自动任务领取扩展，设置三个坐标点自动循环点击。\n核心功能：\n三坐标点击：查询、领取、确定，支持点选和手动输入 自动循环：按设定间隔和延迟执行点击序列 参数校验：查询间隔和领取延迟最低 300ms 毛玻璃 UI，平滑动画，折叠展开 面板可拖拽，位置自动保存 使用方式： 点击扩展图标注入控制面板，点击「点选」后点击页面对应位置设置坐标，调整参数后点击「开始」。\nClockPro v1.3 倒计时提醒扩展，监听网络请求自动启动倒计时，支持进度条预警和自动提交。\n核心功能：\n监听特定请求自动启动倒计时 预警进度条：剩余指定秒数时顶部显示红色进度条 自动提交：剩余指定秒数时自动模拟回车 面板可拖拽、可缩放，配置通过 Chrome Sync 多设备同步 参数说明：\n参数 默认值 说明 总倒计时 60s 倒计时总时长 预警提醒秒数 10s 剩余多少秒触发预警 自动提交触发秒数 5s 剩余多少秒自动按回车 SandMonitor v1.4 沙子关键词监控扩展，实时检测页面中的关键词组合并提醒记录。\n核心功能：\n实时监控页面文本中的 HW、ZZ、1688 关键词 触发规则：HW×2 / HW+ZZ / HW+1688 任意满足即弹窗 红色顶部横幅提醒，6 秒后自动消失 自动记录触发历史，支持按任务包分组、复制链接 F2 快捷键手动记录当前页面 SpeedKey v1.3 答题快捷键增强扩展，专为答题场景设计。\n核心功能：\nA 键：按下后延迟自动触发回车 S 键：按下后延迟自动触发回车（独立延迟） D+1~8：按下 D 键后按数字键，自动完成 D+数字+回车序列 每个功能支持独立开关和延迟调节（0~1000ms） label-optimizer v1.0 做题界面优化助手，用于优化做题界面布局，最大化图片和数据展示空间。\n核心功能：\n隐藏左侧菜单栏和顶部导航按钮 最大化商品图片显示区域 优化数据面板布局，压缩顶部 header 高度 悬浮按钮 / 扩展图标 / Ctrl+Shift+O 快捷键切换 技术栈 Chrome Extension Manifest V3 Content Script + Background Service Worker Chrome Storage API 纯 JavaScript，无外部依赖 许可证 仅供学习和个人使用。\n",
+  "wordCount" : "977",
+  "inLanguage": "zh",
+  "datePublished": "2026-06-21T00:00:00Z",
+  "dateModified": "2026-06-21T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Sukkk"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://sukkk-zcy.github.io/posts/qsextend-overview/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sukkk's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://sukkk-zcy.github.io/favicon.svg"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://sukkk-zcy.github.io/" accesskey="h" title="Sukkk&#39;s Blog (Alt + H)">
+                <svg viewBox="0 0 64 64" width="32" height="32" style="border-radius:8px;vertical-align:middle;margin-right:6px">
+                    <rect width="64" height="64" rx="14" fill="#0f0f0f"/>
+                    <line x1="18" y1="18" x2="46" y2="46" stroke="#00d4ff" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="46" y1="18" x2="18" y2="46" stroke="#ff6b6b" stroke-width="8" stroke-linecap="round"/>
+                </svg>Sukkk&#39;s Blog</a>
+        </div>
+
+        <div class="theme-toggle-fixed" id="theme-toggle-fixed">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="https://sukkk-zcy.github.io/" title="Sukkk&#39;s Blog">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/research/" title="科研">
+                    <span>科研</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/archives/" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/about/" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      QSextend - Chrome浏览器扩展合集
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-21 00:00:00 +0000 UTC'>2026-06-21</span>&nbsp;·&nbsp;<span>2 分钟</span>&nbsp;·&nbsp;<span>Sukkk</span>
+
+</div>
+  </header> 
+
+  <div class="post-layout">
+    <aside class="post-toc-sidebar"><div class="toc">
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e5%89%8d%e8%a8%80" aria-label="前言">前言</a></li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85%e6%96%b9%e5%bc%8f" aria-label="安装方式">安装方式</a></li>
+            <li>
+                <a href="#%e6%89%a9%e5%b1%95%e4%b8%80%e8%a7%88" aria-label="扩展一览">扩展一览</a></li>
+            <li>
+                <a href="#automouserelease-v13" aria-label="AutoMouseRelease v1.3">AutoMouseRelease v1.3</a></li>
+            <li>
+                <a href="#clockpro-v13" aria-label="ClockPro v1.3">ClockPro v1.3</a></li>
+            <li>
+                <a href="#sandmonitor-v14" aria-label="SandMonitor v1.4">SandMonitor v1.4</a></li>
+            <li>
+                <a href="#speedkey-v13" aria-label="SpeedKey v1.3">SpeedKey v1.3</a></li>
+            <li>
+                <a href="#label-optimizer-v10" aria-label="label-optimizer v1.0">label-optimizer v1.0</a></li>
+            <li>
+                <a href="#%e6%8a%80%e6%9c%af%e6%a0%88" aria-label="技术栈">技术栈</a></li>
+            <li>
+                <a href="#%e8%ae%b8%e5%8f%af%e8%af%81" aria-label="许可证">许可证</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+    </aside>
+    <div class="post-content md-content"><h2 id="前言">前言<a hidden class="anchor" aria-hidden="true" href="#前言">#</a></h2>
+<p>QSextend 是一个 Chrome 浏览器扩展合集，包含 5 款针对特定场景开发的实用工具，涵盖自动化操作、快捷键增强、倒计时提醒、监控检测和界面优化。</p>
+<p><strong>下载地址：</strong> <a href="https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/qsextend-v1.4/QSextend-v1.4.zip">QSextend-v1.4.zip</a></p>
+<h2 id="安装方式">安装方式<a hidden class="anchor" aria-hidden="true" href="#安装方式">#</a></h2>
+<ol>
+<li>解压下载的压缩包</li>
+<li>打开 Chrome 浏览器，访问 <code>chrome://extensions/</code></li>
+<li>开启右上角「开发者模式」</li>
+<li>点击「加载已解压的扩展程序」，选择对应扩展文件夹</li>
+</ol>
+<h2 id="扩展一览">扩展一览<a hidden class="anchor" aria-hidden="true" href="#扩展一览">#</a></h2>
+<table>
+	<thead>
+			<tr>
+					<th>扩展</th>
+					<th>版本</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>AutoMouseRelease</td>
+					<td>v1.3</td>
+					<td>自动任务领取，三坐标循环点击抢单</td>
+			</tr>
+			<tr>
+					<td>ClockPro</td>
+					<td>v1.3</td>
+					<td>多功能倒计时提醒，进度条预警 + 自动提交</td>
+			</tr>
+			<tr>
+					<td>SandMonitor</td>
+					<td>v1.4</td>
+					<td>沙子关键词监控，检测关键词组合并提醒记录</td>
+			</tr>
+			<tr>
+					<td>SpeedKey</td>
+					<td>v1.3</td>
+					<td>答题快捷键增强，A/S自动回车，D+数字快速选择</td>
+			</tr>
+			<tr>
+					<td>label-optimizer</td>
+					<td>v1.0</td>
+					<td>做题界面优化助手，隐藏多余元素最大化图片展示空间</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="automouserelease-v13">AutoMouseRelease v1.3<a hidden class="anchor" aria-hidden="true" href="#automouserelease-v13">#</a></h2>
+<p>自动任务领取扩展，设置三个坐标点自动循环点击。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>三坐标点击：查询、领取、确定，支持点选和手动输入</li>
+<li>自动循环：按设定间隔和延迟执行点击序列</li>
+<li>参数校验：查询间隔和领取延迟最低 300ms</li>
+<li>毛玻璃 UI，平滑动画，折叠展开</li>
+<li>面板可拖拽，位置自动保存</li>
+</ul>
+<p><strong>使用方式：</strong> 点击扩展图标注入控制面板，点击「点选」后点击页面对应位置设置坐标，调整参数后点击「开始」。</p>
+<h2 id="clockpro-v13">ClockPro v1.3<a hidden class="anchor" aria-hidden="true" href="#clockpro-v13">#</a></h2>
+<p>倒计时提醒扩展，监听网络请求自动启动倒计时，支持进度条预警和自动提交。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>监听特定请求自动启动倒计时</li>
+<li>预警进度条：剩余指定秒数时顶部显示红色进度条</li>
+<li>自动提交：剩余指定秒数时自动模拟回车</li>
+<li>面板可拖拽、可缩放，配置通过 Chrome Sync 多设备同步</li>
+</ul>
+<p><strong>参数说明：</strong></p>
+<table>
+	<thead>
+			<tr>
+					<th>参数</th>
+					<th>默认值</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>总倒计时</td>
+					<td>60s</td>
+					<td>倒计时总时长</td>
+			</tr>
+			<tr>
+					<td>预警提醒秒数</td>
+					<td>10s</td>
+					<td>剩余多少秒触发预警</td>
+			</tr>
+			<tr>
+					<td>自动提交触发秒数</td>
+					<td>5s</td>
+					<td>剩余多少秒自动按回车</td>
+			</tr>
+	</tbody>
+</table>
+<h2 id="sandmonitor-v14">SandMonitor v1.4<a hidden class="anchor" aria-hidden="true" href="#sandmonitor-v14">#</a></h2>
+<p>沙子关键词监控扩展，实时检测页面中的关键词组合并提醒记录。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>实时监控页面文本中的 HW、ZZ、1688 关键词</li>
+<li>触发规则：HW×2 / HW+ZZ / HW+1688 任意满足即弹窗</li>
+<li>红色顶部横幅提醒，6 秒后自动消失</li>
+<li>自动记录触发历史，支持按任务包分组、复制链接</li>
+<li>F2 快捷键手动记录当前页面</li>
+</ul>
+<h2 id="speedkey-v13">SpeedKey v1.3<a hidden class="anchor" aria-hidden="true" href="#speedkey-v13">#</a></h2>
+<p>答题快捷键增强扩展，专为答题场景设计。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>A 键：按下后延迟自动触发回车</li>
+<li>S 键：按下后延迟自动触发回车（独立延迟）</li>
+<li>D+1~8：按下 D 键后按数字键，自动完成 D+数字+回车序列</li>
+<li>每个功能支持独立开关和延迟调节（0~1000ms）</li>
+</ul>
+<h2 id="label-optimizer-v10">label-optimizer v1.0<a hidden class="anchor" aria-hidden="true" href="#label-optimizer-v10">#</a></h2>
+<p>做题界面优化助手，用于优化做题界面布局，最大化图片和数据展示空间。</p>
+<p><strong>核心功能：</strong></p>
+<ul>
+<li>隐藏左侧菜单栏和顶部导航按钮</li>
+<li>最大化商品图片显示区域</li>
+<li>优化数据面板布局，压缩顶部 header 高度</li>
+<li>悬浮按钮 / 扩展图标 / Ctrl+Shift+O 快捷键切换</li>
+</ul>
+<h2 id="技术栈">技术栈<a hidden class="anchor" aria-hidden="true" href="#技术栈">#</a></h2>
+<ul>
+<li>Chrome Extension Manifest V3</li>
+<li>Content Script + Background Service Worker</li>
+<li>Chrome Storage API</li>
+<li>纯 JavaScript，无外部依赖</li>
+</ul>
+<h2 id="许可证">许可证<a hidden class="anchor" aria-hidden="true" href="#许可证">#</a></h2>
+<p>仅供学习和个人使用。</p>
+
+
+    </div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://sukkk-zcy.github.io/tags/chrome%E6%89%A9%E5%B1%95/">Chrome扩展</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/%E5%B7%A5%E5%85%B7/">工具</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="https://sukkk-zcy.github.io/posts/platformio-notes/">
+    <span class="title">« 上一页</span>
+    <span>PlatformIO首次安装使用注意事项</span>
+  </a>
+</nav>
+
+  </footer><div id="tw-comment"></div>
+<script>
+    const getStoredTheme = () => localStorage.getItem("pref-theme") === "light" ? "light" : "dark";
+    const setGiscusTheme = () => {
+        const sendMessage = (message) => {
+            const iframe = document.querySelector('iframe.giscus-frame');
+            if (iframe) {
+                iframe.contentWindow.postMessage({giscus: message}, 'https://giscus.app');
+            }
+        }
+        sendMessage({setConfig: {theme: getStoredTheme()}})
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const giscusAttributes = {
+            "src": "https://giscus.app/client.js",
+            "data-repo": "Sukkk-zcy\/Sukkk-zcy.github.io",
+            "data-repo-id": "R_kgDOTAOSug",
+            "data-category": "Announcements",
+            "data-category-id": "DIC_kwDOTAOSus4C_lyu",
+            "data-mapping": "pathname",
+            "data-strict": "0",
+            "data-reactions-enabled": "1",
+            "data-emit-metadata": "0",
+            "data-input-position": "bottom",
+            "data-theme": getStoredTheme(),
+            "data-lang": "zh-CN",
+            "data-loading": "lazy",
+            "crossorigin": "anonymous",
+        };
+
+        const giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(
+                ([key, value]) => giscusScript.setAttribute(key, value));
+        document.querySelector("#tw-comment").appendChild(giscusScript);
+
+        const themeSwitcher = document.querySelector("#theme-toggle");
+        if (themeSwitcher) {
+            themeSwitcher.addEventListener("click", setGiscusTheme);
+        }
+        const themeFloatSwitcher = document.querySelector("#theme-toggle-float");
+        if (themeFloatSwitcher) {
+            themeFloatSwitcher.addEventListener("click", setGiscusTheme);
+        }
+    });
+</script>
+
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>©2026 Sukkk&rsquo;s Blog</span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

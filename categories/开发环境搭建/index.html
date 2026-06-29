@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>开发环境搭建 | Sukkk&#39;s Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Sukkk&#39;s Blog">
+<meta name="author" content="Sukkk">
+<link rel="canonical" href="https://sukkk-zcy.github.io/categories/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ddd19700063bc32eae3281dbb422d2d847c9772dbccb6a41abf77fb437dd0ba2.css" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="apple-touch-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="mask-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" type="application/rss+xml" href="https://sukkk-zcy.github.io/categories/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.xml" title="rss">
+<link rel="alternate" hreflang="zh" href="https://sukkk-zcy.github.io/categories/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<script type="text/javascript"
+        async
+        src="https://cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[\[','\]\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<style>
+code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+    border: inherit;
+    color: #515151;
+}
+</style>
+<meta property="og:url" content="https://sukkk-zcy.github.io/categories/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
+  <meta property="og:site_name" content="Sukkk&#39;s Blog">
+  <meta property="og:title" content="开发环境搭建">
+  <meta property="og:description" content="Sukkk&#39;s Blog">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="website">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="开发环境搭建">
+  <meta name="twitter:description" content="Sukkk&#39;s Blog">
+
+</head>
+<body class="list" id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://sukkk-zcy.github.io/" accesskey="h" title="Sukkk&#39;s Blog (Alt + H)">
+                <svg viewBox="0 0 64 64" width="32" height="32" style="border-radius:8px;vertical-align:middle;margin-right:6px">
+                    <rect width="64" height="64" rx="14" fill="#0f0f0f"/>
+                    <line x1="18" y1="18" x2="46" y2="46" stroke="#00d4ff" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="46" y1="18" x2="18" y2="46" stroke="#ff6b6b" stroke-width="8" stroke-linecap="round"/>
+                </svg>Sukkk&#39;s Blog</a>
+        </div>
+
+        <div class="theme-toggle-fixed" id="theme-toggle-fixed">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="https://sukkk-zcy.github.io/" title="Sukkk&#39;s Blog">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/research/" title="科研">
+                    <span>科研</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/archives/" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/about/" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main"> 
+<header class="page-header">
+  <h1>
+    开发环境搭建
+    <a href="/categories/%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/index.xml" title="RSS" aria-label="RSS">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" height="23">
+        <path d="M4 11a9 9 0 0 1 9 9" />
+        <path d="M4 4a16 16 0 0 1 16 16" />
+        <circle cx="5" cy="19" r="1" />
+      </svg>
+    </a>
+  </h1>
+</header>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">Nushell &#43; Starship 终端环境配置指南
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-06-28 00:00:00 +0000 UTC'>2026-06-28</span>&nbsp;·&nbsp;<span>6 分钟</span>&nbsp;·&nbsp;<span>Sukkk</span></footer>
+  <a class="entry-link" aria-label="post link to Nushell &#43; Starship 终端环境配置指南" href="https://sukkk-zcy.github.io/posts/nushell-starship-guide/"></a>
+</article>
+
+<article class="post-entry tag-entry"> 
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">PlatformIO首次安装使用注意事项
+    </h2>
+  </header>
+  <div class="entry-content">
+    <p>PlatformIO首次安装使用时遇到的问题及解决方案</p>
+  </div>
+  <footer class="entry-footer">
+
+<span title='2026-06-21 00:00:00 +0000 UTC'>2026-06-21</span>&nbsp;·&nbsp;<span>1 分钟</span>&nbsp;·&nbsp;<span>Sukkk</span></footer>
+  <a class="entry-link" aria-label="post link to PlatformIO首次安装使用注意事项" href="https://sukkk-zcy.github.io/posts/platformio-notes/"></a>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>©2026 Sukkk&rsquo;s Blog</span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>固件烧录 on Sukkk&#39;s Blog</title>
+    <link>https://sukkk-zcy.github.io/tags/%E5%9B%BA%E4%BB%B6%E7%83%A7%E5%BD%95/</link>
+    <description>Recent content in 固件烧录 on Sukkk&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <copyright>©2026 Sukkk&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Mon, 22 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://sukkk-zcy.github.io/tags/%E5%9B%BA%E4%BB%B6%E7%83%A7%E5%BD%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>CC AIR MONITOR 固件烧录指南</title>
+      <link>https://sukkk-zcy.github.io/posts/cc-air-monitor/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/cc-air-monitor/</guid>
+      <description>基于CCAirDetector修改的CC AIR MONITOR固件烧录与配置教程</description>
+    </item>
+  </channel>
+</rss>

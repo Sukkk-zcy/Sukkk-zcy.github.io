@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>PlatformIO on Sukkk&#39;s Blog</title>
+    <link>https://sukkk-zcy.github.io/tags/platformio/</link>
+    <description>Recent content in PlatformIO on Sukkk&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <copyright>©2026 Sukkk&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Sun, 21 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://sukkk-zcy.github.io/tags/platformio/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>PlatformIO首次安装使用注意事项</title>
+      <link>https://sukkk-zcy.github.io/posts/platformio-notes/</link>
+      <pubDate>Sun, 21 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/platformio-notes/</guid>
+      <description>PlatformIO首次安装使用时遇到的问题及解决方案</description>
+    </item>
+  </channel>
+</rss>

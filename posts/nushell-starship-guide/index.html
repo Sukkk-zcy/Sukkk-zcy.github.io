@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh" dir="auto" data-theme="dark">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>Nushell &#43; Starship 终端环境配置指南 | Sukkk&#39;s Blog</title>
+<meta name="keywords" content="Nushell, Starship, 终端, Shell, 配置">
+<meta name="description" content="Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。">
+<meta name="author" content="Sukkk">
+<link rel="canonical" href="https://sukkk-zcy.github.io/posts/nushell-starship-guide/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.ddd19700063bc32eae3281dbb422d2d847c9772dbccb6a41abf77fb437dd0ba2.css" rel="preload stylesheet" as="style">
+<link rel="icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="16x16" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="apple-touch-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<link rel="mask-icon" href="https://sukkk-zcy.github.io/favicon.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="zh" href="https://sukkk-zcy.github.io/posts/nushell-starship-guide/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<script>
+    if (localStorage.getItem("pref-theme") === "light") {
+        document.querySelector("html").dataset.theme = 'light';
+    }
+
+</script><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+<script type="text/javascript"
+        async
+        src="https://cdn.bootcss.com/mathjax/2.7.3/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$'], ['\[\[','\]\]']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+});
+</script>
+
+<style>
+code.has-jax {
+    font: inherit;
+    font-size: 100%;
+    background: inherit;
+    border: inherit;
+    color: #515151;
+}
+</style>
+<meta property="og:url" content="https://sukkk-zcy.github.io/posts/nushell-starship-guide/">
+  <meta property="og:site_name" content="Sukkk&#39;s Blog">
+  <meta property="og:title" content="Nushell &#43; Starship 终端环境配置指南">
+  <meta property="og:description" content="Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。">
+  <meta property="og:locale" content="zh_cn">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-06-28T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-06-28T00:00:00+00:00">
+    <meta property="article:tag" content="Nushell">
+    <meta property="article:tag" content="Starship">
+    <meta property="article:tag" content="终端">
+    <meta property="article:tag" content="Shell">
+    <meta property="article:tag" content="配置">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Nushell &#43; Starship 终端环境配置指南">
+  <meta name="twitter:description" content="Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。">
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position":  1 ,
+      "name": "Posts",
+      "item": "https://sukkk-zcy.github.io/posts/"
+    }, 
+    {
+      "@type": "ListItem",
+      "position":  2 ,
+      "name": "Nushell + Starship 终端环境配置指南",
+      "item": "https://sukkk-zcy.github.io/posts/nushell-starship-guide/"
+    }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Nushell + Starship 终端环境配置指南",
+  "name": "Nushell \u002b Starship 终端环境配置指南",
+  "description": "Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。",
+  "keywords": [
+    "Nushell", "Starship", "终端", "Shell", "配置"
+  ],
+  "articleBody": "简介 Nushell Nushell（简称 Nu）是一个全新的 Shell，与传统 Shell 最大的区别在于它将一切视为结构化数据（表格、列表、记录），而不是纯文本流。这意味着你可以像操作数据库一样操作命令行输出：\n1ls | where size \u003e 1mb | sort-by modified Nu 同时支持 Windows / macOS / Linux，当前最新稳定版为 0.113.1。\nStarship Starship 是一个用 Rust 编写的 Shell 提示符工具，速度极快（每次渲染约 1-5ms），使用单一的 TOML 配置文件，可以跨 Shell（Bash、Zsh、Fish、PowerShell、Nushell）共享同一套配置。当前最新版本为 1.25.1。\n安装 Nushell 方式一：winget（推荐 / Windows） 1winget install nushell 方式二：Scoop 1scoop install nu 方式三：cargo 1cargo install nu --locked 安装完成后，在终端输入 nu 即可进入 Nushell。\n设置 Nushell 为默认 Shell 在 Windows Terminal 中，进入设置 → 配置文件 → 添加新配置文件，命令行指向 Nu 可执行文件路径：\nC:\\Users\\\u003c用户名\u003e\\AppData\\Local\\Programs\\nu\\bin\\nu.exe 也可以在 PowerShell 中通过 $PROFILE 添加：\n1nu 配置 Nushell Nushell 的配置文件位于 %AppData%\\nushell\\config.nu，在 Nu 中可以用以下命令直接打开：\n1config nu 以下是实际使用的配置（C:\\Users\\29016\\AppData\\Roaming\\nushell\\config.nu）：\n1# Nushell Configuration 2 3use std 4 5# ─── Starship Prompt ─────────────────────────────────────────── 6$env.STARSHIP_SHELL = \"nu\" 7$env.PROMPT_COMMAND = { || 8 starship prompt --cmd-duration $env.CMD_DURATION_MS $\"--status=($env.LAST_EXIT_CODE)\" 9} 10$env.PROMPT_COMMAND_RIGHT = \"\" 11$env.PROMPT_INDICATOR = \"\" 12$env.PROMPT_INDICATOR_VI_INSERT = \": \" 13$env.PROMPT_INDICATOR_VI_NORMAL = \"〉\" 14$env.PROMPT_MULTILINE_INDICATOR = \"::: \" 15 16# ─── Editor ─────────────────────────────────────────────────── 17$env.EDITOR = \"notepad\" 18$env.VISUAL = \"notepad\" 19 20# ─── Aliases ────────────────────────────────────────────────── 21alias ll = ls -l 22alias la = ls -a 23alias lla = ls -la 24alias g = git 25alias c = clear 26alias vim = nvim 27alias python = python3 28 29# ─── PATH ───────────────────────────────────────────────────── 30$env.Path = ($env.Path | split row (char esep) | append 'C:\\Users\\29016\\AppData\\Local\\Programs\\nu\\bin') 31 32# ─── Default Configurations ────────────────────────────────── 33$env.config.show_banner = false # 隐藏启动 banner 34$env.config.history.max_size = 10000 配置说明 配置项 说明 $env.STARSHIP_SHELL = \"nu\" 告诉 Starship 当前 Shell 是 Nushell $env.PROMPT_COMMAND 设置 Starship 为主提示符，传递持续时间和退出状态码 $env.PROMPT_INDICATOR 普通模式下提示符为空（由 Starship 接管） $env.PROMPT_INDICATOR_VI_INSERT VI 插入模式提示符设为 : $env.PROMPT_INDICATOR_VI_NORMAL VI 普通模式提示符 show_banner = false 隐藏 Nushell 启动时的 logo 横幅 history.max_size = 10000 限制历史记录最大条数 别名一览 别名 等价命令 ll ls -l la ls -a lla ls -la g git c clear vim nvim python python3 安装 Starship 方式一：winget（Windows） 1winget install starship 方式二：官方安装脚本 1curl -sS https://starship.rs/install.sh | sh 验证安装 1starship --version 2# starship 1.25.1 配置 Starship Starship 的配置文件位于 ~\\.config\\starship.toml（即 C:\\Users\\\u003c用户名\u003e\\.config\\starship.toml）。\n使用预设快速起步 Starship 内置了 12 个官方预设，推荐使用 Gruvbox Rainbow：\n1starship preset gruvbox-rainbow -o ~\\.config\\starship.toml 其他热门预设：\n预设 风格 gruvbox-rainbow 温暖大地色 + Powerline 箭头（推荐） tokyo-night 深色蓝紫冷色调 pastel-powerline 粉彩 Powerline 风格 catppuccin-powerline Catppuccin 主题 pure-preset 极简单行提示符 no-runtime-versions 不显示运行时版本信息 自定义配置 以下是在 Gruvbox Rainbow 预设基础上实际使用的完整配置：\n1\"$schema\" = 'https://starship.rs/config-schema.json' 2 3scan_timeout = 500 4 5format = \"\"\" 6[](color_orange)\\ 7$os\\ 8$username\\ 9[](bg:color_yellow fg:color_orange)\\ 10$directory\\ 11[](fg:color_yellow bg:color_aqua)\\ 12$git_branch\\ 13$git_status\\ 14[](fg:color_aqua bg:color_blue)\\ 15$c\\ 16$cpp\\ 17$rust\\ 18$golang\\ 19$nodejs\\ 20$bun\\ 21$php\\ 22$java\\ 23$kotlin\\ 24$haskell\\ 25$python\\ 26[](fg:color_blue bg:color_bg3)\\ 27$docker_context\\ 28$conda\\ 29$pixi\\ 30[](fg:color_bg3 bg:color_bg1)\\ 31$time\\ 32[ ](fg:color_bg1)\\ 33$line_break$character\"\"\" 34 35palette = 'gruvbox_dark' 36 37[palettes.gruvbox_dark] 38color_fg0 = '#fbf1c7' 39color_bg1 = '#3c3836' 40color_bg3 = '#665c54' 41color_blue = '#458588' 42color_aqua = '#689d6a' 43color_green = '#98971a' 44color_orange = '#d65d0e' 45color_purple = '#b16286' 46color_red = '#cc241d' 47color_yellow = '#d79921' 48 49[os] 50disabled = false 51style = \"bg:color_orange fg:color_fg0\" 52 53[os.symbols] 54Windows = \"󰍲\" 55Ubuntu = \"󰕈\" 56# ... 其他系统图标 57 58[username] 59show_always = true 60style_user = \"bg:color_orange fg:color_fg0\" 61style_root = \"bg:color_orange fg:color_fg0\" 62format = '[ $user ]($style)' 63 64[directory] 65style = \"fg:color_fg0 bg:color_yellow\" 66format = \"[ $path ]($style)\" 67truncation_length = 3 68truncation_symbol = \"…/\" 69 70[directory.substitutions] 71\"Documents\" = \"󰈙 \" 72\"Downloads\" = \" \" 73\"Music\" = \"󰝚 \" 74\"Pictures\" = \" \" 75\"Developer\" = \"󰲋 \" 76 77[git_branch] 78symbol = \"\" 79style = \"bg:color_aqua\" 80format = '[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)' 81 82[git_status] 83style = \"bg:color_aqua\" 84format = '[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)' 85 86# 语言模块（统一蓝底风格） 87[nodejs] 88symbol = \"\" 89style = \"bg:color_blue\" 90format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 91 92[bun] 93symbol = \"\" 94style = \"bg:color_blue\" 95format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 96 97[c] 98symbol = \" \" 99style = \"bg:color_blue\" 100format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 101 102[cpp] 103symbol = \" \" 104style = \"bg:color_blue\" 105format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 106 107[rust] 108symbol = \"\" 109style = \"bg:color_blue\" 110format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 111 112[golang] 113symbol = \"\" 114style = \"bg:color_blue\" 115format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 116 117[python] 118symbol = \"\" 119style = \"bg:color_blue\" 120format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)' 121 122[docker_context] 123symbol = \"\" 124style = \"bg:color_bg3\" 125format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)' 126 127[conda] 128style = \"bg:color_bg3\" 129format = '[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)' 130 131[pixi] 132style = \"bg:color_bg3\" 133format = '[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)' 134 135[time] 136disabled = false 137time_format = \"%R\" 138style = \"bg:color_bg1\" 139format = '[[  $time ](fg:color_fg0 bg:color_bg1)]($style)' 140 141[line_break] 142disabled = false 143 144[character] 145disabled = false 146success_symbol = '[](bold fg:color_green)' 147error_symbol = '[](bold fg:color_red)' 148vimcmd_symbol = '[](bold fg:color_green)' 149vimcmd_replace_one_symbol = '[](bold fg:color_purple)' 150vimcmd_replace_symbol = '[](bold fg:color_purple)' 151vimcmd_visual_symbol = '[](bold fg:color_yellow)' 配置结构解析 整条提示符由 Powerline 风格的分段箭头连接，自左向右依次为：\n模块 背景色 显示内容 $os 橙色 当前操作系统图标 $username 橙色 用户名 $directory 黄色 当前目录路径（截断至 3 级） $git_branch 青色 Git 分支名 $git_status 青色 Git 状态（修改/暂存/冲突/ ahead/behind） 语言模块 蓝色 C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本 $docker_context 灰 3 Docker 上下文 $conda 灰 3 Conda 环境 $pixi 灰 3 Pixi 环境 $time 灰 1 当前时间（24h） $character — 提示符箭头（绿色成功 / 红色失败） 检查配置 Starship 提供了方便的调试命令：\n1# 查看当前渲染的配置值 2starship config 3 4# 查看各模块渲染耗时 5starship timings 6 7# 查看预设默认配置 8starship preset gruvbox-rainbow 9 10# 检查 TOML 语法（需要 taplo） 11taplo lint ~\\.config\\starship.toml Nushell + Starship 集成 将 Nushell 和 Starship 结合使用的关键配置在 config.nu 中：\n1$env.STARSHIP_SHELL = \"nu\" 2$env.PROMPT_COMMAND = { || 3 starship prompt --cmd-duration $env.CMD_DURATION_MS $\"--status=($env.LAST_EXIT_CODE)\" 4} 这段配置做了三件事：\n$env.STARSHIP_SHELL = \"nu\" — 设置环境变量，Starship 据此加载 Nushell 特有的提示符模块 $env.PROMPT_COMMAND — 定义一个闭包，每次绘制提示符时调用 starship prompt，并传入命令执行时间 CMD_DURATION_MS 和上一条命令的退出状态码 LAST_EXIT_CODE 清空其它提示符变量 — PROMPT_COMMAND_RIGHT、PROMPT_INDICATOR 等设为空，完全由 Starship 接管渲染 额外技巧 1. 目录图标替换 Starship 支持将常见目录名替换为 Nerd Font 图标，当前配置中的替换表：\n原目录 替换图标 Documents 󰈙 Downloads  Music 󰝚 Pictures  Developer 󰲋 2. 提示符颜色随退出状态变化 Starship 的 $character 模块会根据上一条命令的退出码自动变色：成功为绿色 ，失败为红色 ，无需额外配置。\n3. 调试慢提示符 如果感觉提示符响应变慢，使用 starship timings 查看各模块耗时。常见的耗时模块是 git_status，可以设置 scan_timeout = 500（当前已配置）来限制 Git 扫描超时。\n参考 Nushell 官方文档 Nushell GitHub Starship 官方文档 Starship 预设列表 Gruvbox Rainbow 预设 ",
+  "wordCount" : "2665",
+  "inLanguage": "zh",
+  "datePublished": "2026-06-28T00:00:00Z",
+  "dateModified": "2026-06-28T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Sukkk"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://sukkk-zcy.github.io/posts/nushell-starship-guide/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Sukkk's Blog",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://sukkk-zcy.github.io/favicon.svg"
+    }
+  }
+}
+</script>
+</head>
+<body id="top">
+    <header class="header">
+    <nav class="header-nav">
+        <div class="logo">
+            <a href="https://sukkk-zcy.github.io/" accesskey="h" title="Sukkk&#39;s Blog (Alt + H)">
+                <svg viewBox="0 0 64 64" width="32" height="32" style="border-radius:8px;vertical-align:middle;margin-right:6px">
+                    <rect width="64" height="64" rx="14" fill="#0f0f0f"/>
+                    <line x1="18" y1="18" x2="46" y2="46" stroke="#00d4ff" stroke-width="8" stroke-linecap="round"/>
+                    <line x1="46" y1="18" x2="18" y2="46" stroke="#ff6b6b" stroke-width="8" stroke-linecap="round"/>
+                </svg>Sukkk&#39;s Blog</a>
+        </div>
+
+        <div class="theme-toggle-fixed" id="theme-toggle-fixed">
+            <button id="theme-toggle" class="theme-toggle" accesskey="t" title="(Alt + T)" aria-label="Toggle theme">
+                <svg class="moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <svg class="sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+            </button>
+        </div>
+        <ul id="menu" class="menu">
+            <li>
+                <a href="https://sukkk-zcy.github.io/" title="Sukkk&#39;s Blog">
+                    <span>首页</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/research/" title="科研">
+                    <span>科研</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/search/" title="搜索">
+                    <span>搜索</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/archives/" title="归档">
+                    <span>归档</span>
+                </a>
+            </li>
+            <li>
+                <a href="https://sukkk-zcy.github.io/about/" title="关于">
+                    <span>关于</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Nushell &#43; Starship 终端环境配置指南
+    </h1>
+    <div class="post-meta">
+
+<span title='2026-06-28 00:00:00 +0000 UTC'>2026-06-28</span>&nbsp;·&nbsp;<span>6 分钟</span>&nbsp;·&nbsp;<span>Sukkk</span>
+
+</div>
+  </header> 
+
+  <div class="post-layout">
+    <aside class="post-toc-sidebar"><div class="toc">
+
+    <div class="inner"><ul>
+            <li>
+                <a href="#%e7%ae%80%e4%bb%8b" aria-label="简介">简介</a><ul>
+                    
+            <li>
+                <a href="#nushell" aria-label="Nushell">Nushell</a></li>
+            <li>
+                <a href="#starship" aria-label="Starship">Starship</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85-nushell" aria-label="安装 Nushell">安装 Nushell</a><ul>
+                    
+            <li>
+                <a href="#%e6%96%b9%e5%bc%8f%e4%b8%80winget%e6%8e%a8%e8%8d%90--windows" aria-label="方式一：winget（推荐 / Windows）">方式一：winget（推荐 / Windows）</a></li>
+            <li>
+                <a href="#%e6%96%b9%e5%bc%8f%e4%ba%8cscoop" aria-label="方式二：Scoop">方式二：Scoop</a></li>
+            <li>
+                <a href="#%e6%96%b9%e5%bc%8f%e4%b8%89cargo" aria-label="方式三：cargo">方式三：cargo</a></li>
+            <li>
+                <a href="#%e8%ae%be%e7%bd%ae-nushell-%e4%b8%ba%e9%bb%98%e8%ae%a4-shell" aria-label="设置 Nushell 为默认 Shell">设置 Nushell 为默认 Shell</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae-nushell" aria-label="配置 Nushell">配置 Nushell</a><ul>
+                    
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae%e8%af%b4%e6%98%8e" aria-label="配置说明">配置说明</a></li>
+            <li>
+                <a href="#%e5%88%ab%e5%90%8d%e4%b8%80%e8%a7%88" aria-label="别名一览">别名一览</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e5%ae%89%e8%a3%85-starship" aria-label="安装 Starship">安装 Starship</a><ul>
+                    
+            <li>
+                <a href="#%e6%96%b9%e5%bc%8f%e4%b8%80wingetwindows" aria-label="方式一：winget（Windows）">方式一：winget（Windows）</a></li>
+            <li>
+                <a href="#%e6%96%b9%e5%bc%8f%e4%ba%8c%e5%ae%98%e6%96%b9%e5%ae%89%e8%a3%85%e8%84%9a%e6%9c%ac" aria-label="方式二：官方安装脚本">方式二：官方安装脚本</a></li>
+            <li>
+                <a href="#%e9%aa%8c%e8%af%81%e5%ae%89%e8%a3%85" aria-label="验证安装">验证安装</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae-starship" aria-label="配置 Starship">配置 Starship</a><ul>
+                    
+            <li>
+                <a href="#%e4%bd%bf%e7%94%a8%e9%a2%84%e8%ae%be%e5%bf%ab%e9%80%9f%e8%b5%b7%e6%ad%a5" aria-label="使用预设快速起步">使用预设快速起步</a></li>
+            <li>
+                <a href="#%e8%87%aa%e5%ae%9a%e4%b9%89%e9%85%8d%e7%bd%ae" aria-label="自定义配置">自定义配置</a></li>
+            <li>
+                <a href="#%e9%85%8d%e7%bd%ae%e7%bb%93%e6%9e%84%e8%a7%a3%e6%9e%90" aria-label="配置结构解析">配置结构解析</a></li>
+            <li>
+                <a href="#%e6%a3%80%e6%9f%a5%e9%85%8d%e7%bd%ae" aria-label="检查配置">检查配置</a></li></ul>
+            </li>
+            <li>
+                <a href="#nushell--starship-%e9%9b%86%e6%88%90" aria-label="Nushell &#43; Starship 集成">Nushell + Starship 集成</a></li>
+            <li>
+                <a href="#%e9%a2%9d%e5%a4%96%e6%8a%80%e5%b7%a7" aria-label="额外技巧">额外技巧</a><ul>
+                    
+            <li>
+                <a href="#1-%e7%9b%ae%e5%bd%95%e5%9b%be%e6%a0%87%e6%9b%bf%e6%8d%a2" aria-label="1. 目录图标替换">1. 目录图标替换</a></li>
+            <li>
+                <a href="#2-%e6%8f%90%e7%a4%ba%e7%ac%a6%e9%a2%9c%e8%89%b2%e9%9a%8f%e9%80%80%e5%87%ba%e7%8a%b6%e6%80%81%e5%8f%98%e5%8c%96" aria-label="2. 提示符颜色随退出状态变化">2. 提示符颜色随退出状态变化</a></li>
+            <li>
+                <a href="#3-%e8%b0%83%e8%af%95%e6%85%a2%e6%8f%90%e7%a4%ba%e7%ac%a6" aria-label="3. 调试慢提示符">3. 调试慢提示符</a></li></ul>
+            </li>
+            <li>
+                <a href="#%e5%8f%82%e8%80%83" aria-label="参考">参考</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+    </aside>
+    <div class="post-content md-content"><h2 id="简介">简介<a hidden class="anchor" aria-hidden="true" href="#简介">#</a></h2>
+<h3 id="nushell">Nushell<a hidden class="anchor" aria-hidden="true" href="#nushell">#</a></h3>
+<p><a href="https://www.nushell.sh/">Nushell</a>（简称 Nu）是一个全新的 Shell，与传统 Shell 最大的区别在于它将一切视为<strong>结构化数据</strong>（表格、列表、记录），而不是纯文本流。这意味着你可以像操作数据库一样操作命令行输出：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nu" data-lang="nu"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">ls</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">where</span><span class="w"> </span>size<span class="w"> </span>&gt;<span class="w"> </span>1mb<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">sort</span>-by<span class="w"> </span>modified<span class="w">
+</span></span></span></code></pre></div><p>Nu 同时支持 Windows / macOS / Linux，当前最新稳定版为 <strong>0.113.1</strong>。</p>
+<h3 id="starship">Starship<a hidden class="anchor" aria-hidden="true" href="#starship">#</a></h3>
+<p><a href="https://starship.rs/">Starship</a> 是一个用 Rust 编写的 Shell 提示符工具，速度极快（每次渲染约 1-5ms），使用<strong>单一的 TOML 配置文件</strong>，可以跨 Shell（Bash、Zsh、Fish、PowerShell、Nushell）共享同一套配置。当前最新版本为 <strong>1.25.1</strong>。</p>
+<hr>
+<h2 id="安装-nushell">安装 Nushell<a hidden class="anchor" aria-hidden="true" href="#安装-nushell">#</a></h2>
+<h3 id="方式一winget推荐--windows">方式一：winget（推荐 / Windows）<a hidden class="anchor" aria-hidden="true" href="#方式一winget推荐--windows">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">winget</span> <span class="n">install</span> <span class="n">nushell</span>
+</span></span></code></pre></div><h3 id="方式二scoop">方式二：Scoop<a hidden class="anchor" aria-hidden="true" href="#方式二scoop">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">scoop</span> <span class="n">install</span> <span class="n">nu</span>
+</span></span></code></pre></div><h3 id="方式三cargo">方式三：cargo<a hidden class="anchor" aria-hidden="true" href="#方式三cargo">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln">1</span><span class="cl">cargo install nu --locked
+</span></span></code></pre></div><p>安装完成后，在终端输入 <code>nu</code> 即可进入 Nushell。</p>
+<h3 id="设置-nushell-为默认-shell">设置 Nushell 为默认 Shell<a hidden class="anchor" aria-hidden="true" href="#设置-nushell-为默认-shell">#</a></h3>
+<p>在 Windows Terminal 中，进入设置 → 配置文件 → 添加新配置文件，命令行指向 Nu 可执行文件路径：</p>
+<pre tabindex="0"><code>C:\Users\&lt;用户名&gt;\AppData\Local\Programs\nu\bin\nu.exe
+</code></pre><p>也可以在 PowerShell 中通过 <code>$PROFILE</code> 添加：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">nu</span>
+</span></span></code></pre></div><hr>
+<h2 id="配置-nushell">配置 Nushell<a hidden class="anchor" aria-hidden="true" href="#配置-nushell">#</a></h2>
+<p>Nushell 的配置文件位于 <code>%AppData%\nushell\config.nu</code>，在 Nu 中可以用以下命令直接打开：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nu" data-lang="nu"><span class="line"><span class="ln">1</span><span class="cl"><span class="k">config</span><span class="w"> </span>nu<span class="w">
+</span></span></span></code></pre></div><p>以下是实际使用的配置（<code>C:\Users\29016\AppData\Roaming\nushell\config.nu</code>）：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nu" data-lang="nu"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># Nushell Configuration
+</span></span></span><span class="line"><span class="ln"> 2</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln"> 3</span><span class="cl"><span class="k">use</span><span class="w"> </span>std<span class="w">
+</span></span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln"> 5</span><span class="cl"><span class="c1"># ─── Starship Prompt ───────────────────────────────────────────
+</span></span></span><span class="line"><span class="ln"> 6</span><span class="cl"><span class="nv">$env</span>.STARSHIP_SHELL<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;nu&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="nv">$env</span>.PROMPT_COMMAND<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="o">||</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 8</span><span class="cl"><span class="w">    </span>starship<span class="w"> </span>prompt<span class="w"> </span>--cmd-duration<span class="w"> </span><span class="nv">$env</span>.CMD_DURATION_MS<span class="w"> </span><span class="s2">$&#34;--status=</span><span class="si">(</span><span class="nv">$env</span>.LAST_EXIT_CODE<span class="si">)</span><span class="s2">&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln"> 9</span><span class="cl"><span class="o">}</span><span class="w">
+</span></span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="nv">$env</span>.PROMPT_COMMAND_RIGHT<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">11</span><span class="cl"><span class="nv">$env</span>.PROMPT_INDICATOR<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">12</span><span class="cl"><span class="nv">$env</span>.PROMPT_INDICATOR_VI_INSERT<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;: &#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">13</span><span class="cl"><span class="nv">$env</span>.PROMPT_INDICATOR_VI_NORMAL<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;〉&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">14</span><span class="cl"><span class="nv">$env</span>.PROMPT_MULTILINE_INDICATOR<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;::: &#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">15</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln">16</span><span class="cl"><span class="c1"># ─── Editor ───────────────────────────────────────────────────
+</span></span></span><span class="line"><span class="ln">17</span><span class="cl"><span class="nv">$env</span>.EDITOR<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;notepad&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">18</span><span class="cl"><span class="nv">$env</span>.VISUAL<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;notepad&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">19</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln">20</span><span class="cl"><span class="c1"># ─── Aliases ──────────────────────────────────────────────────
+</span></span></span><span class="line"><span class="ln">21</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">ll</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">ls</span><span class="w"> </span>-l<span class="w">
+</span></span></span><span class="line"><span class="ln">22</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">la</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">ls</span><span class="w"> </span>-a<span class="w">
+</span></span></span><span class="line"><span class="ln">23</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">lla</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">ls</span><span class="w"> </span>-la<span class="w">
+</span></span></span><span class="line"><span class="ln">24</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">g</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>git<span class="w">
+</span></span></span><span class="line"><span class="ln">25</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">clear</span><span class="w">
+</span></span></span><span class="line"><span class="ln">26</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">vim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>nvim<span class="w">
+</span></span></span><span class="line"><span class="ln">27</span><span class="cl"><span class="k">alias</span><span class="w"> </span><span class="nv">python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>python3<span class="w">
+</span></span></span><span class="line"><span class="ln">28</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln">29</span><span class="cl"><span class="c1"># ─── PATH ─────────────────────────────────────────────────────
+</span></span></span><span class="line"><span class="ln">30</span><span class="cl"><span class="nv">$env</span>.Path<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">(</span><span class="nv">$env</span>.Path<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">split</span><span class="w"> </span>row<span class="w"> </span><span class="o">(</span><span class="k">char</span><span class="w"> </span>esep<span class="o">)</span><span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="k">append</span><span class="w"> </span><span class="s1">&#39;C:\Users\29016\AppData\Local\Programs\nu\bin&#39;</span><span class="o">)</span><span class="w">
+</span></span></span><span class="line"><span class="ln">31</span><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="ln">32</span><span class="cl"><span class="c1"># ─── Default Configurations ──────────────────────────────────
+</span></span></span><span class="line"><span class="ln">33</span><span class="cl"><span class="nv">$env</span>.config.show_banner<span class="w"> </span><span class="o">=</span><span class="w"> </span>false<span class="w">   </span><span class="c1"># 隐藏启动 banner
+</span></span></span><span class="line"><span class="ln">34</span><span class="cl"><span class="nv">$env</span>.config.history.max_size<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10000</span><span class="w">
+</span></span></span></code></pre></div><h3 id="配置说明">配置说明<a hidden class="anchor" aria-hidden="true" href="#配置说明">#</a></h3>
+<table>
+	<thead>
+			<tr>
+					<th>配置项</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>$env.STARSHIP_SHELL = &quot;nu&quot;</code></td>
+					<td>告诉 Starship 当前 Shell 是 Nushell</td>
+			</tr>
+			<tr>
+					<td><code>$env.PROMPT_COMMAND</code></td>
+					<td>设置 Starship 为主提示符，传递持续时间和退出状态码</td>
+			</tr>
+			<tr>
+					<td><code>$env.PROMPT_INDICATOR</code></td>
+					<td>普通模式下提示符为空（由 Starship 接管）</td>
+			</tr>
+			<tr>
+					<td><code>$env.PROMPT_INDICATOR_VI_INSERT</code></td>
+					<td>VI 插入模式提示符设为 <code>: </code></td>
+			</tr>
+			<tr>
+					<td><code>$env.PROMPT_INDICATOR_VI_NORMAL</code></td>
+					<td>VI 普通模式提示符</td>
+			</tr>
+			<tr>
+					<td><code>show_banner = false</code></td>
+					<td>隐藏 Nushell 启动时的 logo 横幅</td>
+			</tr>
+			<tr>
+					<td><code>history.max_size = 10000</code></td>
+					<td>限制历史记录最大条数</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="别名一览">别名一览<a hidden class="anchor" aria-hidden="true" href="#别名一览">#</a></h3>
+<table>
+	<thead>
+			<tr>
+					<th>别名</th>
+					<th>等价命令</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>ll</code></td>
+					<td><code>ls -l</code></td>
+			</tr>
+			<tr>
+					<td><code>la</code></td>
+					<td><code>ls -a</code></td>
+			</tr>
+			<tr>
+					<td><code>lla</code></td>
+					<td><code>ls -la</code></td>
+			</tr>
+			<tr>
+					<td><code>g</code></td>
+					<td><code>git</code></td>
+			</tr>
+			<tr>
+					<td><code>c</code></td>
+					<td><code>clear</code></td>
+			</tr>
+			<tr>
+					<td><code>vim</code></td>
+					<td><code>nvim</code></td>
+			</tr>
+			<tr>
+					<td><code>python</code></td>
+					<td><code>python3</code></td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="安装-starship">安装 Starship<a hidden class="anchor" aria-hidden="true" href="#安装-starship">#</a></h2>
+<h3 id="方式一wingetwindows">方式一：winget（Windows）<a hidden class="anchor" aria-hidden="true" href="#方式一wingetwindows">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">winget</span> <span class="n">install</span> <span class="n">starship</span>
+</span></span></code></pre></div><h3 id="方式二官方安装脚本">方式二：官方安装脚本<a hidden class="anchor" aria-hidden="true" href="#方式二官方安装脚本">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="nb">curl </span><span class="n">-sS</span> <span class="n">https</span><span class="err">:</span><span class="p">//</span><span class="n">starship</span><span class="p">.</span><span class="n">rs</span><span class="p">/</span><span class="n">install</span><span class="p">.</span><span class="py">sh</span> <span class="p">|</span> <span class="n">sh</span>
+</span></span></code></pre></div><h3 id="验证安装">验证安装<a hidden class="anchor" aria-hidden="true" href="#验证安装">#</a></h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">starship</span> <span class="p">-</span><span class="n">-version</span>
+</span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="c"># starship 1.25.1</span>
+</span></span></code></pre></div><hr>
+<h2 id="配置-starship">配置 Starship<a hidden class="anchor" aria-hidden="true" href="#配置-starship">#</a></h2>
+<p>Starship 的配置文件位于 <code>~\.config\starship.toml</code>（即 <code>C:\Users\&lt;用户名&gt;\.config\starship.toml</code>）。</p>
+<h3 id="使用预设快速起步">使用预设快速起步<a hidden class="anchor" aria-hidden="true" href="#使用预设快速起步">#</a></h3>
+<p>Starship 内置了 12 个官方预设，推荐使用 Gruvbox Rainbow：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-powershell" data-lang="powershell"><span class="line"><span class="ln">1</span><span class="cl"><span class="n">starship</span> <span class="n">preset</span> <span class="nb">gruvbox-rainbow</span> <span class="n">-o</span> <span class="p">~\.</span><span class="n">config</span><span class="p">\</span><span class="n">starship</span><span class="p">.</span><span class="py">toml</span>
+</span></span></code></pre></div><p>其他热门预设：</p>
+<table>
+	<thead>
+			<tr>
+					<th>预设</th>
+					<th>风格</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>gruvbox-rainbow</code></td>
+					<td>温暖大地色 + Powerline 箭头（推荐）</td>
+			</tr>
+			<tr>
+					<td><code>tokyo-night</code></td>
+					<td>深色蓝紫冷色调</td>
+			</tr>
+			<tr>
+					<td><code>pastel-powerline</code></td>
+					<td>粉彩 Powerline 风格</td>
+			</tr>
+			<tr>
+					<td><code>catppuccin-powerline</code></td>
+					<td>Catppuccin 主题</td>
+			</tr>
+			<tr>
+					<td><code>pure-preset</code></td>
+					<td>极简单行提示符</td>
+			</tr>
+			<tr>
+					<td><code>no-runtime-versions</code></td>
+					<td>不显示运行时版本信息</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="自定义配置">自定义配置<a hidden class="anchor" aria-hidden="true" href="#自定义配置">#</a></h3>
+<p>以下是在 Gruvbox Rainbow 预设基础上实际使用的完整配置：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-toml" data-lang="toml"><span class="line"><span class="ln">  1</span><span class="cl"><span class="s2">&#34;$schema&#34;</span> <span class="p">=</span> <span class="s1">&#39;https://starship.rs/config-schema.json&#39;</span>
+</span></span><span class="line"><span class="ln">  2</span><span class="cl">
+</span></span><span class="line"><span class="ln">  3</span><span class="cl"><span class="nx">scan_timeout</span> <span class="p">=</span> <span class="mi">500</span>
+</span></span><span class="line"><span class="ln">  4</span><span class="cl">
+</span></span><span class="line"><span class="ln">  5</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s2">&#34;&#34;&#34;
+</span></span></span><span class="line"><span class="ln">  6</span><span class="cl"><span class="s2">[](color_orange)\
+</span></span></span><span class="line"><span class="ln">  7</span><span class="cl"><span class="s2">$os\
+</span></span></span><span class="line"><span class="ln">  8</span><span class="cl"><span class="s2">$username\
+</span></span></span><span class="line"><span class="ln">  9</span><span class="cl"><span class="s2">[](bg:color_yellow fg:color_orange)\
+</span></span></span><span class="line"><span class="ln"> 10</span><span class="cl"><span class="s2">$directory\
+</span></span></span><span class="line"><span class="ln"> 11</span><span class="cl"><span class="s2">[](fg:color_yellow bg:color_aqua)\
+</span></span></span><span class="line"><span class="ln"> 12</span><span class="cl"><span class="s2">$git_branch\
+</span></span></span><span class="line"><span class="ln"> 13</span><span class="cl"><span class="s2">$git_status\
+</span></span></span><span class="line"><span class="ln"> 14</span><span class="cl"><span class="s2">[](fg:color_aqua bg:color_blue)\
+</span></span></span><span class="line"><span class="ln"> 15</span><span class="cl"><span class="s2">$c\
+</span></span></span><span class="line"><span class="ln"> 16</span><span class="cl"><span class="s2">$cpp\
+</span></span></span><span class="line"><span class="ln"> 17</span><span class="cl"><span class="s2">$rust\
+</span></span></span><span class="line"><span class="ln"> 18</span><span class="cl"><span class="s2">$golang\
+</span></span></span><span class="line"><span class="ln"> 19</span><span class="cl"><span class="s2">$nodejs\
+</span></span></span><span class="line"><span class="ln"> 20</span><span class="cl"><span class="s2">$bun\
+</span></span></span><span class="line"><span class="ln"> 21</span><span class="cl"><span class="s2">$php\
+</span></span></span><span class="line"><span class="ln"> 22</span><span class="cl"><span class="s2">$java\
+</span></span></span><span class="line"><span class="ln"> 23</span><span class="cl"><span class="s2">$kotlin\
+</span></span></span><span class="line"><span class="ln"> 24</span><span class="cl"><span class="s2">$haskell\
+</span></span></span><span class="line"><span class="ln"> 25</span><span class="cl"><span class="s2">$python\
+</span></span></span><span class="line"><span class="ln"> 26</span><span class="cl"><span class="s2">[](fg:color_blue bg:color_bg3)\
+</span></span></span><span class="line"><span class="ln"> 27</span><span class="cl"><span class="s2">$docker_context\
+</span></span></span><span class="line"><span class="ln"> 28</span><span class="cl"><span class="s2">$conda\
+</span></span></span><span class="line"><span class="ln"> 29</span><span class="cl"><span class="s2">$pixi\
+</span></span></span><span class="line"><span class="ln"> 30</span><span class="cl"><span class="s2">[](fg:color_bg3 bg:color_bg1)\
+</span></span></span><span class="line"><span class="ln"> 31</span><span class="cl"><span class="s2">$time\
+</span></span></span><span class="line"><span class="ln"> 32</span><span class="cl"><span class="s2">[ ](fg:color_bg1)\
+</span></span></span><span class="line"><span class="ln"> 33</span><span class="cl"><span class="s2">$line_break$character&#34;&#34;&#34;</span>
+</span></span><span class="line"><span class="ln"> 34</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 35</span><span class="cl"><span class="nx">palette</span> <span class="p">=</span> <span class="s1">&#39;gruvbox_dark&#39;</span>
+</span></span><span class="line"><span class="ln"> 36</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 37</span><span class="cl"><span class="p">[</span><span class="nx">palettes</span><span class="p">.</span><span class="nx">gruvbox_dark</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 38</span><span class="cl"><span class="nx">color_fg0</span> <span class="p">=</span> <span class="s1">&#39;#fbf1c7&#39;</span>
+</span></span><span class="line"><span class="ln"> 39</span><span class="cl"><span class="nx">color_bg1</span> <span class="p">=</span> <span class="s1">&#39;#3c3836&#39;</span>
+</span></span><span class="line"><span class="ln"> 40</span><span class="cl"><span class="nx">color_bg3</span> <span class="p">=</span> <span class="s1">&#39;#665c54&#39;</span>
+</span></span><span class="line"><span class="ln"> 41</span><span class="cl"><span class="nx">color_blue</span> <span class="p">=</span> <span class="s1">&#39;#458588&#39;</span>
+</span></span><span class="line"><span class="ln"> 42</span><span class="cl"><span class="nx">color_aqua</span> <span class="p">=</span> <span class="s1">&#39;#689d6a&#39;</span>
+</span></span><span class="line"><span class="ln"> 43</span><span class="cl"><span class="nx">color_green</span> <span class="p">=</span> <span class="s1">&#39;#98971a&#39;</span>
+</span></span><span class="line"><span class="ln"> 44</span><span class="cl"><span class="nx">color_orange</span> <span class="p">=</span> <span class="s1">&#39;#d65d0e&#39;</span>
+</span></span><span class="line"><span class="ln"> 45</span><span class="cl"><span class="nx">color_purple</span> <span class="p">=</span> <span class="s1">&#39;#b16286&#39;</span>
+</span></span><span class="line"><span class="ln"> 46</span><span class="cl"><span class="nx">color_red</span> <span class="p">=</span> <span class="s1">&#39;#cc241d&#39;</span>
+</span></span><span class="line"><span class="ln"> 47</span><span class="cl"><span class="nx">color_yellow</span> <span class="p">=</span> <span class="s1">&#39;#d79921&#39;</span>
+</span></span><span class="line"><span class="ln"> 48</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 49</span><span class="cl"><span class="p">[</span><span class="nx">os</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 50</span><span class="cl"><span class="nx">disabled</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="ln"> 51</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_orange fg:color_fg0&#34;</span>
+</span></span><span class="line"><span class="ln"> 52</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 53</span><span class="cl"><span class="p">[</span><span class="nx">os</span><span class="p">.</span><span class="nx">symbols</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 54</span><span class="cl"><span class="nx">Windows</span> <span class="p">=</span> <span class="s2">&#34;󰍲&#34;</span>
+</span></span><span class="line"><span class="ln"> 55</span><span class="cl"><span class="nx">Ubuntu</span> <span class="p">=</span> <span class="s2">&#34;󰕈&#34;</span>
+</span></span><span class="line"><span class="ln"> 56</span><span class="cl"><span class="c"># ... 其他系统图标</span>
+</span></span><span class="line"><span class="ln"> 57</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 58</span><span class="cl"><span class="p">[</span><span class="nx">username</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 59</span><span class="cl"><span class="nx">show_always</span> <span class="p">=</span> <span class="kc">true</span>
+</span></span><span class="line"><span class="ln"> 60</span><span class="cl"><span class="nx">style_user</span> <span class="p">=</span> <span class="s2">&#34;bg:color_orange fg:color_fg0&#34;</span>
+</span></span><span class="line"><span class="ln"> 61</span><span class="cl"><span class="nx">style_root</span> <span class="p">=</span> <span class="s2">&#34;bg:color_orange fg:color_fg0&#34;</span>
+</span></span><span class="line"><span class="ln"> 62</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[ $user ]($style)&#39;</span>
+</span></span><span class="line"><span class="ln"> 63</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 64</span><span class="cl"><span class="p">[</span><span class="nx">directory</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 65</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;fg:color_fg0 bg:color_yellow&#34;</span>
+</span></span><span class="line"><span class="ln"> 66</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s2">&#34;[ $path ]($style)&#34;</span>
+</span></span><span class="line"><span class="ln"> 67</span><span class="cl"><span class="nx">truncation_length</span> <span class="p">=</span> <span class="mi">3</span>
+</span></span><span class="line"><span class="ln"> 68</span><span class="cl"><span class="nx">truncation_symbol</span> <span class="p">=</span> <span class="s2">&#34;…/&#34;</span>
+</span></span><span class="line"><span class="ln"> 69</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 70</span><span class="cl"><span class="p">[</span><span class="nx">directory</span><span class="p">.</span><span class="nx">substitutions</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 71</span><span class="cl"><span class="s2">&#34;Documents&#34;</span> <span class="p">=</span> <span class="s2">&#34;󰈙 &#34;</span>
+</span></span><span class="line"><span class="ln"> 72</span><span class="cl"><span class="s2">&#34;Downloads&#34;</span> <span class="p">=</span> <span class="s2">&#34; &#34;</span>
+</span></span><span class="line"><span class="ln"> 73</span><span class="cl"><span class="s2">&#34;Music&#34;</span> <span class="p">=</span> <span class="s2">&#34;󰝚 &#34;</span>
+</span></span><span class="line"><span class="ln"> 74</span><span class="cl"><span class="s2">&#34;Pictures&#34;</span> <span class="p">=</span> <span class="s2">&#34; &#34;</span>
+</span></span><span class="line"><span class="ln"> 75</span><span class="cl"><span class="s2">&#34;Developer&#34;</span> <span class="p">=</span> <span class="s2">&#34;󰲋 &#34;</span>
+</span></span><span class="line"><span class="ln"> 76</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 77</span><span class="cl"><span class="p">[</span><span class="nx">git_branch</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 78</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln"> 79</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_aqua&#34;</span>
+</span></span><span class="line"><span class="ln"> 80</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln"> 81</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 82</span><span class="cl"><span class="p">[</span><span class="nx">git_status</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 83</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_aqua&#34;</span>
+</span></span><span class="line"><span class="ln"> 84</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln"> 85</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 86</span><span class="cl"><span class="c"># 语言模块（统一蓝底风格）</span>
+</span></span><span class="line"><span class="ln"> 87</span><span class="cl"><span class="p">[</span><span class="nx">nodejs</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 88</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln"> 89</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln"> 90</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln"> 91</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 92</span><span class="cl"><span class="p">[</span><span class="nx">bun</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 93</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln"> 94</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln"> 95</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln"> 96</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 97</span><span class="cl"><span class="p">[</span><span class="nx">c</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln"> 98</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34; &#34;</span>
+</span></span><span class="line"><span class="ln"> 99</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln">100</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">101</span><span class="cl">
+</span></span><span class="line"><span class="ln">102</span><span class="cl"><span class="p">[</span><span class="nx">cpp</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">103</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34; &#34;</span>
+</span></span><span class="line"><span class="ln">104</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln">105</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">106</span><span class="cl">
+</span></span><span class="line"><span class="ln">107</span><span class="cl"><span class="p">[</span><span class="nx">rust</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">108</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">109</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln">110</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">111</span><span class="cl">
+</span></span><span class="line"><span class="ln">112</span><span class="cl"><span class="p">[</span><span class="nx">golang</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">113</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">114</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln">115</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">116</span><span class="cl">
+</span></span><span class="line"><span class="ln">117</span><span class="cl"><span class="p">[</span><span class="nx">python</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">118</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">119</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_blue&#34;</span>
+</span></span><span class="line"><span class="ln">120</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">121</span><span class="cl">
+</span></span><span class="line"><span class="ln">122</span><span class="cl"><span class="p">[</span><span class="nx">docker_context</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">123</span><span class="cl"><span class="nx">symbol</span> <span class="p">=</span> <span class="s2">&#34;&#34;</span>
+</span></span><span class="line"><span class="ln">124</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_bg3&#34;</span>
+</span></span><span class="line"><span class="ln">125</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">126</span><span class="cl">
+</span></span><span class="line"><span class="ln">127</span><span class="cl"><span class="p">[</span><span class="nx">conda</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">128</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_bg3&#34;</span>
+</span></span><span class="line"><span class="ln">129</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">130</span><span class="cl">
+</span></span><span class="line"><span class="ln">131</span><span class="cl"><span class="p">[</span><span class="nx">pixi</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">132</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_bg3&#34;</span>
+</span></span><span class="line"><span class="ln">133</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">134</span><span class="cl">
+</span></span><span class="line"><span class="ln">135</span><span class="cl"><span class="p">[</span><span class="nx">time</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">136</span><span class="cl"><span class="nx">disabled</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="ln">137</span><span class="cl"><span class="nx">time_format</span> <span class="p">=</span> <span class="s2">&#34;%R&#34;</span>
+</span></span><span class="line"><span class="ln">138</span><span class="cl"><span class="nx">style</span> <span class="p">=</span> <span class="s2">&#34;bg:color_bg1&#34;</span>
+</span></span><span class="line"><span class="ln">139</span><span class="cl"><span class="nx">format</span> <span class="p">=</span> <span class="s1">&#39;[[  $time ](fg:color_fg0 bg:color_bg1)]($style)&#39;</span>
+</span></span><span class="line"><span class="ln">140</span><span class="cl">
+</span></span><span class="line"><span class="ln">141</span><span class="cl"><span class="p">[</span><span class="nx">line_break</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">142</span><span class="cl"><span class="nx">disabled</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="ln">143</span><span class="cl">
+</span></span><span class="line"><span class="ln">144</span><span class="cl"><span class="p">[</span><span class="nx">character</span><span class="p">]</span>
+</span></span><span class="line"><span class="ln">145</span><span class="cl"><span class="nx">disabled</span> <span class="p">=</span> <span class="kc">false</span>
+</span></span><span class="line"><span class="ln">146</span><span class="cl"><span class="nx">success_symbol</span> <span class="p">=</span> <span class="s1">&#39;[](bold fg:color_green)&#39;</span>
+</span></span><span class="line"><span class="ln">147</span><span class="cl"><span class="nx">error_symbol</span> <span class="p">=</span> <span class="s1">&#39;[](bold fg:color_red)&#39;</span>
+</span></span><span class="line"><span class="ln">148</span><span class="cl"><span class="nx">vimcmd_symbol</span> <span class="p">=</span> <span class="s1">&#39;[](bold fg:color_green)&#39;</span>
+</span></span><span class="line"><span class="ln">149</span><span class="cl"><span class="nx">vimcmd_replace_one_symbol</span> <span class="p">=</span> <span class="s1">&#39;[](bold fg:color_purple)&#39;</span>
+</span></span><span class="line"><span class="ln">150</span><span class="cl"><span class="nx">vimcmd_replace_symbol</span> <span class="p">=</span> <span class="s1">&#39;[](bold fg:color_purple)&#39;</span>
+</span></span><span class="line"><span class="ln">151</span><span class="cl"><span class="nx">vimcmd_visual_symbol</span> <span class="p">=</span> <span class="s1">&#39;[](bold fg:color_yellow)&#39;</span>
+</span></span></code></pre></div><h3 id="配置结构解析">配置结构解析<a hidden class="anchor" aria-hidden="true" href="#配置结构解析">#</a></h3>
+<p>整条提示符由 Powerline 风格的分段箭头连接，自左向右依次为：</p>
+<table>
+	<thead>
+			<tr>
+					<th>模块</th>
+					<th>背景色</th>
+					<th>显示内容</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>$os</code></td>
+					<td>橙色</td>
+					<td>当前操作系统图标</td>
+			</tr>
+			<tr>
+					<td><code>$username</code></td>
+					<td>橙色</td>
+					<td>用户名</td>
+			</tr>
+			<tr>
+					<td><code>$directory</code></td>
+					<td>黄色</td>
+					<td>当前目录路径（截断至 3 级）</td>
+			</tr>
+			<tr>
+					<td><code>$git_branch</code></td>
+					<td>青色</td>
+					<td>Git 分支名</td>
+			</tr>
+			<tr>
+					<td><code>$git_status</code></td>
+					<td>青色</td>
+					<td>Git 状态（修改/暂存/冲突/ ahead/behind）</td>
+			</tr>
+			<tr>
+					<td>语言模块</td>
+					<td>蓝色</td>
+					<td>C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本</td>
+			</tr>
+			<tr>
+					<td><code>$docker_context</code></td>
+					<td>灰 3</td>
+					<td>Docker 上下文</td>
+			</tr>
+			<tr>
+					<td><code>$conda</code></td>
+					<td>灰 3</td>
+					<td>Conda 环境</td>
+			</tr>
+			<tr>
+					<td><code>$pixi</code></td>
+					<td>灰 3</td>
+					<td>Pixi 环境</td>
+			</tr>
+			<tr>
+					<td><code>$time</code></td>
+					<td>灰 1</td>
+					<td>当前时间（24h）</td>
+			</tr>
+			<tr>
+					<td><code>$character</code></td>
+					<td>—</td>
+					<td>提示符箭头（绿色成功 / 红色失败）</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="检查配置">检查配置<a hidden class="anchor" aria-hidden="true" href="#检查配置">#</a></h3>
+<p>Starship 提供了方便的调试命令：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="ln"> 1</span><span class="cl"><span class="c1"># 查看当前渲染的配置值</span>
+</span></span><span class="line"><span class="ln"> 2</span><span class="cl">starship config
+</span></span><span class="line"><span class="ln"> 3</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 4</span><span class="cl"><span class="c1"># 查看各模块渲染耗时</span>
+</span></span><span class="line"><span class="ln"> 5</span><span class="cl">starship timings
+</span></span><span class="line"><span class="ln"> 6</span><span class="cl">
+</span></span><span class="line"><span class="ln"> 7</span><span class="cl"><span class="c1"># 查看预设默认配置</span>
+</span></span><span class="line"><span class="ln"> 8</span><span class="cl">starship preset gruvbox-rainbow
+</span></span><span class="line"><span class="ln"> 9</span><span class="cl">
+</span></span><span class="line"><span class="ln">10</span><span class="cl"><span class="c1"># 检查 TOML 语法（需要 taplo）</span>
+</span></span><span class="line"><span class="ln">11</span><span class="cl">taplo lint ~<span class="se">\.</span>config<span class="se">\s</span>tarship.toml
+</span></span></code></pre></div><hr>
+<h2 id="nushell--starship-集成">Nushell + Starship 集成<a hidden class="anchor" aria-hidden="true" href="#nushell--starship-集成">#</a></h2>
+<p>将 Nushell 和 Starship 结合使用的关键配置在 <code>config.nu</code> 中：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nu" data-lang="nu"><span class="line"><span class="ln">1</span><span class="cl"><span class="nv">$env</span>.STARSHIP_SHELL<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&#34;nu&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">2</span><span class="cl"><span class="nv">$env</span>.PROMPT_COMMAND<span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">{</span><span class="w"> </span><span class="o">||</span><span class="w">
+</span></span></span><span class="line"><span class="ln">3</span><span class="cl"><span class="w">    </span>starship<span class="w"> </span>prompt<span class="w"> </span>--cmd-duration<span class="w"> </span><span class="nv">$env</span>.CMD_DURATION_MS<span class="w"> </span><span class="s2">$&#34;--status=</span><span class="si">(</span><span class="nv">$env</span>.LAST_EXIT_CODE<span class="si">)</span><span class="s2">&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="ln">4</span><span class="cl"><span class="o">}</span><span class="w">
+</span></span></span></code></pre></div><p>这段配置做了三件事：</p>
+<ol>
+<li><strong><code>$env.STARSHIP_SHELL = &quot;nu&quot;</code></strong> — 设置环境变量，Starship 据此加载 Nushell 特有的提示符模块</li>
+<li><strong><code>$env.PROMPT_COMMAND</code></strong> — 定义一个闭包，每次绘制提示符时调用 <code>starship prompt</code>，并传入命令执行时间 <code>CMD_DURATION_MS</code> 和上一条命令的退出状态码 <code>LAST_EXIT_CODE</code></li>
+<li><strong>清空其它提示符变量</strong> — <code>PROMPT_COMMAND_RIGHT</code>、<code>PROMPT_INDICATOR</code> 等设为空，完全由 Starship 接管渲染</li>
+</ol>
+<hr>
+<h2 id="额外技巧">额外技巧<a hidden class="anchor" aria-hidden="true" href="#额外技巧">#</a></h2>
+<h3 id="1-目录图标替换">1. 目录图标替换<a hidden class="anchor" aria-hidden="true" href="#1-目录图标替换">#</a></h3>
+<p>Starship 支持将常见目录名替换为 Nerd Font 图标，当前配置中的替换表：</p>
+<table>
+	<thead>
+			<tr>
+					<th>原目录</th>
+					<th>替换图标</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><code>Documents</code></td>
+					<td>󰈙</td>
+			</tr>
+			<tr>
+					<td><code>Downloads</code></td>
+					<td></td>
+			</tr>
+			<tr>
+					<td><code>Music</code></td>
+					<td>󰝚</td>
+			</tr>
+			<tr>
+					<td><code>Pictures</code></td>
+					<td></td>
+			</tr>
+			<tr>
+					<td><code>Developer</code></td>
+					<td>󰲋</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="2-提示符颜色随退出状态变化">2. 提示符颜色随退出状态变化<a hidden class="anchor" aria-hidden="true" href="#2-提示符颜色随退出状态变化">#</a></h3>
+<p>Starship 的 <code>$character</code> 模块会根据上一条命令的退出码自动变色：成功为绿色 <code></code>，失败为红色 <code></code>，无需额外配置。</p>
+<h3 id="3-调试慢提示符">3. 调试慢提示符<a hidden class="anchor" aria-hidden="true" href="#3-调试慢提示符">#</a></h3>
+<p>如果感觉提示符响应变慢，使用 <code>starship timings</code> 查看各模块耗时。常见的耗时模块是 <code>git_status</code>，可以设置 <code>scan_timeout = 500</code>（当前已配置）来限制 Git 扫描超时。</p>
+<hr>
+<h2 id="参考">参考<a hidden class="anchor" aria-hidden="true" href="#参考">#</a></h2>
+<ul>
+<li><a href="https://www.nushell.sh/book/">Nushell 官方文档</a></li>
+<li><a href="https://github.com/nushell/nushell">Nushell GitHub</a></li>
+<li><a href="https://starship.rs/guide/">Starship 官方文档</a></li>
+<li><a href="https://starship.rs/presets/">Starship 预设列表</a></li>
+<li><a href="https://starship.rs/presets/gruvbox-rainbow">Gruvbox Rainbow 预设</a></li>
+</ul>
+
+
+    </div>
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://sukkk-zcy.github.io/tags/nushell/">Nushell</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/starship/">Starship</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/%E7%BB%88%E7%AB%AF/">终端</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/shell/">Shell</a></li>
+      <li><a href="https://sukkk-zcy.github.io/tags/%E9%85%8D%E7%BD%AE/">配置</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="https://sukkk-zcy.github.io/posts/blinker-getting-started/">
+    <span class="title">下一页 »</span>
+    <span>Blinker 开发入门指南</span>
+  </a>
+</nav>
+
+  </footer><div id="tw-comment"></div>
+<script>
+    const getStoredTheme = () => localStorage.getItem("pref-theme") === "light" ? "light" : "dark";
+    const setGiscusTheme = () => {
+        const sendMessage = (message) => {
+            const iframe = document.querySelector('iframe.giscus-frame');
+            if (iframe) {
+                iframe.contentWindow.postMessage({giscus: message}, 'https://giscus.app');
+            }
+        }
+        sendMessage({setConfig: {theme: getStoredTheme()}})
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const giscusAttributes = {
+            "src": "https://giscus.app/client.js",
+            "data-repo": "Sukkk-zcy\/Sukkk-zcy.github.io",
+            "data-repo-id": "R_kgDOTAOSug",
+            "data-category": "Announcements",
+            "data-category-id": "DIC_kwDOTAOSus4C_lyu",
+            "data-mapping": "pathname",
+            "data-strict": "0",
+            "data-reactions-enabled": "1",
+            "data-emit-metadata": "0",
+            "data-input-position": "bottom",
+            "data-theme": getStoredTheme(),
+            "data-lang": "zh-CN",
+            "data-loading": "lazy",
+            "crossorigin": "anonymous",
+        };
+
+        const giscusScript = document.createElement("script");
+        Object.entries(giscusAttributes).forEach(
+                ([key, value]) => giscusScript.setAttribute(key, value));
+        document.querySelector("#tw-comment").appendChild(giscusScript);
+
+        const themeSwitcher = document.querySelector("#theme-toggle");
+        if (themeSwitcher) {
+            themeSwitcher.addEventListener("click", setGiscusTheme);
+        }
+        const themeFloatSwitcher = document.querySelector("#theme-toggle-float");
+        if (themeFloatSwitcher) {
+            themeFloatSwitcher.addEventListener("click", setGiscusTheme);
+        }
+    });
+</script>
+
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>©2026 Sukkk&rsquo;s Blog</span> · 
+
+    
+    
+    <span>
+        Powered by
+        <a href="https://gohugo.io/?utm_source=papermod" rel="noopener" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" id="top-link" class="top-link hidden" aria-label="go to top" title="Go to Top (Alt + G)" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-up">
+        <polyline points="17 11 12 6 7 11"></polyline>
+        <polyline points="17 18 12 13 7 18"></polyline>
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu');
+    if (menu) {
+        
+        const scrollPosition = localStorage.getItem("menu-scroll-position");
+        if (scrollPosition) {
+            menu.scrollLeft = parseInt(scrollPosition, 10);
+        }
+        
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var toplink = document.getElementById("top-link");
+    window.onscroll = function () {
+        const scrollThreshold = window.innerHeight;
+        if (document.body.scrollTop > scrollThreshold || document.documentElement.scrollTop > scrollThreshold) {
+            toplink.classList.remove("hidden");
+        } else {
+            toplink.classList.add("hidden");
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        const html = document.querySelector("html");
+        if (html.dataset.theme === "dark") {
+            html.dataset.theme = 'light';
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            html.dataset.theme = 'dark';
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+</body>
+
+</html>

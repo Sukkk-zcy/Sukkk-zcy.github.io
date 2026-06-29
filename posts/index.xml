@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on Sukkk&#39;s Blog</title>
+    <link>https://sukkk-zcy.github.io/posts/</link>
+    <description>Recent content in Posts on Sukkk&#39;s Blog</description>
+    <generator>Hugo</generator>
+    <language>zh-cn</language>
+    <copyright>©2026 Sukkk&amp;rsquo;s Blog</copyright>
+    <lastBuildDate>Sun, 28 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://sukkk-zcy.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nushell &#43; Starship 终端环境配置指南</title>
+      <link>https://sukkk-zcy.github.io/posts/nushell-starship-guide/</link>
+      <pubDate>Sun, 28 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/nushell-starship-guide/</guid>
+      <description>Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。</description>
+    </item>
+    <item>
+      <title>Blinker 开发入门指南</title>
+      <link>https://sukkk-zcy.github.io/posts/blinker-getting-started/</link>
+      <pubDate>Thu, 25 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/blinker-getting-started/</guid>
+      <description>Blinker开发规范，适合嵌入式开发者快速上手</description>
+    </item>
+    <item>
+      <title>ESP32 Web 配网实战</title>
+      <link>https://sukkk-zcy.github.io/posts/esp32-blinker-web-config/</link>
+      <pubDate>Thu, 25 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/esp32-blinker-web-config/</guid>
+      <description>通过 Web 页面为 ESP32 配置 WiFi 和 Blinker 授权码，支持历史配置记录，开机自动重连</description>
+    </item>
+    <item>
+      <title>CC AIR MONITOR 固件烧录指南</title>
+      <link>https://sukkk-zcy.github.io/posts/cc-air-monitor/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/cc-air-monitor/</guid>
+      <description>基于CCAirDetector修改的CC AIR MONITOR固件烧录与配置教程</description>
+    </item>
+    <item>
+      <title>PlatformIO首次安装使用注意事项</title>
+      <link>https://sukkk-zcy.github.io/posts/platformio-notes/</link>
+      <pubDate>Sun, 21 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/platformio-notes/</guid>
+      <description>PlatformIO首次安装使用时遇到的问题及解决方案</description>
+    </item>
+    <item>
+      <title>QSextend - Chrome浏览器扩展合集</title>
+      <link>https://sukkk-zcy.github.io/posts/qsextend-overview/</link>
+      <pubDate>Sun, 21 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://sukkk-zcy.github.io/posts/qsextend-overview/</guid>
+      <description>5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化</description>
+    </item>
+  </channel>
+</rss>

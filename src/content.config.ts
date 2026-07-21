@@ -2,11 +2,9 @@ import { defineCollection } from 'astro:content'
 import { glob } from 'astro/loaders'
 import { z } from 'astro/zod'
 
-function removeDupsAndLowerCase(array: string[]) {
+function removeDups(array: string[]) {
   if (!array.length) return array
-  const lowercaseItems = array.map((str) => str.toLowerCase())
-  const distinctItems = new Set(lowercaseItems)
-  return Array.from(distinctItems)
+  return Array.from(new Set(array))
 }
 
 // Define blog collection
@@ -33,8 +31,8 @@ const blog = defineCollection({
           color: z.string().optional()
         })
         .optional(),
-      tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
-      categories: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
+      tags: z.array(z.string()).default([]).transform(removeDups),
+      categories: z.array(z.string()).default([]).transform(removeDups),
       language: z.string().optional(),
       /** Optional stable URL independent from the content file location. */
       slug: z
@@ -56,7 +54,7 @@ const docs = defineCollection({
       description: z.string().max(160),
       publishDate: z.coerce.date().optional(),
       updatedDate: z.coerce.date().optional(),
-      tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
+      tags: z.array(z.string()).default([]).transform(removeDups),
       draft: z.boolean().default(false),
       // Special fields
       order: z.number().default(999)

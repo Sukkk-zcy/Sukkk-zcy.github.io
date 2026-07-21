@@ -1,0 +1,206 @@
+﻿---
+title: "SDN 知识总结"
+publishDate: 2026-07-08 00:00:00
+description: "SDN 入门知识回顾、思维导图整理与 Mininet 实验巩固"
+tags: ["SDN", "复习"]
+categories: ["SDN"]
+language: '中文'
+draft: false
+comment: true
+---
+
+把前面学到的知识串成一个完整的知识体系。这一周从 SDN 概念到 Mininet 实验，再到入侵检测和 ML 应用，建立了比较完整的入门认知。
+
+---
+
+## 一、知识回顾
+
+### SDN 是什么
+
+- 传统网络的困境：控制与转发紧耦合，各自为政
+- SDN 核心思想：把控制权集中，设备只负责转发
+- 三层架构：应用层 / 控制层 / 数据层
+- 三大接口：南向（OpenFlow）、北向（REST API（Application Programming Interface，应用程序编程接口））、东西向（控制器间通信）
+
+### SDN 架构深入
+
+- 控制层与数据层解耦的机制
+- 控制器的职责：全网视图、路径计算、流表下发
+- 常见控制器：Ryu、Floodlight、ONOS、OpenDaylight
+- 三大接口的详细职责与协作
+
+### OpenFlow 协议详解
+
+- 流表结构：匹配字段、优先级、计数器、动作集
+- 多级流表：流水线式匹配（Goto-Table）
+- 组表：All/Select/Indirect/Fast Failover 四种类型
+- 计量表：限速、标记、QoS（Quality of Service，服务质量）
+- 控制器与交换机的消息交互
+
+### Mininet 实验
+
+- WSL2 + Ubuntu 24.04 环境搭建
+- Mininet 安装（含 pep8 兼容性修复）
+- 基础拓扑实验：default / single-3 / linear-4
+- 自定义 Python 拓扑（2 交换机 + 4 主机）
+- tcpdump 抓包观察流量
+
+### 网络入侵检测入门
+
+- SDN 面临的安全威胁
+- DDoS（Distributed Denial of Service，分布式拒绝服务）攻击分类（按目标、按特征）
+- 三大检测方法：统计 / 机器学习 / 深度学习
+- SDN + 入侵检测的结合方式
+
+### ML/AI + SDN 前沿
+
+- ML（Machine Learning，机器学习）在 SDN 的三大应用：流量分类、异常检测、路由优化
+- 传统方法 vs ML vs DL（Deep Learning，深度学习）全面对比
+- Transformer 与 LLM（Large Language Model，大语言模型）在网络安全中的探索
+
+---
+
+## 二、思维导图
+
+把 SDN 入门知识整理成一张完整的知识图谱：
+
+```
+SDN 入门知识体系
+│
+├── 1. 基础概念
+│   ├── 传统网络的问题
+│   ├── SDN 三层架构
+│   │   ├── 应用层：网络应用（流量工程/安全/负载均衡）
+│   │   ├── 控制层：SDN 控制器（全局视图/路径计算/流表下发）
+│   │   └── 数据层：交换机/路由器（按流表转发）
+│   └── 三大接口
+│       ├── 南向：OpenFlow（控制器 → 交换机）
+│       ├── 北向：REST API（应用 → 控制器）
+│       └── 东西向：控制器之间通信
+│
+├── 2. OpenFlow 协议
+│   ├── 流表
+│   │   ├── 匹配字段（MAC/IP/端口/VLAN）
+│   │   ├── 优先级 + 计数器
+│   │   └── 动作集（output/drop/set-field）
+│   ├── 多级流表（Goto-Table 流水线）
+│   ├── 组表（广播/负载均衡/故障切换）
+│   ├── 计量表（限速/QoS）
+│   └── 消息类型
+│       ├── 控制器→交换机：Flow-Mod, Packet-Out
+│       ├── 交换机→控制器：Packet-In, Port-Status
+│       └── 对称：Hello, Echo
+│
+├── 3. Mininet 实验
+│   ├── 环境：WSL2 + Ubuntu 24.04
+│   ├── 拓扑类型
+│   │   ├── default（1 交换机 + 2 主机）
+│   │   ├── single（1 交换机 + N 主机）
+│   │   ├── linear（N 交换机串联）
+│   │   └── 自定义 Python 拓扑
+│   └── 工具
+│       ├── pingall（连通性测试）
+│       ├── iperf（带宽测试）
+│       └── tcpdump（抓包分析）
+│
+├── 4. 安全与入侵检测
+│   ├── SDN 安全威胁
+│   │   ├── 控制器攻击
+│   │   ├── 流表溢出
+│   │   └── 欺骗/中间人攻击
+│   ├── DDoS 攻击分类
+│   └── 检测方法
+│       ├── 统计方法：简单快速，但只能检测已知模式
+│       ├── 机器学习：SVM（Support Vector Machine，支持向量机）/随机森林，需要特征工程
+│       └── 深度学习：CNN（Convolutional Neural Network，卷积神经网络）/LSTM（Long Short-Term Memory，长短期记忆网络）/Transformer，自动特征学习
+│
+└── 5. ML + SDN 前沿
+    ├── 流量分类：识别流量类型，实现 QoS
+    ├── 异常检测：发现异常流量
+    ├── 路由优化：强化学习/图神经网络
+    └── 前沿趋势：Transformer、LLM 在网络中的应用
+```
+
+---
+
+## 三、Mininet 实验巩固
+
+再跑几个实验巩固手感：
+
+### 3.1 星型拓扑
+
+```bash
+sudo mn --topo star,4 --test pingall
+```
+
+拓扑图：
+
+```
+        h1
+        │
+  h2 ───s1─── h3
+        │
+        h4
+```
+
+4 台主机都连在同 1 台交换机上，任何两台之间只需经过 1 跳。结果：
+
+```
+*** Results: 0% dropped (12/12 received)
+```
+
+### 3.2 树形拓扑
+
+```bash
+sudo mn --topo tree,depth=2,fanout=2 --test pingall
+```
+
+深度 2、分支因子 2 的树形拓扑，共 4 台主机 + 3 台交换机。拓扑结构：
+
+```
+        s1
+       /  \
+     s2    s3
+    / \    / \
+   h1  h2 h3  h4
+```
+
+### 3.3 iperf 带宽对比
+
+```bash
+sudo mn --topo single,2
+mininet> iperf
+```
+
+单跳（经过 1 台交换机）的 TCP 带宽通常在 90+ Gbits/sec（内存转发），多跳会略有下降但差异不大——因为 Mininet 的虚拟链路本质上走的是内核内存。
+
+---
+
+## 四、遗留问题清单
+
+学习中可能还不太清楚的问题：
+
+| 问题 | 优先级 | 计划解决时间 |
+|------|--------|------------|
+| Ryu 控制器如何编写简单的 L2 Switch | 高 | 后续 |
+| 如何在 Mininet 中运行 Ryu 控制器 | 高 | 后续 |
+| P4 环境搭建与第一个 P4 程序 | 高 | 下一篇 |
+| 深度学习模型如何部署到实际网络中 | 低 | 后续研究 |
+
+---
+
+## 五、今日学习总结
+
+| 项目 | 内容 |
+|------|------|
+| 复习 | 回顾全部内容 |
+| 整理 | 完成 SDN 入门知识体系思维导图 |
+| 实验 | 星型拓扑、树形拓扑 pingall，iperf 带宽对比 |
+| 规划 | 列出遗留问题，为 P4 学习做准备 |
+| 下一篇预告 | P4 系列：从 OpenFlow 到 P4 可编程数据面（独立系列） |
+
+---
+
+*本文是「SDN 学习指南」系列的第7篇（完结）。*
+
+*系列导航：上一篇 → ML 与 SDN*

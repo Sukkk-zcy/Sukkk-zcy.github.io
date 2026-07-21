@@ -1,0 +1,432 @@
+﻿---
+title: "Nushell + Starship 终端环境配置指南"
+publishDate: 2026-06-28 00:00:00
+description: "Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。"
+tags: ["Nushell", "Starship", "终端"]
+categories: ["开发环境搭建"]
+language: '中文'
+draft: false
+comment: true
+---
+
+## 简介
+
+### Nushell
+
+[Nushell](https://www.nushell.sh/)（简称 Nu）是一个全新的 Shell，与传统 Shell 最大的区别在于它将一切视为**结构化数据**（表格、列表、记录），而不是纯文本流。这意味着你可以像操作数据库一样操作命令行输出：
+
+```nu
+ls | where size > 1mb | sort-by modified
+```
+
+Nu 同时支持 Windows / macOS / Linux，当前最新稳定版为 **0.113.1**。
+
+### Starship
+
+[Starship](https://starship.rs/) 是一个用 Rust 编写的 Shell 提示符工具，速度极快（每次渲染约 1-5ms），使用**单一的 TOML 配置文件**，可以跨 Shell（Bash、Zsh、Fish、PowerShell、Nushell）共享同一套配置。当前最新版本为 **1.25.1**。
+
+---
+
+## 安装 Nushell
+
+### 方式一：winget（推荐 / Windows）
+
+```powershell
+winget install nushell
+```
+
+### 方式二：Scoop
+
+```powershell
+scoop install nu
+```
+
+### 方式三：cargo
+
+```bash
+cargo install nu --locked
+```
+
+安装完成后，在终端输入 `nu` 即可进入 Nushell。
+
+### 设置 Nushell 为默认 Shell
+
+在 Windows Terminal 中，进入设置 → 配置文件 → 添加新配置文件，命令行指向 Nu 可执行文件路径：
+
+```
+C:\Users\<用户名>\AppData\Local\Programs\nu\bin\nu.exe
+```
+
+也可以在 PowerShell 中通过 `$PROFILE` 添加：
+
+```powershell
+nu
+```
+
+---
+
+## 配置 Nushell
+
+Nushell 的配置文件位于 `%AppData%\nushell\config.nu`，在 Nu 中可以用以下命令直接打开：
+
+```nu
+config nu
+```
+
+以下是实际使用的配置（`C:\Users\29016\AppData\Roaming\nushell\config.nu`）：
+
+```nu
+# Nushell Configuration
+
+use std
+
+# ─── Starship Prompt ───────────────────────────────────────────
+$env.STARSHIP_SHELL = "nu"
+$env.PROMPT_COMMAND = { ||
+    starship prompt --cmd-duration $env.CMD_DURATION_MS $"--status=($env.LAST_EXIT_CODE)"
+}
+$env.PROMPT_COMMAND_RIGHT = ""
+$env.PROMPT_INDICATOR = ""
+$env.PROMPT_INDICATOR_VI_INSERT = ": "
+$env.PROMPT_INDICATOR_VI_NORMAL = "〉"
+$env.PROMPT_MULTILINE_INDICATOR = "::: "
+
+# ─── Editor ───────────────────────────────────────────────────
+$env.EDITOR = "notepad"
+$env.VISUAL = "notepad"
+
+# ─── Aliases ──────────────────────────────────────────────────
+alias ll = ls -l
+alias la = ls -a
+alias lla = ls -la
+alias g = git
+alias c = clear
+alias vim = nvim
+alias python = python3
+
+# ─── PATH ─────────────────────────────────────────────────────
+$env.Path = ($env.Path | split row (char esep) | append 'C:\Users\29016\AppData\Local\Programs\nu\bin')
+
+# ─── Default Configurations ──────────────────────────────────
+$env.config.show_banner = false   # 隐藏启动 banner
+$env.config.history.max_size = 10000
+```
+
+### 配置说明
+
+| 配置项 | 说明 |
+|--------|------|
+| `$env.STARSHIP_SHELL = "nu"` | 告诉 Starship 当前 Shell 是 Nushell |
+| `$env.PROMPT_COMMAND` | 设置 Starship 为主提示符，传递持续时间和退出状态码 |
+| `$env.PROMPT_INDICATOR` | 普通模式下提示符为空（由 Starship 接管） |
+| `$env.PROMPT_INDICATOR_VI_INSERT` | VI 插入模式提示符设为 `: ` |
+| `$env.PROMPT_INDICATOR_VI_NORMAL` | VI 普通模式提示符 |
+| `show_banner = false` | 隐藏 Nushell 启动时的 logo 横幅 |
+| `history.max_size = 10000` | 限制历史记录最大条数 |
+
+### 别名一览
+
+| 别名 | 等价命令 |
+|------|----------|
+| `ll` | `ls -l` |
+| `la` | `ls -a` |
+| `lla` | `ls -la` |
+| `g` | `git` |
+| `c` | `clear` |
+| `vim` | `nvim` |
+| `python` | `python3` |
+
+---
+
+## 安装 Starship
+
+### 方式一：winget（Windows）
+
+```powershell
+winget install starship
+```
+
+### 方式二：官方安装脚本
+
+```powershell
+curl -sS https://starship.rs/install.sh | sh
+```
+
+### 验证安装
+
+```powershell
+starship --version
+# starship 1.25.1
+```
+
+---
+
+## 配置 Starship
+
+Starship 的配置文件位于 `~\.config\starship.toml`（即 `C:\Users\<用户名>\.config\starship.toml`）。
+
+### 使用预设快速起步
+
+Starship 内置了 12 个官方预设，推荐使用 Gruvbox Rainbow：
+
+```powershell
+starship preset gruvbox-rainbow -o ~\.config\starship.toml
+```
+
+其他热门预设：
+
+| 预设 | 风格 |
+|------|------|
+| `gruvbox-rainbow` | 温暖大地色 + Powerline 箭头（推荐） |
+| `tokyo-night` | 深色蓝紫冷色调 |
+| `pastel-powerline` | 粉彩 Powerline 风格 |
+| `catppuccin-powerline` | Catppuccin 主题 |
+| `pure-preset` | 极简单行提示符 |
+| `no-runtime-versions` | 不显示运行时版本信息 |
+
+### 自定义配置
+
+以下是在 Gruvbox Rainbow 预设基础上实际使用的完整配置：
+
+```toml
+"$schema" = 'https://starship.rs/config-schema.json'
+
+scan_timeout = 500
+
+format = """
+[](color_orange)\
+$os\
+$username\
+[](bg:color_yellow fg:color_orange)\
+$directory\
+[](fg:color_yellow bg:color_aqua)\
+$git_branch\
+$git_status\
+[](fg:color_aqua bg:color_blue)\
+$c\
+$cpp\
+$rust\
+$golang\
+$nodejs\
+$bun\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+[](fg:color_blue bg:color_bg3)\
+$docker_context\
+$conda\
+$pixi\
+[](fg:color_bg3 bg:color_bg1)\
+$time\
+[ ](fg:color_bg1)\
+$line_break$character"""
+
+palette = 'gruvbox_dark'
+
+[palettes.gruvbox_dark]
+color_fg0 = '#fbf1c7'
+color_bg1 = '#3c3836'
+color_bg3 = '#665c54'
+color_blue = '#458588'
+color_aqua = '#689d6a'
+color_green = '#98971a'
+color_orange = '#d65d0e'
+color_purple = '#b16286'
+color_red = '#cc241d'
+color_yellow = '#d79921'
+
+[os]
+disabled = false
+style = "bg:color_orange fg:color_fg0"
+
+[os.symbols]
+Windows = ""
+Ubuntu = ""
+# ... 其他系统图标
+
+[username]
+show_always = true
+style_user = "bg:color_orange fg:color_fg0"
+style_root = "bg:color_orange fg:color_fg0"
+format = '[ $user ]($style)'
+
+[directory]
+style = "fg:color_fg0 bg:color_yellow"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = " "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+"Developer" = " "
+
+[git_branch]
+symbol = ""
+style = "bg:color_aqua"
+format = '[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)'
+
+[git_status]
+style = "bg:color_aqua"
+format = '[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)'
+
+# 语言模块（统一蓝底风格）
+[nodejs]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[bun]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[c]
+symbol = " "
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[cpp]
+symbol = " "
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[rust]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[golang]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[python]
+symbol = ""
+style = "bg:color_blue"
+format = '[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)'
+
+[docker_context]
+symbol = ""
+style = "bg:color_bg3"
+format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)'
+
+[conda]
+style = "bg:color_bg3"
+format = '[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)'
+
+[pixi]
+style = "bg:color_bg3"
+format = '[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)'
+
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:color_bg1"
+format = '[[ $time ](fg:color_fg0 bg:color_bg1)]($style)'
+
+[line_break]
+disabled = false
+
+[character]
+disabled = false
+success_symbol = '[[](bold fg:color_green)]'
+error_symbol = '[[](bold fg:color_red)]'
+vimcmd_symbol = '[](bold fg:color_green)'
+vimcmd_replace_one_symbol = '[](bold fg:color_purple)'
+vimcmd_replace_symbol = '[](bold fg:color_purple)'
+vimcmd_visual_symbol = '[](bold fg:color_yellow)'
+```
+
+### 配置结构解析
+
+整条提示符由 Powerline 风格的分段箭头连接，自左向右依次为：
+
+| 模块 | 背景色 | 显示内容 |
+|------|--------|----------|
+| `$os` | 橙色 | 当前操作系统图标 |
+| `$username` | 橙色 | 用户名 |
+| `$directory` | 黄色 | 当前目录路径（截断至 3 级） |
+| `$git_branch` | 青色 | Git 分支名 |
+| `$git_status` | 青色 | Git 状态（修改/暂存/冲突/ ahead/behind） |
+| 语言模块 | 蓝色 | C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本 |
+| `$docker_context` | 灰 3 | Docker 上下文 |
+| `$conda` | 灰 3 | Conda 环境 |
+| `$pixi` | 灰 3 | Pixi 环境 |
+| `$time` | 灰 1 | 当前时间（24h） |
+| `$character` | — | 提示符箭头（绿色成功 / 红色失败） |
+
+### 检查配置
+
+Starship 提供了方便的调试命令：
+
+```bash
+# 查看当前渲染的配置值
+starship config
+
+# 查看各模块渲染耗时
+starship timings
+
+# 查看预设默认配置
+starship preset gruvbox-rainbow
+
+# 检查 TOML 语法（需要 taplo）
+taplo lint ~\.config\starship.toml
+```
+
+---
+
+## Nushell + Starship 集成
+
+将 Nushell 和 Starship 结合使用的关键配置在 `config.nu` 中：
+
+```nu
+$env.STARSHIP_SHELL = "nu"
+$env.PROMPT_COMMAND = { ||
+    starship prompt --cmd-duration $env.CMD_DURATION_MS $"--status=($env.LAST_EXIT_CODE)"
+}
+```
+
+这段配置做了三件事：
+
+1. **`$env.STARSHIP_SHELL = "nu"`** — 设置环境变量，Starship 据此加载 Nushell 特有的提示符模块
+2. **`$env.PROMPT_COMMAND`** — 定义一个闭包，每次绘制提示符时调用 `starship prompt`，并传入命令执行时间 `CMD_DURATION_MS` 和上一条命令的退出状态码 `LAST_EXIT_CODE`
+3. **清空其它提示符变量** — `PROMPT_COMMAND_RIGHT`、`PROMPT_INDICATOR` 等设为空，完全由 Starship 接管渲染
+
+---
+
+## 额外技巧
+
+### 1. 目录图标替换
+
+Starship 支持将常见目录名替换为 Nerd Font 图标，当前配置中的替换表：
+
+| 原目录 | 替换图标 |
+|--------|----------|
+| `Documents` |   |
+| `Downloads` |   |
+| `Music` |   |
+| `Pictures` |   |
+| `Developer` |   |
+
+### 2. 提示符颜色随退出状态变化
+
+Starship 的 `$character` 模块会根据上一条命令的退出码自动变色：成功为绿色 ``, 失败为红色 ``, 无需额外配置。
+
+### 3. 调试慢提示符
+
+如果感觉提示符响应变慢，使用 `starship timings` 查看各模块耗时。常见的耗时模块是 `git_status`，可以设置 `scan_timeout = 500`（当前已配置）来限制 Git 扫描超时。
+
+---
+
+## 参考
+
+- [Nushell 官方文档](https://www.nushell.sh/book/)
+- [Nushell GitHub](https://github.com/nushell/nushell)
+- [Starship 官方文档](https://starship.rs/guide/)
+- [Starship 预设列表](https://starship.rs/presets/)
+- [Gruvbox Rainbow 预设](https://starship.rs/presets/gruvbox-rainbow)

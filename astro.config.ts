@@ -5,7 +5,7 @@ import { defineConfig, fontProviders } from 'astro/config'
 import rehypeKatex from 'rehype-katex'
 import remarkMath from 'remark-math'
 import mermaid from 'astro-mermaid'
-import { typst } from 'astro-typst'
+// import { typst } from 'astro-typst'
 // Local integrations
 import rehypeAutolinkHeadings from './src/plugins/rehype-auto-link-headings.ts'
 import remarkWikilinks from './src/plugins/remark-wikilinks.ts'
@@ -30,7 +30,7 @@ export default defineConfig({
   compressHTML: true,
 
   // [Basic]
-  site: 'https://lemonadorable.github.io',
+  site: 'https://sukkk-zcy.github.io',
   // Deploy to a sub path
   // https://astro-pure.js.org/docs/setup/deployment#platform-with-base-path
   // base: '/astro-pure/',
@@ -61,21 +61,7 @@ export default defineConfig({
   },
   // Enable font preloading and optimization
   // https://docs.astro.build/en/guides/fonts/
-  fonts: [
-    {
-      provider: fontProviders.fontshare(),
-      name: 'Satoshi',
-      cssVariable: '--font-satoshi',
-      // Default included:
-      // weights: [400],
-      // styles: ["normal", "italics"],
-      // subsets: ["cyrillic-ext", "cyrillic", "greek-ext", "greek", "vietnamese", "latin-ext", "latin"],
-      // fallbacks: ["sans-serif"],
-      styles: ['normal', 'italic'],
-      weights: [400, 500],
-      subsets: ['latin']
-    }
-  ],
+  fonts: [],
 
   // [Markdown]
   markdown: {
@@ -133,7 +119,7 @@ export default defineConfig({
     // sitemap(),
     // mdx(),
     mermaid(),
-    typst(),
+    // typst(),
     AstroPureIntegration(config)
   ],
 
@@ -163,7 +149,7 @@ export default defineConfig({
       }
     },
     ssr: {
-      external: ['@myriaddreamin/typst-ts-node-compiler']
+      external: ['astro-typst', '@myriaddreamin/typst-ts-node-compiler', 'cheerio']
     }
   }
 })

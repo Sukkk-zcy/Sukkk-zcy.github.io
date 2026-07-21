@@ -1,0 +1,255 @@
+﻿---
+title: "P4 环境搭建"
+publishDate: 2026-07-11 00:00:00
+description: "搭建 P4 开发环境（p4c + BMv2 + Mininet），跑通第一个 P4 程序"
+tags: ["P4", "Docker", "BMv2", "环境搭建"]
+categories: ["P4"]
+language: '中文'
+draft: false
+comment: true
+---
+
+P4 的概念已经了解了，现在动手搭建开发环境。P4 工具链包含编译器（`p4c`）、软件交换机（BMv2）、拓扑仿真（Mininet）等多个组件，官方提供三种安装方式。本文记录每种方式的完整步骤。
+
+---
+
+## 一、方案选择
+
+| 方案 | 优点 | 缺点 | 推荐度 |
+|------|------|------|--------|
+| **Docker** | 环境隔离，一键部署 | 镜像约 3GB | 推荐 |
+| **apt** | 一条命令装完 | 仅支持 Ubuntu 20.04/22.04 | Ubuntu 老版本 |
+| **源码编译** | 最新特性，最灵活 | 编译 30-60 分钟 | 开发者/研究者 |
+
+根据自己的情况选择一个方案，尤其需要注意网络问题。
+
+---
+
+## 二、Docker 方式（推荐）
+
+### 步骤 1：安装 Docker
+
+```bash
+sudo apt update
+sudo apt install -y docker.io
+sudo usermod -aG docker $USER
+```
+
+安装完成后**重新登录终端**，让 docker 组生效。
+
+验证：
+
+```bash
+docker --version
+```
+
+### 步骤 2：配置代理（国内用户）
+
+Docker Hub 在国内访问不稳定，需要配置代理。
+
+**第一步：找到 WSL2 到 Windows 的网关 IP**
+
+```bash
+ip route | grep default
+```
+
+输出类似 `default via 172.28.144.1 dev eth0`，记下这个 IP。
+
+**第二步：让代理软件允许外部连接**
+
+打开你的代理软件（Clash/v2rayN 等），找到 **"Allow LAN"（允许局域网连接）** 选项，打开它。
+
+**第三步：给 Docker 配置代理**
+
+把下面的 `你的网关IP` 和 `你的代理端口` 替换成你自己的：
+
+```bash
+sudo mkdir -p /etc/systemd/system/docker.service.d
+sudo tee /etc/systemd/system/docker.service.d/proxy.conf <<'EOF'
+[Service]
+Environment="HTTP_PROXY=http://你的网关IP:你的代理端口"
+Environment="HTTPS_PROXY=http://你的网关IP:你的代理端口"
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+### 步骤 3：拉取 P4 镜像
+
+```bash
+docker pull p4lang/p4app:latest
+```
+
+镜像约 3GB，下载时间取决于网速。
+
+### 步骤 4：运行 Hello P4
+
+```bash
+docker run --rm -it --privileged \
+  --entrypoint bash \
+  -v ~/p4-language-guide-zh:/workspace \
+  -w /workspace \
+  p4lang/p4app:latest \
+  -c "cd examples/01-hello && bash run.sh"
+```
+
+> **注意**：`p4lang/p4app` 镜像有自己的入口脚本，必须加 `--entrypoint bash` 覆盖，否则会报错。
+
+---
+
+## 三、apt 方式
+
+### 步骤 1：添加 PPA 源
+
+```bash
+. /etc/os-release
+echo "deb http://download.opensuse.org/repositories/home:/p4lang/xUbuntu_${VERSION_ID}/ /" \
+    | sudo tee /etc/apt/sources.list.d/home:p4lang.list
+
+curl -fsSL "https://download.opensuse.org/repositories/home:p4lang/xUbuntu_${VERSION_ID}/Release.key" \
+    | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/home_p4lang.gpg > /dev/null
+
+sudo apt update
+```
+
+### 步骤 2：安装 P4 工具链
+
+```bash
+sudo apt install -y p4lang-p4c p4lang-bmv2 p4lang-pi mininet
+```
+
+### 步骤 3：验证
+
+```bash
+p4c --version
+simple_switch --version
+sudo mn --test pingall
+```
+
+---
+
+## 四、源码编译方式
+
+### 步骤 1：克隆安装脚本
+
+```bash
+cd ~
+git clone https://github.com/jafingerhut/p4-guide.git
+```
+
+### 步骤 2：执行一键安装
+
+```bash
+cd p4-guide
+./bin/install-p4dev-v8.sh 2>&1 | tee install.log
+```
+
+脚本会自动编译安装：protobuf → gRPC → PI → BMv2 → p4c → Mininet → ptf。
+
+**耗时约 30-60 分钟**，中间刷大量编译输出是正常的。
+
+### 步骤 3：加载环境
+
+```bash
+source ~/p4-guide/p4setup.bash
+echo 'source ~/p4-guide/p4setup.bash' >> ~/.bashrc
+```
+
+### 步骤 4：验证
+
+```bash
+p4c --version
+simple_switch --version
+which simple_switch_grpc
+```
+
+三个命令都能正常输出，说明环境搭建成功。
+
+---
+
+## 五、跑通 Hello P4
+
+无论用哪种方式安装，最终都是跑同一个示例。
+
+### 步骤 1：克隆 P4 教程仓库
+
+```bash
+cd ~
+git clone https://github.com/zhh2001/p4-language-guide-zh.git
+```
+
+### 步骤 2：运行 Hello P4
+
+```bash
+cd p4-language-guide-zh/examples/01-hello
+sudo bash run.sh
+```
+
+### 步骤 3：理解输出
+
+```
+=== creating namespaces + veth ===     # 创建虚拟网络
+=== starting BMv2 ===                   # 启动软件交换机
+Adding interface veth-s1a as port 1     # 端口 1
+Adding interface veth-s1b as port 2     # 端口 2
+Thrift server on port 9090              # 控制端口就绪
+
+=== ping test (should NOT succeed) ===
+PING 10.0.0.2: 100% packet loss        # 预期结果！
+```
+
+**ping 不通是正确的**——Hello P4 的程序逻辑是"报文反射"：收到的包从原端口发回去，h2 根本收不到。
+
+### 步骤 4：理解 P4 程序结构
+
+Hello P4 包含 V1Switch 架构的六大块：
+
+| 组件 | 职责 | Hello P4 中的实现 |
+|------|------|------------------|
+| Parser | 解析包头 | 什么都不解析，直接 accept |
+| VerifyChecksum | 校验和验证 | 空（占位） |
+| Ingress | 转发逻辑 | `egress_spec = ingress_port`（反射） |
+| Egress | 出口处理 | 空（占位） |
+| ComputeChecksum | 计算校验和 | 空（占位） |
+| Deparser | 组装输出 | 空（不 emit 任何包头） |
+
+**P4 程序的完整流程**：写 `.p4` 源码 → `p4c` 编译成 JSON → `BMv2` 加载 JSON → Mininet 验证。
+
+---
+
+## 六、常见问题
+
+| 问题 | 原因 | 解决 |
+|------|------|------|
+| Docker 代理连不上 | WSL2 NAT 模式下 127.0.0.1 不通 | 用网关 IP + 开 Allow LAN |
+| Docker 镜像下载慢 | 国内访问 Docker Hub 不稳定 | 配代理或用国内镜像 |
+| p4app entrypoint 冲突 | 镜像有自己的启动脚本 | 加 `--entrypoint bash` |
+| git clone 连不上 GitHub | 代理配置问题 | `export http_proxy=网关IP:端口` |
+| `p4setup.bash` 找不到 | 路径写错 | 实际在 `~/p4-guide/p4setup.bash` |
+| apt GPG key 404 | PPA 路径变化 | 用 Docker 或源码编译 |
+| Mininet pingall 丢包 | P4 程序故意反射报文 | 预期行为，不是 bug |
+
+---
+
+## 七、今日学习总结
+
+| 项目 | 内容 |
+|------|------|
+| 环境搭建 | 三种方式都跑通，最终用源码编译 |
+| 首个程序 | Hello P4：报文反射，验证 P4 流水线 |
+| 核心收获 | 理解 P4 程序的完整流程和 V1Switch 六大块 |
+| 下一篇预告 | P4 语法与类型系统 — 深入 Parser / Match-Action / Deparser |
+
+---
+
+## 参考资料
+
+1. [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) — 张恒华，第 01 章环境搭建
+2. [p4-guide](https://github.com/jafingerhut/p4-guide) — Andy Fingerhut 的一键编译脚本
+3. [P4 官网](https://p4.org/) — P4 语言规范与生态
+
+---
+
+*本文是「P4 学习笔记」系列的第2篇。*
+
+*系列导航：上一篇 → P4 概述 | 下一篇 → P4 类型系统与语法（本篇）*

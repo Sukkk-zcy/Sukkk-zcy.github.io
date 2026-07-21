@@ -1,0 +1,373 @@
+﻿---
+title: "Blinker 开发入门指南"
+publishDate: 2026-06-25 00:00:00
+description: "Blinker开发规范，适合嵌入式开发者快速上手"
+tags: ["ESP32", "Blinker", "物联网"]
+categories: ["嵌入式开发"]
+language: '中文'
+draft: false
+comment: true
+---
+
+## 什么是 Blinker？
+
+Blinker 是一套跨硬件、跨平台的物联网解决方案，提供 APP 端、设备端、服务器端支持，使用公有云服务进行数据传输存储。适用于智能家居、数据监测等场景。
+
+- **GitHub**: https://github.com/blinker-iot/
+- **官网**: https://diandeng.tech/
+- **APP**: 点灯科技 APP（iOS / Android）
+- **许可证**: MIT License
+
+## 硬件平台支持
+
+Blinker 目前支持三大主流开发板：
+
+| 平台 | WiFi | BLE | NB-IoT | GPRS |
+|------|------|-----|--------|------|
+| ESP32 | ✅ | ✅ 内置 | ✅ SIM7020/SIM7000 | ✅ Air202 |
+| ESP8266 | ✅ | ✅ 外接透传模块 | ✅ | ✅ |
+| Arduino R4 | ✅ AT固件 | ✅ | - | - |
+
+ESP32 凭借内置蓝牙和丰富的外设接口，是目前最推荐的入门选择。
+
+## 通信模式
+
+WiFi 和蓝牙**不能同时启用**，通过宏定义切换：
+
+```cpp
+#define WIFIMODE   // 启用WiFi模式
+//#define BLEMODE  // 启用蓝牙模式
+
+#if defined(WIFIMODE)
+    #define BLINKER_WIFI
+#endif
+#if defined(BLEMODE)
+    #define BLINKER_BLE
+#endif
+
+#include <Blinker.h>  // 必须在通信模式宏定义之后
+```
+
+**关键规则**：`#include <Blinker.h>` 必须放在通信模式宏定义之后，否则编译会出错。
+
+WiFi 模式初始化：
+
+```cpp
+Blinker.begin(auth, ssid, pswd);
+```
+
+BLE 模式初始化（ESP32 内置蓝牙）：
+
+```cpp
+Blinker.begin();
+```
+
+## 程序结构：九大标准模块
+
+Blinker 标准程序按以下顺序组织：
+
+1. **程序版本备注** — 记录日期和功能
+2. **通信模式宏定义** — WIFIMODE / BLEMODE 切换
+3. **包含库** — `#include <Blinker.h>`
+4. **全局变量声明** — WiFi 信息、引脚、状态变量
+5. **组件声明** — 必须放在回调函数前面
+6. **回调函数** — APP 发来数据时由 `Blinker.run()` 调用
+7. **功能函数** — WiFi 掉线检测等
+8. **setup() 初始化** — 开机后只执行一次
+9. **loop() 主循环** — 循环执行到关机
+
+这个结构清晰地分离了配置、声明和逻辑，是编写 Blinker 程序的基本骨架。
+
+## 组件：APP 端的交互元素
+
+Blinker 提供丰富的内置组件：
+
+| 组件 | 类名 | 用途 |
+|------|------|------|
+| 按钮 | `BlinkerButton` | 开关、模式切换 |
+| 滑块 | `BlinkerSlider` | 阈值、亮度、速度 |
+| 数值 | `BlinkerNumber` | 显示传感器数据 |
+| 文本 | `BlinkerText` | 显示字符串 |
+| RGB | `BlinkerRGB` | 颜色控制 |
+| 摇杆 | `BlinkerJoystick` | 方向控制 |
+| 开关 | `BlinkerSwitch` | 内置开关 |
+
+声明示例：
+
+```cpp
+BlinkerButton Button1("b1");      // 键名 "b1"，对应APP中组件名
+BlinkerSlider Slider1("s1");      // 键名 "s1"
+BlinkerNumber NUM1("abcd");       // 键名 "abcd"
+BlinkerText Text1("1234");        // 键名 "1234"
+```
+
+**核心规则**：组件声明**必须放在回调函数前面**，键名必须与 APP 中的组件名完全一致。
+
+## 回调函数：设备与 APP 的数据桥梁
+
+### 按钮回调
+
+```cpp
+void button1_callback(const String& state)
+{
+  if (state == "tap")      { b1_state = !b1_state; }  // 普通按键：反转
+  else if (state == "on")  { b1_state = true; }       // 开关：开启
+  else if (state == "off") { b1_state = false; }      // 开关：关闭
+  else if (state == "press")   { b1_state = true; }   // 长按：开启
+  else if (state == "pressup") { b1_state = false; }  // 松开：关闭
+  Button1.print(b1_state ? "on" : "off");  // 立即反馈到APP
+}
+```
+
+**重要**：不要简化按钮的五种处理，防止 APP 设置不同出现逻辑错误。
+
+### 滑块回调
+
+```cpp
+void slider1_callback(int32_t value)
+{
+  s1_value = value;  // 赋值全局变量即可
+}
+```
+
+**注意**：滑块**不可在回调函数里调用 print**，否则拖不动。
+
+### 注册回调
+
+```cpp
+void setup()
+{
+  Button1.attach(button1_callback);
+  Slider1.attach(slider1_callback);
+  Blinker.attachHeartbeat(heartbeat);
+  Blinker.attachDataStorage(dataStorage);
+}
+```
+
+## 心跳包：APP 获取设备数据的核心机制
+
+心跳包是 APP 获取设备数据的主要方式，**间隔约 30 秒一次**。
+
+```cpp
+void heartbeat()
+{
+  Button1.print(b1_state ? "on" : "off");   // 按钮：回调+心跳包双保险
+  Slider1.print(s1_value);                   // 滑块：仅心跳包
+  NUM1.print(100);                           // 数值：仅心跳包
+  Text1.print("Hello Blinker");              // 文本：仅心跳包
+  Blinker.notify("页面数据已刷新");           // APP内弹窗推送
+}
+```
+
+### 数据上报位置规则
+
+| 数据类型 | 上报位置 | 原因 |
+|----------|----------|------|
+| 按钮状态 | 回调函数 + 心跳包 | 即时反馈 + 兜底 |
+| 滑块值 | 仅心跳包 | 回调里 print 会拖不动 |
+| 数值/文本 | 仅心跳包 | 统一管理 |
+
+**关键**：`print` 必须放心跳包回调或按钮回调，**不能放 loop()**，否则触发 `MQTT NOT ALIVE OR MESSAGE LIMIT` 错误。
+
+## 数据存储与图表
+
+生成传感器数据折线图表：
+
+```cpp
+void dataStorage()
+{
+  Blinker.dataStorage("data1", random(0, 120));
+}
+
+void setup()
+{
+  Blinker.attachDataStorage(dataStorage);
+}
+```
+
+## 实时数据（RT_DATA）
+
+实时数据每秒以上一次，适用于高频刷新场景。**不支持文本组件，只支持数值组件**。
+
+```cpp
+void rtData()
+{
+  Blinker.sendRtData("data1", (int32_t)random(0, 120));
+  Blinker.sendRtData("data2", random(0, 120) / (float)1.5);
+  Blinker.printRtData();  // 刷新到 APP
+}
+
+void setup()
+{
+  Blinker.attachRTData(rtData);
+}
+```
+
+## WiFi 掉线检测
+
+WiFi 模式下必须实现掉线重启检测：
+
+```cpp
+void wifiOfflineMonitor()
+{
+  if (Blinker.connect()) {
+    offline_millis = 0;
+    offline_flag = false;
+  }
+  else if (!Blinker.connect() && millis() > 180000) {
+    offline_flag = true;
+  }
+  
+  if (millis() > 180000 && offline_millis && millis() - offline_millis >= 180000) {
+    ESP.restart();  // 掉线超三分钟重启
+  }
+}
+```
+
+在 `loop()` 中调用：
+
+```cpp
+void loop()
+{
+  Blinker.run();
+  wifiOfflineMonitor();
+}
+```
+
+## 调试与日志
+
+```cpp
+void setup()
+{
+  Serial.begin(115200);
+  BLINKER_DEBUG.stream(Serial);     // 调试信息输出到串口
+  BLINKER_DEBUG.debugAll();         // 开启所有调试信息
+  BLINKER_LOG("版本信息");           // 打印日志
+}
+```
+
+## 常见错误排查
+
+| 错误 | 原因 | 解决 |
+|------|------|------|
+| `MQTT NOT ALIVE OR MESSAGE LIMIT` | print 放在 loop() 中 | 移到心跳包回调或按钮回调 |
+| 按钮状态不更新 | APP 按钮类型与代码不匹配 | 保留五种状态处理 |
+| 滑块拖动不灵敏 | 回调里调用了 print | 滑块 print 只放心跳包 |
+| WiFi 连不上 | 非 2.4GHz / 密码错误 | 检查频段和密码 |
+| 授权码错误 | 引号/空格问题 | 从点灯 APP 复制 |
+
+## ESP32 Web 配网
+
+`ESP32_Blinker_NET` 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。
+
+**工作流程**：
+1. 开机读取 EEPROM 中的 WiFi 配置
+2. 有配置则尝试连接，无配置则进入配网模式
+3. 手机连接热点 `ESP32_Config`，访问 `192.168.4.1`
+4. 在 Web 页面选择 WiFi、输入密码和授权码
+5. 保存后 ESP32 重启，自动连接
+
+**核心代码**：
+
+```cpp
+WIFIConnect wifiManager("ESP32_Config");
+
+void setup() {
+    Serial.begin(115200);
+    wifiManager.begin();
+    if (wifiManager.isConnected()) {
+        Blinker.begin(
+            wifiManager.getAuth().c_str(),
+            wifiManager.getSSID().c_str(), ""
+        );
+    }
+}
+
+void loop() {
+    wifiManager.loop();
+    if (wifiManager.isConnected()) Blinker.run();
+}
+```
+
+## 完整模板代码
+
+以下是一个包含按钮、滑块、数值、文本、数据存储、心跳包、APP弹窗七大功能的完整模板：
+
+```cpp
+#define NOTE "Blinker 完整模板"
+
+#define WIFIMODE
+
+#if defined(WIFIMODE)
+    #define BLINKER_WIFI
+#endif
+
+#include <Blinker.h>
+
+char ssid[] = "WiFi名称";
+char pswd[] = "WiFi密码";
+char auth[] = "授权码";
+
+#define RELAYPIN_1 2
+bool b1_state = false;
+int s1_value = 0;
+
+BlinkerButton Button1("b1");
+BlinkerSlider Slider1("s1");
+BlinkerNumber NUM1("abcd");
+BlinkerText Text1("1234");
+
+void button1_callback(const String& state)
+{
+  if (state == "tap")      { b1_state = !b1_state; }
+  else if (state == "on")  { b1_state = true; }
+  else if (state == "off") { b1_state = false; }
+  else if (state == "press")   { b1_state = true; }
+  else if (state == "pressup") { b1_state = false; }
+  Button1.print(b1_state ? "on" : "off");
+  digitalWrite(RELAYPIN_1, !b1_state);
+}
+
+void slider1_callback(int32_t value) { s1_value = value; }
+
+void heartbeat()
+{
+  Button1.print(b1_state ? "on" : "off");
+  Slider1.print(s1_value);
+  NUM1.print(100);
+  Text1.print("Hello Blinker");
+  Blinker.notify("页面数据已刷新");
+}
+
+void dataStorage() { Blinker.dataStorage("data1", random(0, 120)); }
+
+void setup()
+{
+  Serial.begin(115200);
+  BLINKER_DEBUG.stream(Serial);
+  BLINKER_DEBUG.debugAll();
+
+  pinMode(RELAYPIN_1, OUTPUT);
+  Blinker.begin(auth, ssid, pswd);
+
+  Button1.attach(button1_callback);
+  Slider1.attach(slider1_callback);
+  Blinker.attachDataStorage(dataStorage);
+  Blinker.attachHeartbeat(heartbeat);
+}
+
+void loop() { Blinker.run(); }
+```
+
+## 总结
+
+Blinker 以其简洁的 API、丰富的组件和跨平台支持，极大降低了物联网开发门槛。掌握以下核心要点即可快速上手：
+
+1. **宏定义在前，头文件在后** — 通信模式决定编译路径
+2. **组件声明在回调前** — 否则绑定失败
+3. **print 不放 loop()** — 否则触发 MQTT 限流
+4. **滑块回调不 print** — 否则拖不动
+5. **按钮保留五种状态** — 防止 APP 模式不匹配
+6. **WiFi 掉线要检测** — 三分钟无响应自动重启
+
+遵循这些规范，你就能用 Blinker 快速搭建出稳定可靠的物联网应用。

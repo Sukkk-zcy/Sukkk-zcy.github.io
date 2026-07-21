@@ -34,6 +34,7 @@ const blog = defineCollection({
         })
         .optional(),
       tags: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
+      categories: z.array(z.string()).default([]).transform(removeDupsAndLowerCase),
       language: z.string().optional(),
       /** Optional stable URL independent from the content file location. */
       slug: z

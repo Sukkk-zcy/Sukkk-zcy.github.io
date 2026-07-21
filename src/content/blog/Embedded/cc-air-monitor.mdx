@@ -1,0 +1,42 @@
+﻿---
+title: "CC AIR MONITOR 固件烧录指南"
+publishDate: 2026-06-22 00:00:00
+description: "基于CCAirDetector修改的CC AIR MONITOR固件烧录与配置教程"
+tags: ["ESP32", "固件烧录"]
+categories: ["嵌入式开发"]
+language: '中文'
+draft: false
+comment: true
+---
+
+## 说明
+
+本固件基于 @大聪明的二手脑袋 开源的 CCAirDetector 进行修改，改动如下：
+
+- 修改默认上电界面为 page3
+
+- 调换了 page2 和 page3 的部分显示组件
+
+- web 配网界面新增和风天气认证参数填写，无需配置 Arduino 环境，直接烧录固件即可
+
+![CC AIR MONITOR Page2](https://sukk-imgbed.pages.dev/file/1784520432087_CC_AIR_MONITOR_Page2.JPEG)
+
+![CC AIR MONITOR Page3](https://sukk-imgbed.pages.dev/file/1784520433016_CC_AIR_MONITOR_Page3.JPEG)
+
+## 下载工具和 bin 文件
+
+下载并解压以下文件：
+
+- [flash_download_tool.zip](https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/ccair-firmware/flash_download_tool.zip)
+
+- [CCAIR.bin](https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/ccair-firmware/CCAIR.bin)
+
+## 固件烧录
+
+1. 选择你的芯片型号
+
+2. 选择 bin 文件路径，左侧复选框需要打勾，地址为 `0`
+
+3. 选择 COM 端口，点击 START，等待显示 FINISH 即烧录成功
+
+4. 单击 PCB 上的 RST 以重启系统

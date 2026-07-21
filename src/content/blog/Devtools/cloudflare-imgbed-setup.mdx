@@ -1,0 +1,187 @@
+﻿---
+title: "CloudFlare ImgBed 图床搭建"
+publishDate: 2026-07-20 00:00:00
+description: "使用 CloudFlare Pages + Telegram Bot 搭建免费图床，解决博客图片加载慢的问题。"
+tags: ["图床", "CloudFlare", "Telegram"]
+categories: ["开发环境搭建"]
+language: '中文'
+draft: false
+comment: true
+---
+
+博客托管在 GitHub Pages 上，国内访问图片加载慢甚至加载不出来。本文记录使用 [CloudFlare ImgBed](https://github.com/MarSeventh/CloudFlare-ImgBed) 搭建免费图床的完整过程。
+
+---
+
+## 为什么需要图床
+
+GitHub Pages 的图片托管有以下问题：
+
+| 问题 | 说明 |
+|------|------|
+| 加载慢 | GitHub 域名在国内访问速度不稳定 |
+| 加载失败 | 部分网络环境直接无法访问 |
+| 无 CDN | 没有全球加速，全靠 GitHub 单一节点 |
+
+CloudFlare ImgBed 的方案：**Cloudflare Pages（免费托管 + 全球 CDN）** + **Telegram Bot（免费存储 + 无限容量）**。
+
+---
+
+## 前期准备
+
+需要准备以下账号和工具：
+
+| 需要 | 说明 |
+|------|------|
+| Cloudflare 账号 | 免费注册，用于部署 Pages |
+| GitHub 账号 | 用于 Fork 项目 |
+| Telegram 账号 | 用于创建 Bot 和频道作为存储后端 |
+
+---
+
+## 第一步：创建 Telegram Bot
+
+1. 在 Telegram 搜索 `@BotFather`，进入对话
+2. 发送 `/newbot`
+3. 按提示输入 Bot 名称（如 `My Image Bed`）和用户名（必须以 `bot` 结尾）
+4. 记录 BotFather 回复的 **Bot Token**（格式：`123456789:ABCdefGHI...`）
+
+---
+
+## 第二步：创建 Telegram 频道
+
+1. Telegram 中新建频道，选**私密**（只是存储后端，不需要公开）
+2. 进入频道设置 → 管理员 → 添加管理员
+3. 搜索你的 Bot 用户名，添加为管理员
+4. 在频道中发送一条测试消息
+5. 长按消息 → 转发 → 搜索 `@VersaToolsBot`，转发给它
+6. 记录返回的**频道 ID**（格式：`-1001234567890`）
+
+---
+
+## 第三步：Fork 项目
+
+1. 打开 https://github.com/MarSeventh/CloudFlare-ImgBed
+2. 点右上角 **Fork** 到你的 GitHub 账户
+
+---
+
+## 第四步：部署到 Cloudflare Pages
+
+1. 登录 https://dash.cloudflare.com/
+2. 左侧菜单：**计算和 AI** → **Workers & Pages**
+3. 点 **创建应用程序** → **Get started** → 连接 GitHub 仓库
+4. 选择刚 Fork 的 `CloudFlare-ImgBed` 仓库
+
+配置填写：
+
+| 配置项 | 值 |
+|--------|-----|
+| 项目名称 | `sukk-imgbed`（自定义） |
+| 生产分支 | `main` |
+| 构建命令 | `npm install` |
+| 构建输出目录 | `/frontend-dist` |
+
+5. 点 **保存并部署**，等待 2-3 分钟
+
+---
+
+## 第五步：创建 KV 数据库
+
+1. Cloudflare Dashboard → **存储和数据库** → **Workers KV**
+2. 点 **创建实例**，命名空间名称填 `img_url`（必须是这个名字）
+3. 回到 Pages 项目 → **设置** → **Bindings** → **添加** → **KV 命名空间**
+4. 变量名称填 `img_url`，选择刚创建的命名空间，保存
+
+---
+
+## 第六步：配置环境变量
+
+在 Pages 项目的 **设置** → **Variables and secrets** 中，添加以下 Secret：
+
+| 变量名 | 值 |
+|--------|-----|
+| `TG_BOT_TOKEN` | 你的 Bot Token |
+| `TG_CHAT_ID` | 你的频道 ID |
+
+---
+
+## 第七步：重新部署
+
+1. 进入项目的 **Deployments** 页面
+2. 找到最新部署记录，点 **...** → **Retry deployment**
+3. 等待部署完成
+
+部署完成后访问 `https://你的项目名.pages.dev`，进入管理后台。
+
+---
+
+## 第八步：配置访问码
+
+默认情况下任何人都能上传图片，需要设置访问码：
+
+1. 访问 `https://你的项目名.pages.dev/dashboard`
+2. **系统设置** → **安全设置**
+3. 设置管理员用户名和密码
+4. 设置用户端认证码
+
+---
+
+## 使用方法
+
+### 通过网页上传
+
+1. 打开图床地址
+2. 输入认证码
+3. 选择图片上传
+4. 复制返回的图片 URL
+
+### 在博客中引用
+
+直接使用 Markdown 图片语法即可：
+
+```markdown
+![图片描述](https://你的图床域名/file/xxx.png)
+```
+
+前后各空一行，确保图片独占一行。
+
+---
+
+## 踩坑记录
+
+### 1. Hugo 编译时图片加载失败
+
+**现象**：博客编译后图片不显示，`<img>` 标签没有 `src` 属性
+
+**原因**：Hugo 的图片处理功能会尝试下载远程图片进行处理，失败后去掉 `src`
+
+**解决**：在 `layouts/_markup/render-image.html` 添加自定义渲染钩子，检测到远程 URL（`http://` 或 `https://` 开头）时直接输出 `<img>` 标签，不走 Hugo 图片处理
+
+### 2. API 上传失败（405 Method Not Allowed）
+
+**现象**：POST `/api/upload` 返回 405
+
+**原因**：API 端点是 `/upload` 不是 `/api/upload`，且认证码要通过 URL 参数传递
+
+**正确调用方式**：
+```bash
+curl -X POST 'https://你的图床域名/upload?authCode=你的认证码&uploadChannel=telegram' \
+  -F 'file=@/path/to/image.jpg'
+```
+
+### 3. KV 绑定找不到入口
+
+**位置**：Pages 项目 → 设置 → 左侧菜单 **Bindings**（不是"函数"）
+
+---
+
+## 参考资料
+
+1. [CloudFlare ImgBed 项目](https://github.com/MarSeventh/CloudFlare-ImgBed)
+2. [CloudFlare ImgBed 文档](https://cfbed.sanyue.de/)
+3. [Cloudflare Pages 部署指南](https://cfbed.sanyue.de/deployment/pages.html)
+
+---
+
+*本文是「开发环境搭建」系列文章。*

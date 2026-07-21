@@ -1,0 +1,35 @@
+﻿---
+title: "PlatformIO首次安装使用注意事项"
+publishDate: 2026-06-21 00:00:00
+description: "PlatformIO首次安装使用时遇到的问题及解决方案"
+tags: ["PlatformIO", "VS Code"]
+categories: ["开发环境搭建"]
+language: '中文'
+draft: false
+comment: true
+---
+
+## 引言
+
+因网络原因，PlatformIO首次创建项目时容易出些一些问题，目前网络教程大多是切换网络、镜像源、配置Python环境等，此类教程大都比较繁琐，且不一定能解决问题。
+
+本文以VS Code为例，提供首次安装和创建项目时无法加载的解决方案，其它IDE也可自行尝试。
+
+## 扩展启动失败
+
+1. 切换网络，使用热点/代理。
+2. 使用离线安装包。
+
+![离线安装](https://sukk-imgbed.pages.dev/file/1784520413232_离线安装.png)
+
+[点击下载PlatformIO离线安装包](https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/platformio-offline/platformio.platformio-ide-3.1.1@win32-x64.vsix)
+
+## 首次创建项目无法加载
+
+1. 打开任务管理器将关于vscode/platformIO/python的进程全部关掉，不会关可以直接关机重启。
+2. 根据你的电脑路径，找到.platfromio文件夹将其删除。
+3. 下载中的.platformio解压在原文件夹路径，重新打开vscode，可能还有其他依赖加载，一般几十秒就可以正常启动了。
+
+![PlatformIO文件路径](https://sukk-imgbed.pages.dev/file/1784520426575_platformio文件路径.png)
+
+[点击下载.platformio文件](https://pan.baidu.com/s/1wgq2J7eosyw5shmHPX-7SA?pwd=v1t3)

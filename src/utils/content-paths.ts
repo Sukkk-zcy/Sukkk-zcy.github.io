@@ -54,11 +54,29 @@ export function getPostCategorySegments(post: BlogPost): CategorySegment[] {
   return getCategorySegments(getPostCategory(post))
 }
 
+// Map of known acronyms to preserve correct casing
+const KNOWN_ACRONYMS: Record<string, string> = {
+  sdn: 'SDN',
+  p4: 'P4',
+  ddos: 'DDoS',
+  esp32: 'ESP32',
+  vm: 'VM',
+  ai: 'AI'
+}
+
 export function getCategoryLabel(category: string): string {
+  // Check if the entire category is a known acronym
+  const lower = category.toLowerCase()
+  if (KNOWN_ACRONYMS[lower]) return KNOWN_ACRONYMS[lower]
+
   return category
     .split(/[-_]/g)
     .filter(Boolean)
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .map((part) => {
+      const partLower = part.toLowerCase()
+      if (KNOWN_ACRONYMS[partLower]) return KNOWN_ACRONYMS[partLower]
+      return part.charAt(0).toUpperCase() + part.slice(1)
+    })
     .join(' ')
 }
 

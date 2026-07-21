@@ -31,7 +31,7 @@ const currentCategory = currentPost ? getCategory(currentPost) : undefined
 const sameCategoryPosts = currentCategory
   ? collections
       .filter((p) => getCategory(p) === currentCategory)
-      .sort((a, b) => a.data.publishDate.getTime() - b.data.publishDate.getTime())
+      .sort((a, b) => (a.data.publishDate?.getTime() ?? 0) - (b.data.publishDate?.getTime() ?? 0))
   : collections
 
 // Find prev and next within the category

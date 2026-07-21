@@ -1,0 +1,240 @@
+---
+title: "P4 控制块与动作：控制逻辑入门"
+publishDate: 2026-07-23 00:00:00
+description: "P4 control block、action、apply 的写法与执行流程"
+tags: ["P4", "控制块", "动作", "Action"]
+categories: ["P4"]
+language: '中文'
+draft: false
+comment: true
+---
+
+Parser 把报文解析成结构化 headers 之后，接下来就交给 control block 处理。这一篇讲 control、action、apply 的写法。
+
+> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 07 章整理。
+
+---
+
+## 一、control block 是什么
+
+Control block 是 P4 程序的"大脑"，负责决定怎么处理已经解析好的报文。它包含：
+
+1. **action 定义** — 具体的处理动作
+2. **table 定义** — 匹配-动作表（下一篇详讲）
+3. **apply 语句** — 按顺序执行逻辑
+
+---
+
+## 二、action：定义动作
+
+Action 是可复用的"函数"，描述对报文的具体操作：
+
+```p4
+action drop() {
+    mark_to_drop(standard_metadata);
+}
+
+action set_egress(bit<9> port) {
+    standard_metadata.egress_spec = port;
+}
+
+action rewrite_mac(bit<48> src_mac) {
+    hdr.ethernet.srcAddr = src_mac;
+}
+```
+
+### 2.1 action 的特点
+
+- 可以修改 header 字段
+- 可以修改 `standard_metadata`
+- 可以读取参数（由 table 调用时传入）
+- **不能**调用其他 action
+- **不能**访问其他 table
+
+### 2.2 内置动作
+
+P4 有几个内置动作：
+
+| 动作 | 作用 |
+|------|------|
+| `mark_to_drop()` | 标记报文丢弃 |
+| `NoAction()` | 什么都不做（空动作） |
+
+---
+
+## 三、control 的基本结构
+
+```p4
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    // action 定义
+    action drop() {
+        mark_to_drop(standard_metadata);
+    }
+
+    action set_egress(bit<9> port) {
+        standard_metadata.egress_spec = port;
+    }
+
+    // apply 逻辑
+    apply {
+        // 这里写处理逻辑
+    }
+}
+```
+
+---
+
+## 四、apply：执行逻辑
+
+`apply` 是 control block 的入口，按顺序执行：
+
+### 4.1 简单逻辑
+
+```p4
+apply {
+    // 直接修改 header
+    hdr.ethernet.srcAddr = 48w0x00_11_22_33_44_55;
+    
+    // 直接设置出端口
+    standard_metadata.egress_spec = 9w1;
+}
+```
+
+### 4.2 条件判断
+
+```p4
+apply {
+    if (hdr.ipv4.isValid()) {
+        // IPv4 报文处理
+        if (hdr.ipv4.ttl > 1) {
+            hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+        } else {
+            mark_to_drop(standard_metadata);
+        }
+    }
+}
+```
+
+### 4.3 for 循环
+
+```p4
+apply {
+    // 遍历 VLAN tag stack
+    for (bit<32> i = 0; i < 2; i++) {
+        if (hdr.vlan_tag[i].isValid()) {
+            hdr.vlan_tag[i].vid = hdr.vlan_tag[i].vid + 1;
+        }
+    }
+}
+```
+
+---
+
+## 五、header 的 isValid()
+
+在处理 header 之前，通常要检查它是否有效（被 Parser extract 过）：
+
+```p4
+if (hdr.ethernet.isValid()) {
+    // Ethernet 头存在，可以处理
+}
+
+if (!hdr.ipv4.isValid()) {
+    // 没有 IPv4 头，跳过处理
+}
+```
+
+---
+
+## 六、修改 header 字段
+
+直接赋值即可：
+
+```p4
+// 修改目的 MAC
+hdr.ethernet.dstAddr = 48w0xFF_FF_FF_FF_FF_FF;
+
+// TTL 递减
+hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+
+// 修改 IP 地址
+hdr.ipv4.srcAddr = 32w0x0A_00_00_01;
+```
+
+### 6.1 位运算
+
+```p4
+// 清除低 4 位
+hdr.ipv4.flags = hdr.ipv4.flags & 3w0b110;
+
+// 设置某一位
+hdr.ipv4.flags = hdr.ipv4.flags | 3w0b001;
+```
+
+---
+
+## 七、V1Model 架构中的 control block
+
+V1Model 定义了四个 control block：
+
+```
+Parser → Ingress → Egress → Deparser
+```
+
+| Block | 作用 |
+|-------|------|
+| `MyParser` | 解析报文 |
+| `MyIngress` | 入口处理（主要逻辑在这里） |
+| `MyEgress` | 出口处理（通常较简单） |
+| `MyDeparser` | 把 header 重新"打包"成字节流 |
+
+大多数简单程序只需要在 `MyIngress` 里写逻辑。
+
+---
+
+## 八、完整示例：简单的端口转发
+
+```p4
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    action drop() {
+        mark_to_drop(standard_metadata);
+    }
+
+    action set_egress(bit<9> port) {
+        standard_metadata.egress_spec = port;
+    }
+
+    table port_forward {
+        key = {
+            hdr.ethernet.dstAddr: exact;
+        }
+        actions = {
+            set_egress;
+            drop;
+        }
+        default_action = drop();
+    }
+
+    apply {
+        port_forward.apply();
+    }
+}
+```
+
+---
+
+## 九、小结
+
+| 概念 | 作用 |
+|------|------|
+| `control` | 定义处理逻辑的容器 |
+| `action` | 可复用的处理动作 |
+| `apply` | 按顺序执行逻辑 |
+| `isValid()` | 检查 header 是否有效 |
+| `mark_to_drop()` | 标记丢弃报文 |
+
+Control block 是 P4 程序的核心，action 是基本单元。下一篇会讲更强大的 table 机制。
+
+---
+
+**下一篇**：[P4 匹配动作表](/blog/p4/p4-06-match-action) — table 的定义与使用

@@ -1,0 +1,282 @@
+---
+title: "P4 匹配动作表：table 详解"
+publishDate: 2026-07-24 00:00:00
+description: "P4 table 的定义、match_kind、优先级、默认动作与多表流水线"
+tags: ["P4", "Table", "Match-Action", "匹配动作"]
+categories: ["P4"]
+language: '中文'
+draft: false
+comment: true
+---
+
+Table（匹配动作表）是 P4 的核心机制。上一篇写了 action，这一篇讲怎么把 action 组织成 table，以及 match_kind 的区别。
+
+> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 08 章整理。
+
+---
+
+## 一、table 的基本结构
+
+```p4
+table my_table {
+    key = {
+        hdr.ethernet.dstAddr: exact;    // 匹配字段 + 匹配类型
+    }
+    actions = {
+        set_egress;      // 可选动作
+        drop;
+        NoAction;        // 内置空动作
+    }
+    size = 1024;         // 表项容量
+    default_action = NoAction();  // 默认动作
+}
+```
+
+### 1.1 key
+
+`key` 定义匹配字段和匹配类型。可以有多个字段：
+
+```p4
+key = {
+    hdr.ipv4.srcAddr: lpm;
+    hdr.ipv4.dstAddr: lpm;
+    hdr.ipv4.protocol: exact;
+}
+```
+
+### 1.2 actions
+
+`actions` 列出这个 table 可以执行的动作。控制平面下发表项时，只能从这个列表里选。
+
+### 1.3 size
+
+`size` 指定表项最大数量。实际硬件中，这个值会影响资源占用。
+
+### 1.4 default_action
+
+当没有任何表项匹配时，执行默认动作。
+
+---
+
+## 二、match_kind：三种匹配类型
+
+P4 定义了三种基本匹配类型：
+
+### 2.1 exact（精确匹配）
+
+所有比特必须完全相同：
+
+```p4
+key = {
+    hdr.ethernet.dstAddr: exact;
+}
+```
+
+**适用场景**：MAC 地址表、VLAN 表等需要精确查找的场景。
+
+### 2.2 lpm（最长前缀匹配）
+
+类似 IP 路由，找最长匹配的前缀：
+
+```p4
+key = {
+    hdr.ipv4.dstAddr: lpm;
+}
+```
+
+**适用场景**：IP 路由表、子网掩码匹配。
+
+### 2.3 ternary（三态匹配）
+
+支持通配符（don't care），用掩码指定哪些位需要匹配：
+
+```p4
+key = {
+    hdr.ipv4.srcAddr: ternary;
+}
+```
+
+**适用场景**：ACL（访问控制列表）、灵活的流量分类。
+
+### 2.4 match_kind 对比
+
+| 类型 | 匹配方式 | 典型应用 | 硬件成本 |
+|------|----------|----------|----------|
+| `exact` | 全部比特相同 | MAC 表 | 低 |
+| `lpm` | 最长前缀匹配 | 路由表 | 中 |
+| `ternary` | 掩码+值，don't care | ACL | 高 |
+
+---
+
+## 三、表项优先级
+
+当多个表项可能匹配时：
+
+- **exact**：最多一个匹配（无歧义）
+- **lpm**：选最长的前缀
+- **ternary**：可以通过 `priority` 字段指定优先级
+
+```p4
+// 控制平面下发时指定优先级
+// priority 值越大，优先级越高
+```
+
+---
+
+## 四、apply：应用 table
+
+在 `apply` 块中调用 table：
+
+```p4
+apply {
+    port_forward.apply();  // 应用 port_forward 表
+}
+```
+
+### 4.1 多表流水线
+
+可以按顺序应用多个 table：
+
+```p4
+apply {
+    acl_table.apply();      // 先查 ACL
+    if (standard_metadata.drop == 0) {
+        l2_table.apply();   // 没被丢弃，再查 L2 表
+    }
+}
+```
+
+### 4.2 条件应用
+
+```p4
+apply {
+    if (hdr.ipv4.isValid()) {
+        ipv4_table.apply();
+    }
+}
+```
+
+---
+
+## 五、default_action 详解
+
+### 5.1 简单默认动作
+
+```p4
+default_action = drop();
+```
+
+### 5.2 带参数的默认动作
+
+```p4
+default_action = set_egress(9w0);  // 默认发到端口 0
+```
+
+### 5.3 无默认动作
+
+如果不写 `default_action`，当没有表项匹配时，报文不会被处理（可能被丢弃或转发到默认端口，取决于具体实现）。
+
+---
+
+## 六、静态表项 vs 动态表项
+
+### 6.1 静态表项（写在 P4 里）
+
+```p4
+table port_forward {
+    key = { hdr.ethernet.dstAddr: exact; }
+    actions = { set_egress; drop; }
+    
+    // 静态配置
+    entries = {
+        48w0x00_11_22_33_44_55 : set_egress(9w1);
+        48w0x00_AA_BB_CC_DD_EE : set_egress(9w2);
+    }
+}
+```
+
+静态表项适合固定的、不需要动态调整的规则。
+
+### 6.2 动态表项（控制平面下发）
+
+大多数情况下，表项由控制平面（CPU）通过 P4Runtime 或 Thrift 动态下发。下一篇会详细讲。
+
+---
+
+## 七、counter：流量统计
+
+可以在 table 上附加 counter，统计匹配次数和字节数：
+
+```p4
+Counter<bit<64>, bit<32>>(1024, CounterType.PACKETS_AND_BYTES) port_counter;
+
+table port_forward {
+    key = { hdr.ethernet.dstAddr: exact; }
+    actions = { set_egress; drop; }
+    
+    counters = port_counter;  // 绑定 counter
+}
+```
+
+### 7.1 读取 counter
+
+```p4
+apply {
+    port_forward.apply();
+    // 读取 counter
+    port_counter.read(meta.counter_value, (bit<32>)standard_metadata.egress_spec);
+}
+```
+
+---
+
+## 八、完整示例：MAC 地址学习交换机
+
+```p4
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    action drop() {
+        mark_to_drop(standard_metadata);
+    }
+
+    action set_egress(bit<9> port) {
+        standard_metadata.egress_spec = port;
+    }
+
+    table mac_table {
+        key = {
+            hdr.ethernet.dstAddr: exact;
+        }
+        actions = {
+            set_egress;
+            drop;
+        }
+        size = 1024;
+        default_action = drop();
+    }
+
+    apply {
+        mac_table.apply();
+    }
+}
+```
+
+---
+
+## 九、小结
+
+| 概念 | 作用 |
+|------|------|
+| `table` | 匹配-动作表，P4 的核心机制 |
+| `key` | 定义匹配字段和类型 |
+| `actions` | 可选动作列表 |
+| `exact` | 精确匹配 |
+| `lpm` | 最长前缀匹配 |
+| `ternary` | 三态匹配（支持通配符） |
+| `default_action` | 无匹配时的默认动作 |
+| `counter` | 流量统计 |
+
+Table 是 P4 的灵魂，理解 match_kind 的区别是写好 P4 的关键。
+
+---
+
+**下一篇**：[V1Model 架构与 Deparser](/blog/p4/p4-07-v1model-deparser) — 完整的 P4 程序结构

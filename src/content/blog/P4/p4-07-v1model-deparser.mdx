@@ -1,0 +1,258 @@
+---
+title: "V1Model 架构与 Deparser：完整的 P4 程序"
+publishDate: 2026-07-25 00:00:00
+description: "V1Model 架构六大块详解、Deparser 工作原理、standard_metadata 关键字段"
+tags: ["P4", "V1Model", "Deparser", "架构"]
+categories: ["P4"]
+language: '中文'
+draft: false
+comment: true
+---
+
+前面几篇分别讲了 Parser、Control、Table，这一篇把它们串起来，讲 V1Model 架构的完整结构和 Deparser。
+
+> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 09、11 章整理。
+
+---
+
+## 一、V1Model 是什么
+
+V1Model 是 BMv2（Behavioral Model v2）的参考架构，定义了报文处理的完整流水线：
+
+```
+入口 → Parser → Ingress → Egress → Deparser → 出口
+         ↓                    ↓
+      VerifyChecksum    ComputeChecksum
+```
+
+### 1.1 六大块
+
+| 块 | 作用 |
+|----|------|
+| `Parser` | 解析报文 |
+| `VerifyChecksum` | 校验和验证（可选） |
+| `MyIngress` | 入口处理（主要逻辑） |
+| `MyEgress` | 出口处理（通常较简单） |
+| `ComputeChecksum` | 计算校验和（可选） |
+| `Deparser` | 把 header 重新打包成字节流 |
+
+---
+
+## 二、V1Model 程序结构
+
+```p4
+#include <core.p4>
+#include <v1model.p4>
+
+// header 定义
+header Ethernet_h { ... }
+header IPv4_h { ... }
+
+struct Headers {
+    Ethernet_h ethernet;
+    IPv4_h ipv4;
+}
+
+struct Meta { }
+
+// Parser
+parser MyParser(packet_in pkt, out Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    state start {
+        pkt.extract(hdr.ethernet);
+        transition select(hdr.ethernet.etherType) {
+            0x0800: parse_ipv4;
+            default: accept;
+        }
+    }
+    state parse_ipv4 {
+        pkt.extract(hdr.ipv4);
+        transition accept;
+    }
+}
+
+// 校验和验证
+control VerifyChecksum(inout Headers hdr, inout Meta meta) {
+    apply { }
+}
+
+// 入口处理
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    apply { }
+}
+
+// 出口处理
+control MyEgress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    apply { }
+}
+
+// 计算校验和
+control ComputeChecksum(inout Headers hdr, inout Meta meta) {
+    apply { }
+}
+
+// Deparser
+control MyDeparser(packet_out pkt, in Headers hdr) {
+    apply {
+        pkt.emit(hdr.ethernet);
+        pkt.emit(hdr.ipv4);
+    }
+}
+
+// 主函数
+V1Switch(
+    MyParser(),
+    VerifyChecksum(),
+    MyIngress(),
+    MyEgress(),
+    ComputeChecksum(),
+    MyDeparser()
+) main;
+```
+
+---
+
+## 三、Deparser：重新打包
+
+Deparser 的作用是把已经处理好的 header 按顺序"emit"（输出）成字节流：
+
+```p4
+control MyDeparser(packet_out pkt, in Headers hdr) {
+    apply {
+        pkt.emit(hdr.ethernet);
+        pkt.emit(hdr.ipv4);
+        pkt.emit(hdr.tcp);
+    }
+}
+```
+
+### 3.1 emit 的顺序
+
+`emit` 的顺序就是报文中 header 的顺序。通常从外层到内层：
+
+```
+Ethernet → VLAN → IPv4 → TCP/UDP → Payload
+```
+
+### 3.2 只 emit 有效的 header
+
+`emit` 会自动检查 `isValid()`，只有有效的 header 才会被输出。所以不用担心未解析的 header 被错误输出。
+
+---
+
+## 四、standard_metadata 关键字段
+
+`standard_metadata` 是 V1Model 提供的元数据结构，包含很多重要字段：
+
+### 4.1 常用字段
+
+| 字段 | 类型 | 作用 |
+|------|------|------|
+| `ingress_port` | `bit<9>` | 入端口号 |
+| `egress_spec` | `bit<9>` | 指定出端口 |
+| `egress_port` | `bit<9>` | 实际出端口（Egress 阶段） |
+| `packet_length` | `bit<32>` | 报文长度（字节） |
+| `drop` | `bit<1>` | 是否丢弃（已弃用，用 `mark_to_drop`） |
+| `instance_type` | `bit<32>` | 实例类型（正常报文/克隆等） |
+| `egress_rid` | `bit<32>` | 克隆报文的复制 ID |
+
+### 4.2 egress_spec 的特殊值
+
+- `egress_spec = 511`（`9w0x1FF`）：表示丢弃
+- `egress_spec = 端口号`：转发到指定端口
+
+---
+
+## 五、VerifyChecksum 和 ComputeChecksum
+
+这两个块通常留空，除非你需要自定义校验和逻辑：
+
+```p4
+// 验证校验和
+control VerifyChecksum(inout Headers hdr, inout Meta meta) {
+    apply {
+        // BMv2 会自动验证 IPv4 校验和
+        // 如果需要自定义，在这里写
+    }
+}
+
+// 计算校验和
+control ComputeChecksum(inout Headers hdr, inout Meta meta) {
+    apply {
+        // BMv2 会自动计算 IPv4 校验和
+        // 如果需要自定义，在这里写
+    }
+}
+```
+
+### 5.1 手动计算校验和
+
+如果需要手动处理（比如 TCP 校验和），可以用 `Checksum` 外部对象：
+
+```p4
+Checksum() ipv4_checksum;
+
+control ComputeChecksum(inout Headers hdr, inout Meta meta) {
+    apply {
+        ipv4_checksum.update({
+            hdr.ipv4.version,
+            hdr.ipv4.ihl,
+            hdr.ipv4.diffserv,
+            hdr.ipv4.totalLen,
+            // ... 其他字段
+        });
+        hdr.ipv4.hdrChecksum = ipv4_checksum.get();
+    }
+}
+```
+
+---
+
+## 六、完整数据流
+
+```
+1. 报文到达入口端口
+2. Parser 解析 → 填充 headers
+3. VerifyChecksum 校验（可选）
+4. MyIngress 处理（修改 header、设置出端口）
+5. MyEgress 处理（可选）
+6. ComputeChecksum 计算（可选）
+7. Deparser 把 headers 打包成字节流
+8. 报文从出端口发出
+```
+
+---
+
+## 七、常见踩坑
+
+### 7.1 Deparser 顺序错误
+
+如果 `emit` 顺序不对，发出的报文会乱掉。记住：从外层到内层。
+
+### 7.2 忘记 emit 某个 header
+
+如果 Parser 解析了某个 header，但 Deparser 没有 emit，那这个 header 会丢失。
+
+### 7.3 standard_metadata 的生命周期
+
+- `ingress_port`：只在 Ingress 阶段有效
+- `egress_spec`：在 Ingress 阶段设置，Egress 阶段读取
+- `packet_length`：全程有效
+
+---
+
+## 八、小结
+
+| 概念 | 作用 |
+|------|------|
+| V1Model | BMv2 的参考架构 |
+| 六大块 | Parser → VerifyChecksum → Ingress → Egress → ComputeChecksum → Deparser |
+| Deparser | 把 header 打包成字节流 |
+| `emit` | 输出 header（自动检查 isValid） |
+| `standard_metadata` | 元数据结构，包含端口、长度等信息 |
+| `egress_spec` | 指定出端口，511 表示丢弃 |
+
+理解 V1Model 架构是写出完整 P4 程序的基础。
+
+---
+
+**下一篇**：[L2 交换机实验](/blog/p4/p4-08-l2-switch) — 动手跑第一个完整实验

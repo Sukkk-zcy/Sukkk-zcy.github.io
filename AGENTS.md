@@ -19,7 +19,8 @@ npm run dev              # Start dev server
 npm run dev:check        # Dev with type checking
 
 # Build (runs checks first)
-npm run build            # astro-pure check && astro check && astro build
+# 注意：构建时内存不足需要设置 NODE_OPTIONS
+$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
 
 # Lint & Format
 npm run lint             # ESLint with Astro plugin

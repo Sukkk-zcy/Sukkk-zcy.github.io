@@ -1,267 +1,43 @@
 ---
-title: "P4Runtime 控制平面：用 Python 控制 BMv2"
-publishDate: 2026-07-28 00:00:00
-description: "P4Runtime 协议、gRPC 通信、Python 控制平面、Packet-in/Packet-out"
-tags: ["P4", "P4Runtime", "控制平面", "Python", "gRPC"]
+title: "P4Runtime 控制平面"
+publishDate: 2026-07-21 00:00:00
+description: "P4Runtime 协议、gRPC 通信、Python 控制平面"
+tags: ["P4", "P4Runtime", "控制平面", "Python"]
 categories: ["P4"]
-language: '中文'
+language: "中文"
 draft: false
 comment: true
 ---
 
-前面的实验都是通过 simple_switch_CLI 手动配置表项。这一篇学习 P4Runtime，用 Python 程序控制 BMv2。
+用 Python 程序控制 BMv2。
 
-> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 15 章和 [P4Runtime 中文实验](https://github.com/zhh2001/p4runtime-cn-labs) 整理。
-
----
-
-## 一、P4Runtime 是什么
-
-P4Runtime 是一个标准的控制平面-数据平面通信协议，定义了：
-
-1. **P4Info** — 表/动作/匹配类型的元数据
-2. **gRPC 传输** — 控制器和交换机之间的通信
-3. **StreamChannel** — 双向流，用于 Packet-in/Packet-out
-
-### 1.1 为什么用 P4Runtime
-
-- 比 Thrift CLI 更灵活
-- 支持 Packet-in/Packet-out（报文发送给控制器）
-- 标准化，可移植
+> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 15 章整理。
 
 ---
 
-## 二、环境准备
+## 一、P4Runtime 工作流程
 
-### 2.1 安装 Python 依赖
-
-```bash
-pip install grpcio protobuf p4runtime
-```
-
-### 2.2 启动 BMv2（gRPC 模式）
-
-```bash
-simple_switch_grpc \
-  --log-console \
-  -i 0@veth0 -i 1@veth2 \
-  --no-p4 \
-  --load-p4 build/l2_switch.json \
-  --cpu-port 255 \
-  --grpc-server-addr 0.0.0.0:50051 \
-  --thrift-port 9090
-```
-
----
-
-## 三、P4Runtime 工作流程
-
-```
-1. 控制器读取 P4Info（表/动作清单）
-2. 选择主控制器（Master arbitration）
-3. 推送 pipeline 配置
+1. 读取 P4Info
+2. 选择主控制器
+3. 推送 pipeline
 4. 读写表项
 5. 收发 Packet-in/Packet-out
-```
 
 ---
 
-## 四、Python 控制平面示例
-
-### 4.1 基本连接
+## 二、Python 控制平面
 
 ```python
-import p4runtime_lib.bmv2
-from p4runtime_lib.error_utils import handle_grpc_error
+from p4runtime_lib.bmv2 import Bmv2Connection
 
-# 创建连接
-bmv2_connection = p4runtime_lib.bmv2.Bmv2Connection(
+conn = Bmv2Connection(
     device_id=0,
     grpc_addr='localhost:50051',
-    election_id=(0, 1),  # (high, low)
-    proto_filenode='build/l2_switch.p4i'
+    election_id=(0, 1)
 )
-
-# 启动连接
-bmv2_connection.setup()
-```
-
-### 4.2 下发表项
-
-```python
-from p4runtime_lib.convert import encode
-
-# 添加 MAC 表项
-table_entry = bmv2_connection.table_entry(
-    table_name='MyIngress.l2_table',
-    action_name='MyIngress.set_egress',
-    match={
-        'hdr.ethernet.dstAddr': encode('00:00:00:00:00:01', 48)
-    },
-    action_params={
-        'port': encode(1, 9)
-    }
-)
-
-bmv2_connection.write_table_entry(table_entry)
-```
-
-### 4.3 读取表项
-
-```python
-entries = bmv2_connection.read_table_entries(
-    table_name='MyIngress.l2_table'
-)
-
-for entry in entries:
-    print(entry)
-```
-
----
-
-## 五、Packet-in / Packet-out
-
-### 5.1 什么是 Packet-in
-
-当 P4 程序中调用 `send_to_controller()` 时，报文会被发送给控制器，这就是 Packet-in。
-
-### 5.2 什么是 Packet-out
-
-控制器可以向交换机发送报文，这就是 Packet-out。
-
-### 5.3 L2 学习交换机示例
-
-```p4
-// P4 程序中
-action send_to_controller() {
-    meta.digest_data = hdr.ethernet.srcAddr;
-}
-
-table learning_table {
-    key = { hdr.ethernet.srcAddr: lpm; }
-    actions = { send_to_controller; set_egress; }
-    default_action = send_to_controller();  // 未学习的 MAC 发给控制器
-}
-```
-
-### 5.4 Python 处理 Packet-in
-
-```python
-# 接收 Packet-in
-def handle_packet_in(packet):
-    # 解析报文
-    # 学习 MAC 地址
-    # 下发表项
-    pass
-
-# 注册处理函数
-bmv2_connection.set_packet_in_handler(handle_packet_in)
-```
-
----
-
-## 六、完整流程
-
-### 6.1 控制器启动流程
-
-```python
-# 1. 连接 BMv2
-conn = Bmv2Connection(device_id=0, grpc_addr='localhost:50051')
-
-# 2. 选择主控制器
 conn.setup()
-
-# 3. 推送 pipeline
-conn.push_pipeline_config(
-    p4info='build/l2_switch.p4i',
-    bmv2_json='build/l2_switch.json'
-)
-
-# 4. 下发表项
-conn.write_table_entry(...)
-
-# 5. 运行事件循环
-conn.grpc_loop()
-```
-
-### 6.2 完整示例
-
-```python
-#!/usr/bin/env python3
-from p4runtime_lib.bmv2 import Bmv2Connection
-from p4runtime_lib.convert import encode
-
-def main():
-    # 连接
-    conn = Bmv2Connection(
-        device_id=0,
-        grpc_addr='localhost:50051',
-        election_id=(0, 1),
-        proto_filenode='build/l2_switch.p4i'
-    )
-    conn.setup()
-
-    # 推送配置
-    conn.push_pipeline_config(
-        p4info='build/l2_switch.p4i',
-        bmv2_json='build/l2_switch.json'
-    )
-
-    # 下发 MAC 表项
-    for mac, port in [('00:00:00:00:00:01', 1), ('00:00:00:00:00:02', 2)]:
-        entry = conn.table_entry(
-            table_name='MyIngress.l2_table',
-            action_name='MyIngress.set_egress',
-            match={'hdr.ethernet.dstAddr': encode(mac, 48)},
-            action_params={'port': encode(port, 9)}
-        )
-        conn.write_table_entry(entry)
-
-    print("表项下发完成")
-
-if __name__ == '__main__':
-    main()
 ```
 
 ---
 
-## 七、常见问题
-
-### 7.1 gRPC 连接失败
-
-检查：
-- BMv2 是否以 `--grpc-server-addr` 启动
-- 端口是否正确（默认 50051）
-- 防火墙是否放行
-
-### 7.2 表项下发失败
-
-检查：
-- P4Info 文件路径是否正确
-- 表名/动作名是否匹配
-- match 字段类型是否正确
-
-### 7.3 Packet-in 收不到
-
-检查：
-- P4 程序是否调用了 `send_to_controller()`
-- 是否配置了 CPU port
-- 是否注册了 packet_in_handler
-
----
-
-## 八、小结
-
-| 概念 | 作用 |
-|------|------|
-| P4Runtime | 控制平面-数据平面通信协议 |
-| gRPC | 传输层协议 |
-| P4Info | 表/动作的元数据描述 |
-| Packet-in | 报文从交换机发给控制器 |
-| Packet-out | 报文从控制器发给交换机 |
-
-P4Runtime 是现代 P4 系统的标配，理解它对后续研究很重要。
-
----
-
-**下一篇**：[P4 进阶与研究入门](/blog/p4/p4-11-advanced-research) — PSA/TNA、INT、研究方向
+**下一篇**：[P4 进阶与研究入门](/blog/p4/p4-11-advanced-research)

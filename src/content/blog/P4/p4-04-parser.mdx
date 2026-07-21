@@ -1,10 +1,10 @@
 ---
 title: "P4 Parser 深入：状态机与报文解析"
-publishDate: 2026-07-22 00:00:00
+publishDate: 2026-07-21 00:00:00
 description: "P4 Parser 状态机工作原理、select 语句、extract/verify/lookahead 详解"
 tags: ["P4", "Parser", "状态机"]
 categories: ["P4"]
-language: '中文'
+language: "中文"
 draft: false
 comment: true
 ---
@@ -24,209 +24,64 @@ Parser 本质上是一个**有限状态机（FSM）**。每个状态做两件事
 
 整个过程从 `start` 状态开始，到某个 `accept` 状态结束，最终得到一组已经填充好的 header。
 
-```
-原始字节流 → Parser 状态机 → 结构化 headers
-```
-
 ---
 
-## 二、状态机基本结构
+## 二、select 语句
 
-### 2.1 start 状态
-
-每个 Parser 必须有一个 `start` 状态：
-
-```p4
-parser StartParser(packet_in pkt, out Headers hdr, inout Meta meta) {
-    state start {
-        pkt.extract(hdr.ethernet);
-        transition select(hdr.ethernet.etherType) {
-            0x0800: parse_ipv4;
-            default: accept;
-        }
-    }
-}
-```
-
-### 2.2 accept 状态
-
-`accept` 是内置的终态，表示解析完成。你不需要定义它，只需要在某个状态里 `transition accept` 即可。
-
-### 2.3 reject 状态
-
-`reject` 表示解析失败（比如校验不通过）。同样不需要定义，但可以用 `verify` 语句显式触发。
-
----
-
-## 三、select 语句
-
-`select` 是 Parser 的"分支开关"，根据指定字段的值决定下一个状态：
-
-```p4
-transition select(hdr.ethernet.etherType) {
-    0x0800: parse_ipv4;    // IPv4
-    0x0806: parse_arp;     // ARP
-    0x8100: parse_vlan;    // VLAN
-    default: accept;       // 不认识的类型直接结束
-}
-```
-
-### 3.1 多字段 select
-
-可以同时匹配多个字段：
-
-```p4
-transition select(hdr.ipv4.protocol, hdr.ipv4.dstAddr) {
-    (0x06, 10.0.0.1): parse_tcp_to_server;
-    (0x11, *): parse_udp_any;
-    default: accept;
-}
-```
-
-其中 `*` 表示"任意值"（don't care）。
-
-### 3.2 常量集合
-
-可以用花括号表示多个值匹配同一个状态：
+`select` 是 Parser 的"分支开关"：
 
 ```p4
 transition select(hdr.ethernet.etherType) {
     0x0800: parse_ipv4;
-    {0x8100, 0x88A8}: parse_vlan;  // 两种 VLAN 都走这里
+    0x0806: parse_arp;
+    0x8100: parse_vlan;
     default: accept;
 }
 ```
 
 ---
 
-## 四、extract：提取报头
+## 三、extract：提取报头
 
-`extract` 把报文中的字节"切"出来，填入对应的 header：
-
-```p4
-pkt.extract(hdr.ethernet);           // 提取 14 字节（Ethernet 头）
-pkt.extract(hdr.ipv4);               // 提取 20 字节（IPv4 头，不含选项）
-```
-
-### 4.1 带长度的 extract
-
-对于变长 header（如 IPv4 选项），可以动态指定长度：
+`extract` 把报文中的字节"切"出来：
 
 ```p4
-pkt.extract(hdr.ipv4, 
-    (bit<32>)(hdr.ipv4.ihl * 32));  // ihl * 4 字节 = ihl * 32 位
-```
-
-### 4.2 header stack 的 extract
-
-对于 header stack（数组），可以用 `extract` 提取一个或多个：
-
-```p4
-pkt.extract(hdr.vlan_tag);           // 提取一个 VLAN tag
-// 如果是 QinQ（双层 VLAN），再提取一次
-pkt.extract(hdr.vlan_tag);
+pkt.extract(hdr.ethernet);
+pkt.extract(hdr.ipv4);
 ```
 
 ---
 
-## 五、verify：校验
+## 四、verify：校验
 
-`verify` 在 Parser 中做条件检查，不满足则跳转到 `reject`：
+`verify` 在 Parser 中做条件检查：
 
 ```p4
 verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);
-verify(hdr.ipv4.ihl >= 5, error.Ipv4TooShort);
 ```
-
-常用错误码：
-- `error.NoError` — 无错误
-- `error.PacketTooShort` — 报文太短
-- `error.HeaderTooShort` — 报头不完整
 
 ---
 
-## 六、lookahead：偷看但不消费
+## 五、lookahead：偷看但不消费
 
-`lookahead` 可以"偷看"报文中的下一个字段，但不会移动解析指针（不消费字节）：
+`lookahead` 可以"偷看"报文中的下一个字段：
 
 ```p4
 bit<16> nextType = lookahead(bit<16>);
-transition select(nextType) {
-    0x0800: parse_ipv4;
-    default: accept;
-}
-```
-
-典型用途：在不 extract 的情况下判断下一个 header 的类型。
-
----
-
-## 七、完整示例：Ethernet + VLAN + IPv4
-
-```p4
-parser MyParser(packet_in pkt, out Headers hdr, inout Meta meta) {
-    state start {
-        pkt.extract(hdr.ethernet);
-        transition select(hdr.ethernet.etherType) {
-            0x0800: parse_ipv4;
-            0x8100: parse_vlan;
-            default: accept;
-        }
-    }
-
-    state parse_vlan {
-        pkt.extract(hdr.vlan_tag);
-        transition select(hdr.vlan_tag.etherType) {
-            0x0800: parse_ipv4;
-            default: accept;
-        }
-    }
-
-    state parse_ipv4 {
-        pkt.extract(hdr.ipv4);
-        verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);
-        verify(hdr.ipv4.ihl >= 5, error.Ipv4TooShort);
-        transition accept;
-    }
-}
 ```
 
 ---
 
-## 八、常见踩坑
-
-### 8.1 忘记 extract
-
-如果 Parser 里没有 extract 某个 header，那它在后续处理中就是"空的"，字段值全是 0。
-
-### 8.2 状态顺序问题
-
-Parser 是**顺序执行**的，不是并行的。先 extract 的 header 会在内存中先被填充。
-
-### 8.3 不能递归
-
-P4 Parser 不支持递归调用——这是硬件限制，芯片无法处理无限深度的递归。
-
-### 8.4 select 不能用 header 字段以外的变量
-
-`select` 只能匹配已 extract 的 header 字段或 `lookahead` 的结果，不能用本地变量。
-
----
-
-## 九、小结
+## 六、小结
 
 | 概念 | 作用 |
 |------|------|
 | `state` | 状态机的一个节点 |
 | `extract` | 从报文中提取字节到 header |
 | `select` | 根据字段值选择下一个状态 |
-| `verify` | 条件校验，失败则 reject |
-| `lookahead` | 偷看下一个字段，不消费 |
-| `accept` | 解析成功结束 |
-| `reject` | 解析失败 |
-
-Parser 是 P4 程序的"大门"，理解状态机思维是写好 P4 的关键。
+| `verify` | 条件校验 |
+| `lookahead` | 偷看下一个字段 |
 
 ---
 
-**下一篇**：[P4 控制块与动作](/blog/p4/p4-05-control-block) — 控制逻辑与 action 的写法
+**下一篇**：[P4 控制块与动作](/blog/p4/p4-05-control-block)

@@ -70,9 +70,26 @@ Remove-Item -Path ".astro","dist" -Recurse -Force
 
 ### Build & Deploy
 - **Output**: Static site to `dist/` directory
-- **Deployment**: GitHub Pages via `gh-pages` branch
-- **CI**: `.github/workflows/deploy.yml` uses Node.js 20
-- **Manual deploy**: Uses token-in-URL approach (see `BLOG-OPS.md`)
+- **Deployment**: 本地 `npm run build` 后，运行 `deploy.ps1` 推送到 `gh-pages` 分支
+- **CI**: GitHub Pages 自动从 `gh-pages` 分支部署（无 deploy.yml）
+
+### Deployment Steps
+```bash
+# 1. 构建
+npm run build
+
+# 2. 准备部署目录
+Remove-Item -Path "deploy-temp" -Recurse -Force -ErrorAction SilentlyContinue
+New-Item -ItemType Directory -Force -Path "deploy-temp" | Out-Null
+Copy-Item -Path "dist\*" -Destination "deploy-temp\" -Recurse -Force
+New-Item -ItemType File -Force -Path "deploy-temp\.nojekyll" | Out-Null
+
+# 3. 推送到 gh-pages
+Push-Location deploy-temp
+git init; git add .; git commit -m "deploy: $(Get-Date)"
+git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
+Pop-Location
+```
 
 ### Dependencies
 - `node_modules` is ~520MB, don't delete unless necessary

@@ -43,7 +43,7 @@ const getEntryPath = (entry: CollectionEntry<CollectionKey>) => {
   const sourceId = entry.filePath
     ? entry.filePath.replace(/^.*?src\/content\/blog\//, '').replace(/\.(md|mdx)$/, '')
     : entry.id.replace(/\.(md|mdx)$/, '')
-  return sourceId.replace(/\/index$/, '')
+  return sourceId.replace(/\/index$/, '').toLowerCase()
 }
 ---
 

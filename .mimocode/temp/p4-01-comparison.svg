@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" style="background: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+  <!-- 标题 -->
+  <text x="600" y="40" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="bold">P4 vs OpenFlow：网络可编程的演进</text>
+  
+  <!-- 左侧：传统网络 -->
+  <rect x="50" y="70" width="500" height="480" rx="12" fill="#1a1a2e" stroke="#3d3d5c" stroke-width="2"/>
+  <text x="300" y="105" text-anchor="middle" fill="#888888" font-size="20" font-weight="bold">传统网络（OpenFlow）</text>
+  
+  <!-- 控制面 -->
+  <rect x="80" y="130" width="440" height="100" rx="8" fill="#2d2d4a" stroke="#4a4a6a"/>
+  <text x="300" y="160" text-anchor="middle" fill="#666666" font-size="16">控制面（可编程）</text>
+  <text x="300" y="185" text-anchor="middle" fill="#888888" font-size="14">OpenFlow 控制器</text>
+  <text x="300" y="210" text-anchor="middle" fill="#555555" font-size="12">编写控制器程序</text>
+  
+  <!-- 数据面 -->
+  <rect x="80" y="250" width="440" height="100" rx="8" fill="#1a1a2e" stroke="#3d3d5c"/>
+  <text x="300" y="280" text-anchor="middle" fill="#555555" font-size="16">数据面（固定）</text>
+  <text x="300" y="305" text-anchor="middle" fill="#444444" font-size="14">只能匹配预定义字段</text>
+  <text x="300" y="330" text-anchor="middle" fill="#333333" font-size="12">无法自定义协议</text>
+  
+  <!-- 局限性说明 -->
+  <rect x="80" y="370" width="440" height="80" rx="8" fill="#2d1a1a" stroke="#5c3d3d"/>
+  <text x="300" y="400" text-anchor="middle" fill="#cc6666" font-size="14">⚠️ 局限性</text>
+  <text x="300" y="425" text-anchor="middle" fill="#996666" font-size="12">固定匹配字段、无法添加新协议</text>
+  
+  <!-- 中间箭头 -->
+  <polygon points="570,250 630,200 630,300 570,350" fill="#4ecdc4"/>
+  <text x="600" y="255" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="bold">P4</text>
+  
+  <!-- 右侧：P4 网络 -->
+  <rect x="650" y="70" width="500" height="480" rx="12" fill="#0d1b2a" stroke="#1b4965" stroke-width="2"/>
+  <text x="900" y="105" text-anchor="middle" fill="#4ecdc4" font-size="20" font-weight="bold">P4 网络</text>
+  
+  <!-- 控制面 -->
+  <rect x="680" y="130" width="440" height="100" rx="8" fill="#1b4965" stroke="#2d6a4f"/>
+  <text x="900" y="160" text-anchor="middle" fill="#4ecdc4" font-size="16">控制面（可编程）</text>
+  <text x="900" y="185" text-anchor="middle" fill="#3d8b37" font-size="14">P4Runtime + Python</text>
+  <text x="900" y="210" text-anchor="middle" fill="#3d8b37" font-size="12">动态下发表项</text>
+  
+  <!-- 数据面 -->
+  <rect x="680" y="250" width="440" height="100" rx="8" fill="#1b4965" stroke="#2d6a4f"/>
+  <text x="900" y="280" text-anchor="middle" fill="#4ecdc4" font-size="16">数据面（可编程）</text>
+  <text x="900" y="305" text-anchor="middle" fill="#3d8b37" font-size="14">用户定义的转发逻辑</text>
+  <text x="900" y="330" text-anchor="middle" fill="#3d8b37" font-size="12">自定义协议、新功能</text>
+  
+  <!-- 优势说明 -->
+  <rect x="680" y="370" width="440" height="80" rx="8" fill="#1a2d1a" stroke="#3d5c3d"/>
+  <text x="900" y="400" text-anchor="middle" fill="#66cc66" font-size="14">✅ 优势</text>
+  <text x="900" y="425" text-anchor="middle" fill="#669966" font-size="12">协议无关、架构无关、可移植</text>
+  
+  <!-- 底部总结 -->
+  <text x="600" y="520" text-anchor="middle" fill="#4ecdc4" font-size="16">OpenFlow 让你能写控制器，P4 让你能写交换机本身</text>
+</svg>

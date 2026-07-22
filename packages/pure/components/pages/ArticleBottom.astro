@@ -25,26 +25,27 @@ function getCategory(entry: CollectionEntry<CollectionKey>): string | undefined 
   return sep === -1 ? undefined : sourceId.slice(0, sep)
 }
 
+// Get entry path for URL generation
+function getEntryPath(entry: CollectionEntry<CollectionKey>): string {
+  const sourceId = entry.filePath
+    ? entry.filePath.replace(/^.*?src\/content\/blog\//, '').replace(/\.(md|mdx)$/, '')
+    : entry.id.replace(/\.(md|mdx)$/, '')
+  return sourceId.replace(/\/index$/, '').toLowerCase()
+}
+
 const currentCategory = currentPost ? getCategory(currentPost) : undefined
 
-// Filter posts in the same category, sort by date
+// Filter posts in the same category, sort by filename for reading order
 const sameCategoryPosts = currentCategory
   ? collections
       .filter((p) => getCategory(p) === currentCategory)
-      .sort((a, b) => (a.data.publishDate?.getTime() ?? 0) - (b.data.publishDate?.getTime() ?? 0))
+      .sort((a, b) => getEntryPath(a).localeCompare(getEntryPath(b)))
   : collections
 
 // Find prev and next within the category
 const index = sameCategoryPosts.findIndex((x) => x.id === id)
 const prev = sameCategoryPosts[index - 1]
 const next = sameCategoryPosts[index + 1]
-
-const getEntryPath = (entry: CollectionEntry<CollectionKey>) => {
-  const sourceId = entry.filePath
-    ? entry.filePath.replace(/^.*?src\/content\/blog\//, '').replace(/\.(md|mdx)$/, '')
-    : entry.id.replace(/\.(md|mdx)$/, '')
-  return sourceId.replace(/\/index$/, '').toLowerCase()
-}
 ---
 
 <div class={cn('flex max-sm:flex-col sm:justify-between gap-2', className)}>

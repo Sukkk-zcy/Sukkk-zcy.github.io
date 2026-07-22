@@ -95,5 +95,10 @@ export function getAllCategories(posts: BlogPost[]): Map<string, BlogPost[]> {
     }
   }
 
+  // Sort posts within each category by filename for reading order
+  for (const [, posts] of categories) {
+    posts.sort((a, b) => getPostSourceId(a).localeCompare(getPostSourceId(b)))
+  }
+
   return categories
 }

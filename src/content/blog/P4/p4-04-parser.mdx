@@ -22,15 +22,6 @@ Parser 是一个**有限状态机（FSM）**。每个状态做两件事：
 
 整个过程从 `start` 状态开始，到 `accept` 状态结束。
 
-```mermaid
-stateDiagram-v2
-    [*] --> start
-    start --> parse_eth: extract
-    parse_eth --> parse_ipv4: select
-    parse_eth --> accept: default
-    parse_ipv4 --> accept: ok
-    parse_ipv4 --> reject: fail
-```
 
 ---
 
@@ -169,3 +160,12 @@ parser MyParser(packet_in pkt, out Headers hdr) {
 ---
 
 **下一篇**：[Match-Action：网络转发的核心](/blog/p4/p4-05-match-action) — 理解匹配-动作表的工作原理
+
+---
+
+## 参考文献
+
+1. P4 Language Consortium. *P4_16 Language Specification Version 1.2.5*, Section 12: Architectures
+2. 张恒华. *P4 中文教程* 第 06 章. https://github.com/zhh2001/p4-language-guide-zh
+3. P4.org. *BMv2 Simple Switch*. https://github.com/p4lang/behavioral-model
+

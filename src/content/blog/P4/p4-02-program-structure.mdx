@@ -17,14 +17,6 @@ comment: true
 
 一个数据包进入交换机后，会经过以下几个阶段：
 
-```mermaid
-graph LR
-    A[进入] --> B[Parser]
-    B --> C[Control]
-    C --> D[Egress]
-    D --> E[Deparser]
-    E --> F[离开]
-```
      ↓
 ┌─────────────┐
 │ Egress      │  ← 出口处理
@@ -185,3 +177,12 @@ V1Switch(MyParser(), MyIngress(), MyDeparser()) main;
 ---
 
 **下一篇**：[Header：网络报文的"身份证"](/blog/p4/p4-03-header) — 深入理解 header 类型
+
+---
+
+## 参考文献
+
+1. P4 Language Consortium. *P4_16 Language Specification Version 1.2.5*
+2. 张恒华. *P4 中文教程* 第 02-03 章. https://github.com/zhh2001/p4-language-guide-zh
+3. P4.org. *P4 Language*. https://p4.org/
+

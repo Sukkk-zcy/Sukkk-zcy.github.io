@@ -17,6 +17,80 @@ comment: true
 
 一个数据包进入交换机后，会经过以下几个阶段：
 
+<div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin: 20px 0;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 400" style="width: 100%; height: auto;">
+  <!-- 标题 -->
+  <text x="500" y="40" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="bold">P4 程序数据流</text>
+  
+  <!-- 报文进入 -->
+  <rect x="50" y="100" width="120" height="60" rx="8" fill="#2d2d4a" stroke="#4a4a6a"/>
+  <text x="110" y="135" text-anchor="middle" fill="#888888" font-size="14">报文进入</text>
+  
+  <!-- 箭头 -->
+  <polygon points="180,130 200,120 200,140" fill="#4ecdc4"/>
+  
+  <!-- Parser -->
+  <rect x="210" y="80" width="150" height="100" rx="8" fill="#1b4965" stroke="#2d6a4f" stroke-width="2"/>
+  <text x="285" y="115" text-anchor="middle" fill="#4ecdc4" font-size="16" font-weight="bold">Parser</text>
+  <text x="285" y="140" text-anchor="middle" fill="#3d8b37" font-size="12">解析报文</text>
+  <text x="285" y="160" text-anchor="middle" fill="#3d8b37" font-size="12">提取报头</text>
+  
+  <!-- 箭头 -->
+  <polygon points="370,130 390,120 390,140" fill="#4ecdc4"/>
+  
+  <!-- Control -->
+  <rect x="400" y="80" width="150" height="100" rx="8" fill="#1b4965" stroke="#2d6a4f" stroke-width="2"/>
+  <text x="475" y="115" text-anchor="middle" fill="#4ecdc4" font-size="16" font-weight="bold">Control</text>
+  <text x="475" y="140" text-anchor="middle" fill="#3d8b37" font-size="12">匹配-动作</text>
+  <text x="475" y="160" text-anchor="middle" fill="#3d8b37" font-size="12">处理逻辑</text>
+  
+  <!-- 箭头 -->
+  <polygon points="560,130 580,120 580,140" fill="#4ecdc4"/>
+  
+  <!-- Deparser -->
+  <rect x="590" y="80" width="150" height="100" rx="8" fill="#1b4965" stroke="#2d6a4f" stroke-width="2"/>
+  <text x="665" y="115" text-anchor="middle" fill="#4ecdc4" font-size="16" font-weight="bold">Deparser</text>
+  <text x="665" y="140" text-anchor="middle" fill="#3d8b37" font-size="12">重新打包</text>
+  <text x="665" y="160" text-anchor="middle" fill="#3d8b37" font-size="12">输出字节流</text>
+  
+  <!-- 箭头 -->
+  <polygon points="750,130 770,120 770,140" fill="#4ecdc4"/>
+  
+  <!-- 报文离开 -->
+  <rect x="780" y="100" width="120" height="60" rx="8" fill="#2d2d4a" stroke="#4a4a6a"/>
+  <text x="840" y="135" text-anchor="middle" fill="#888888" font-size="14">报文离开</text>
+  
+  <!-- 下方：V1Model 架构 -->
+  <text x="500" y="250" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="bold">V1Model 架构（六大块）</text>
+  
+  <!-- 六个块 -->
+  <rect x="50" y="280" width="120" height="60" rx="6" fill="#1b4965"/>
+  <text x="110" y="315" text-anchor="middle" fill="#4ecdc4" font-size="12">Parser</text>
+  
+  <rect x="190" y="280" width="120" height="60" rx="6" fill="#2d6a4f"/>
+  <text x="250" y="315" text-anchor="middle" fill="#4ecdc4" font-size="12">VerifyChecksum</text>
+  
+  <rect x="330" y="280" width="120" height="60" rx="6" fill="#3d8b37"/>
+  <text x="390" y="315" text-anchor="middle" fill="#ffffff" font-size="12">Ingress</text>
+  
+  <rect x="470" y="280" width="120" height="60" rx="6" fill="#3d8b37"/>
+  <text x="530" y="315" text-anchor="middle" fill="#ffffff" font-size="12">Egress</text>
+  
+  <rect x="610" y="280" width="120" height="60" rx="6" fill="#2d6a4f"/>
+  <text x="670" y="315" text-anchor="middle" fill="#4ecdc4" font-size="12">ComputeChecksum</text>
+  
+  <rect x="750" y="280" width="120" height="60" rx="6" fill="#1b4965"/>
+  <text x="810" y="315" text-anchor="middle" fill="#4ecdc4" font-size="12">Deparser</text>
+  
+  <!-- 连接箭头 -->
+  <polygon points="175,310 185,305 185,315" fill="#4ecdc4"/>
+  <polygon points="315,310 325,305 325,315" fill="#4ecdc4"/>
+  <polygon points="455,310 465,305 465,315" fill="#4ecdc4"/>
+  <polygon points="595,310 605,305 605,315" fill="#4ecdc4"/>
+  <polygon points="735,310 745,305 745,315" fill="#4ecdc4"/>
+</svg>
+</div>
+
 ```
 报文进入
    ↓

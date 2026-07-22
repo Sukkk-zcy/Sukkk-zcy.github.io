@@ -45,26 +45,25 @@ E:\BLOG/
 - **工作流文件**: `.github/workflows/deploy.yml`
 - **流程**: Node.js 20 → npm install --legacy-peer-deps → astro build → 部署到 gh-pages
 
-### 方式二：本地手动部署
+### 方式二：本地手动部署（SSH 方式，无需授权）
 
 ```powershell
 # 1. 构建
 cd E:\BLOG
-npx astro build
+$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
 
-# 2. 部署到 gh-pages
+# 2. 部署到 gh-pages（使用 SSH，无需授权）
 Remove-Item -Path "E:\BLOG\deploy-temp" -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force -Path "E:\BLOG\deploy-temp" | Out-Null
 Copy-Item -Path "E:\BLOG\dist\*" -Destination "E:\BLOG\deploy-temp\" -Recurse -Force
 New-Item -ItemType File -Force -Path "E:\BLOG\deploy-temp\.nojekyll" | Out-Null
 Push-Location E:\BLOG\deploy-temp
 git init; git add .; git commit -m "deploy: $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
-git remote add origin https://Sukkk-zcy:ghp_<TOKEN>@github.com/Sukkk-zcy/Sukkk-zcy.github.io.git
-git push -f origin master:gh-pages
+git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
 Pop-Location
 ```
 
-**注意**: push 使用 token-in-URL 方式绕过 GitHub Desktop 凭证弹窗。Token 可能过期，需要到 GitHub Settings > Developer settings > Personal access tokens 重新生成。
+**注意**: 使用 SSH 方式推送，已配置 SSH key，无需手动授权。
 
 ---
 

@@ -25,17 +25,11 @@ Parser 是一个**有限状态机（FSM）**。每个状态做两件事：
 ```mermaid
 stateDiagram-v2
     [*] --> start
-    start --> parse_ethernet: extract ethernet
-    parse_ethernet --> parse_ipv4: select 0x0800
-    parse_ethernet --> accept: default
-    parse_ipv4 --> accept: accept
-    parse_ipv4 --> reject: verify fail
-    
-    start: start
-    parse_ethernet: parse_ethernet
-    parse_ipv4: parse_ipv4
-    accept: accept
-    reject: reject
+    start --> parse_eth: extract
+    parse_eth --> parse_ipv4: select
+    parse_eth --> accept: default
+    parse_ipv4 --> accept: ok
+    parse_ipv4 --> reject: fail
 ```
 
 ---

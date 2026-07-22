@@ -19,18 +19,11 @@ comment: true
 
 ```mermaid
 graph LR
-    A[报文进入] --> B[Parser<br/>解析报文]
-    B --> C[Control<br/>匹配-动作]
-    C --> D[Egress<br/>出口处理]
-    D --> E[Deparser<br/>重新打包]
-    E --> F[报文离开]
-    
-    style A fill:#2d2d4a,color:#888
-    style B fill:#1b4965,color:#4ecdc4
-    style C fill:#3d8b37,color:#fff
-    style D fill:#3d8b37,color:#fff
-    style E fill:#1b4965,color:#4ecdc4
-    style F fill:#2d2d4a,color:#888
+    A[进入] --> B[Parser]
+    B --> C[Control]
+    C --> D[Egress]
+    D --> E[Deparser]
+    E --> F[离开]
 ```
      ↓
 ┌─────────────┐

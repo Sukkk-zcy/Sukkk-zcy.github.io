@@ -1,87 +1,165 @@
 ---
-title: "P4 Parser 深入：状态机与报文解析"
+title: "Parser：报文解析的状态机"
 publishDate: 2026-07-21 00:00:00
-description: "P4 Parser 状态机工作原理、select 语句、extract/verify/lookahead 详解"
-tags: ["P4", "Parser", "状态机"]
+description: "P4 Parser 的工作原理：状态机、select、extract"
+tags: ["P4", "Parser", "状态机", "入门"]
 categories: ["P4"]
 language: "中文"
 draft: false
 comment: true
 ---
 
-Parser 是 P4 程序的入口，它负责把一串原始字节"解析"成结构化的报头。上一篇我们定义了 header 类型，这一篇来深入理解 Parser 是怎么工作的。
-
-> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 06 章整理，并参考 [P4-16 语言规范](https://p4.org/p4-specs/p4-16/) 相关章节。
+上一篇理解了 Header，这一篇来看 Parser——它是怎么把字节流"翻译"成结构化报头的。
 
 ---
 
 ## 一、Parser 本质是什么
 
-Parser 本质上是一个**有限状态机（FSM）**。每个状态做两件事：
+Parser 是一个**有限状态机（FSM）**。每个状态做两件事：
 
-1. 从报文中 `extract`（提取）若干字节到对应的 header
-2. 用 `select` 语句根据某个字段的值，决定跳转到下一个状态
+1. **Extract**：从报文中提取若干字节到对应的 Header
+2. **Select**：根据某个字段的值，决定跳转到下一个状态
 
-整个过程从 `start` 状态开始，到某个 `accept` 状态结束，最终得到一组已经填充好的 header。
+整个过程从 `start` 状态开始，到 `accept` 状态结束。
+
+```
+报文进入 → start → extract → select → ... → accept
+```
 
 ---
 
-## 二、select 语句
+## 二、状态机的基本结构
 
-`select` 是 Parser 的"分支开关"：
+```p4
+parser MyParser(packet_in pkt, out Headers hdr) {
+    state start {
+        pkt.extract(hdr.ethernet);           // 提取以太网头
+        transition select(hdr.ethernet.etherType) {
+            0x0800: parse_ipv4;              // IPv4 → 继续解析
+            default: accept;                 // 其他 → 结束
+        }
+    }
+
+    state parse_ipv4 {
+        pkt.extract(hdr.ipv4);
+        transition accept;
+    }
+}
+```
+
+---
+
+## 三、select：分支跳转
+
+`select` 根据字段值选择下一个状态：
 
 ```p4
 transition select(hdr.ethernet.etherType) {
-    0x0800: parse_ipv4;
-    0x0806: parse_arp;
-    0x8100: parse_vlan;
+    0x0800: parse_ipv4;    // IPv4
+    0x0806: parse_arp;     // ARP
+    0x8100: parse_vlan;    // VLAN
+    default: accept;       // 不认识就结束
+}
+```
+
+### 多字段 select
+
+```p4
+transition select(hdr.ipv4.protocol, hdr.ipv4.dstAddr) {
+    (0x06, 10.0.0.1): parse_tcp_to_server;
+    (0x11, *): parse_udp_any;  // * 表示任意值
     default: accept;
 }
 ```
 
 ---
 
-## 三、extract：提取报头
-
-`extract` 把报文中的字节"切"出来：
+## 四、extract：提取报头
 
 ```p4
-pkt.extract(hdr.ethernet);
-pkt.extract(hdr.ipv4);
+pkt.extract(hdr.ethernet);  // 提取 14 字节（以太网头）
+pkt.extract(hdr.ipv4);      // 提取 20 字节（IPv4 头）
+```
+
+### 带长度的 extract
+
+IPv4 头长度可变（有选项字段）：
+
+```p4
+pkt.extract(hdr.ipv4, (bit<32>)(hdr.ipv4.ihl * 32));
 ```
 
 ---
 
-## 四、verify：校验
-
-`verify` 在 Parser 中做条件检查：
+## 五、verify：条件校验
 
 ```p4
 verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);
+verify(hdr.ipv4.ihl >= 5, error.Ipv4TooShort);
 ```
+
+不满足条件会跳转到 `reject`。
 
 ---
 
-## 五、lookahead：偷看但不消费
-
-`lookahead` 可以"偷看"报文中的下一个字段：
+## 六、lookahead：偷看但不消费
 
 ```p4
 bit<16> nextType = lookahead(bit<16>);
+transition select(nextType) {
+    0x0800: parse_ipv4;
+    default: accept;
+}
+```
+
+不移动解析指针，只"偷看"下一个字段。
+
+---
+
+## 七、完整示例：Ethernet + IPv4
+
+```p4
+parser MyParser(packet_in pkt, out Headers hdr) {
+    state start {
+        pkt.extract(hdr.ethernet);
+        transition select(hdr.ethernet.etherType) {
+            0x0800: parse_ipv4;
+            default: accept;
+        }
+    }
+
+    state parse_ipv4 {
+        pkt.extract(hdr.ipv4);
+        verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);
+        transition accept;
+    }
+}
 ```
 
 ---
 
-## 六、小结
+## 八、常见踩坑
+
+| 问题 | 原因 |
+|------|------|
+| 编译报错"未定义的状态" | select 中引用的状态没有定义 |
+| 运行时崩溃 | 忘记 extract 某个 header |
+| Parser 无限循环 | 状态跳转逻辑有误 |
+
+---
+
+## 九、小结
 
 | 概念 | 作用 |
 |------|------|
 | `state` | 状态机的一个节点 |
-| `extract` | 从报文中提取字节到 header |
+| `extract` | 从报文提取字节到 header |
 | `select` | 根据字段值选择下一个状态 |
 | `verify` | 条件校验 |
 | `lookahead` | 偷看下一个字段 |
+| `accept` | 解析成功 |
+| `reject` | 解析失败 |
 
 ---
 
-**下一篇**：[P4 控制块与动作](/blog/p4/p4-05-control-block)
+**下一篇**：[Match-Action：网络转发的核心](/blog/p4/p4-05-match-action) — 理解匹配-动作表的工作原理

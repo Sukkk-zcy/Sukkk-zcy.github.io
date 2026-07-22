@@ -1,0 +1,169 @@
+---
+title: "Match-Action：网络转发的核心"
+publishDate: 2026-07-21 00:00:00
+description: "P4 的匹配-动作表详解：三种匹配类型"
+tags: ["P4", "Match-Action", "Table", "入门"]
+categories: ["P4"]
+language: "中文"
+draft: false
+comment: true
+---
+
+Parser 解析完报文后，交给 Control 处理。Control 的核心是 **Match-Action 表**——网络转发的灵魂。
+
+---
+
+## 一、什么是 Match-Action
+
+Match-Action 表的工作流程：
+
+```
+报文到达 → 匹配（Match）→ 执行动作（Action）
+```
+
+类似查字典：
+- **Match**：根据关键字查找表项
+- **Action**：执行对应的处理动作
+
+---
+
+## 二、定义一个 Table
+
+```p4
+table forward {
+    key = {
+        hdr.ethernet.dstAddr: exact;  // 匹配字段 + 匹配类型
+    }
+    actions = {
+        set_egress;    // 可选动作
+        drop;
+    }
+    size = 1024;       // 表项容量
+    default_action = drop();  // 默认动作
+}
+```
+
+---
+
+## 三、三种匹配类型
+
+### 3.1 exact（精确匹配）
+
+所有比特必须完全相同：
+
+```p4
+key = { hdr.ethernet.dstAddr: exact; }
+```
+
+适用：MAC 地址表、VLAN 表
+
+### 3.2 lpm（最长前缀匹配）
+
+类似 IP 路由，找最长匹配的前缀：
+
+```p4
+key = { hdr.ipv4.dstAddr: lpm; }
+```
+
+适用：IP 路由表
+
+### 3.3 ternary（三态匹配）
+
+支持通配符（don't care），用掩码指定匹配位：
+
+```p4
+key = { hdr.ipv4.srcAddr: ternary; }
+```
+
+适用：ACL、灵活的流量分类
+
+### 对比表
+
+| 类型 | 匹配方式 | 典型应用 | 硬件成本 |
+|------|----------|----------|----------|
+| `exact` | 全部比特相同 | MAC 表 | 低 |
+| `lpm` | 最长前缀匹配 | 路由表 | 中 |
+| `ternary` | 掩码+值 | ACL | 高 |
+
+---
+
+## 四、定义 Action
+
+```p4
+action drop() {
+    mark_to_drop(standard_metadata);
+}
+
+action set_egress(bit<9> port) {
+    standard_metadata.egress_spec = port;
+}
+
+action rewrite_mac(bit<48> src_mac) {
+    hdr.ethernet.srcAddr = src_mac;
+}
+```
+
+---
+
+## 五、apply：应用 Table
+
+```p4
+apply {
+    forward.apply();  // 应用 forward 表
+}
+```
+
+### 多表流水线
+
+```p4
+apply {
+    acl_table.apply();      // 先查 ACL
+    if (standard_metadata.drop == 0) {
+        l2_table.apply();   // 没被丢弃，再查 L2 表
+    }
+}
+```
+
+---
+
+## 六、default_action
+
+当没有表项匹配时执行：
+
+```p4
+default_action = drop();           // 丢弃
+default_action = set_egress(9w0);  // 转发到端口 0
+```
+
+---
+
+## 七、counter：流量统计
+
+```p4
+Counter<bit<64>, bit<32>>(1024, CounterType.PACKETS_AND_BYTES) port_counter;
+
+table forward {
+    key = { hdr.ethernet.dstAddr: exact; }
+    actions = { set_egress; drop; }
+    counters = port_counter;  // 绑定 counter
+}
+```
+
+---
+
+## 八、小结
+
+| 概念 | 作用 |
+|------|------|
+| `table` | 匹配-动作表 |
+| `key` | 定义匹配字段和类型 |
+| `actions` | 可选动作列表 |
+| `exact` | 精确匹配 |
+| `lpm` | 最长前缀匹配 |
+| `ternary` | 三态匹配 |
+| `default_action` | 无匹配时的默认动作 |
+| `counter` | 流量统计 |
+
+---
+
+**下一篇**：[Control Block：连接 Parser 和 Table](/blog/p4/p4-06-control-block) — 理解控制块的作用

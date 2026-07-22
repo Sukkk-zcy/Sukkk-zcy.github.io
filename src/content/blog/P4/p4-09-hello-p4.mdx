@@ -1,0 +1,155 @@
+---
+title: "第一个 P4 程序：Hello P4"
+publishDate: 2026-07-21 00:00:00
+description: "最小可运行的 P4 示例：报文反射"
+tags: ["P4", "Hello P4", "入门", "BMv2"]
+categories: ["P4"]
+language: "中文"
+draft: false
+comment: true
+---
+
+环境搭好了，来跑一个最简单的 P4 程序——Hello P4。
+
+---
+
+## 一、Hello P4 做什么
+
+**报文反射**：从哪个端口收到的报文，就从哪个端口发出去。
+
+这是最简单的转发逻辑，用来验证环境是否正常。
+
+---
+
+## 二、代码走读
+
+```p4
+#include <core.p4>
+#include <v1model.p4>
+
+// Header 定义
+header Ethernet_h {
+    bit<48> dstAddr;
+    bit<48> srcAddr;
+    bit<16> etherType;
+}
+
+// Headers 结构
+struct Headers {
+    Ethernet_h ethernet;
+}
+
+// Meta 结构
+struct Meta { }
+
+// Parser
+parser MyParser(packet_in pkt, out Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    state start {
+        pkt.extract(hdr.ethernet);
+        transition accept;
+    }
+}
+
+// 校验和
+control VerifyChecksum(inout Headers hdr, inout Meta meta) { apply { } }
+
+// 入口处理
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    apply {
+        // 报文反射：从哪个端口进来，就从哪个端口出去
+        standard_metadata.egress_spec = standard_metadata.ingress_port;
+    }
+}
+
+// 出口处理
+control MyEgress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    apply { }
+}
+
+// 计算校验和
+control ComputeChecksum(inout Headers hdr, inout Meta meta) { apply { } }
+
+// 反解析
+control MyDeparser(packet_out pkt, in Headers hdr) {
+    apply {
+        pkt.emit(hdr.ethernet);
+    }
+}
+
+// 主函数
+V1Switch(MyParser(), VerifyChecksum(), MyIngress(), MyEgress(), ComputeChecksum(), MyDeparser()) main;
+```
+
+---
+
+## 三、关键代码解释
+
+### Parser
+
+```p4
+state start {
+    pkt.extract(hdr.ethernet);
+    transition accept;
+}
+```
+
+只提取以太网头，然后结束解析。
+
+### Ingress
+
+```p4
+apply {
+    standard_metadata.egress_spec = standard_metadata.ingress_port;
+}
+```
+
+把出端口设置为入端口——报文原路返回。
+
+### Deparser
+
+```p4
+apply {
+    pkt.emit(hdr.ethernet);
+}
+```
+
+只输出以太网头。
+
+---
+
+## 四、运行方法
+
+```bash
+# 编译
+p4c --target bmv2 --arch v1model hello.p4 -o build
+
+# 运行（需要配合 Mininet 拓扑）
+sudo bash run.sh
+```
+
+---
+
+## 五、验证效果
+
+```
+h1 ping h2 → 不通（报文被反射回 h1）
+tcpdump 抓包 → 看到报文从 h1 发出又回到 h1
+```
+
+---
+
+## 六、小结
+
+Hello P4 虽然简单，但包含了 P4 程序的所有核心部分：
+
+| 部分 | 作用 |
+|------|------|
+| Parser | 提取以太网头 |
+| Ingress | 报文反射 |
+| Deparser | 输出以太网头 |
+
+这是后续所有实验的基础。
+
+---
+
+**下一篇**：[P4Runtime：控制平面与数据平面的桥梁](/blog/p4/p4-10-p4runtime) — 理解控制平面如何下发表项

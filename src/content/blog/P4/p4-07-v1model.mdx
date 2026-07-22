@@ -1,0 +1,152 @@
+---
+title: "V1Model：BMv2 的参考架构"
+publishDate: 2026-07-21 00:00:00
+description: "BMv2 的六大块和 standard_metadata"
+tags: ["P4", "V1Model", "BMv2", "架构"]
+categories: ["P4"]
+language: "中文"
+draft: false
+comment: true
+---
+
+前面理解了 P4 程序的各个部分，这一篇看它们如何在 BMv2 中组织。
+
+---
+
+## 一、V1Model 是什么
+
+V1Model 是 BMv2（Behavioral Model v2）的**参考架构**，定义了报文处理的完整流水线。
+
+所有 P4 程序都需要按照 V1Model 的结构来组织。
+
+---
+
+## 二、六大块
+
+```
+报文进入
+   ↓
+┌─────────────────┐
+│    Parser       │  ← 解析
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│ VerifyChecksum  │  ← 校验和验证（可选）
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│   MyIngress     │  ← 入口处理
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│   MyEgress      │  ← 出口处理
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│ ComputeChecksum │  ← 计算校验和（可选）
+└────────┬────────┘
+         ↓
+┌─────────────────┐
+│   MyDeparser    │  ← 打包
+└────────┬────────┘
+         ↓
+报文离开
+```
+
+| 块 | 作用 |
+|----|------|
+| `Parser` | 解析报文 |
+| `VerifyChecksum` | 校验和验证 |
+| `MyIngress` | 入口处理（主要逻辑） |
+| `MyEgress` | 出口处理 |
+| `ComputeChecksum` | 计算校验和 |
+| `MyDeparser` | 打包报文 |
+
+---
+
+## 三、主函数
+
+```p4
+V1Switch(
+    MyParser(),
+    VerifyChecksum(),
+    MyIngress(),
+    MyEgress(),
+    ComputeChecksum(),
+    MyDeparser()
+) main;
+```
+
+---
+
+## 四、standard_metadata 关键字段
+
+| 字段 | 类型 | 作用 |
+|------|------|------|
+| `ingress_port` | `bit<9>` | 入端口号 |
+| `egress_spec` | `bit<9>` | 指定出端口 |
+| `egress_port` | `bit<9>` | 实际出端口 |
+| `packet_length` | `bit<32>` | 报文长度 |
+
+### egress_spec 特殊值
+
+- `egress_spec = 511`：丢弃
+- `egress_spec = 端口号`：转发到指定端口
+
+---
+
+## 五、完整的 V1Model 程序
+
+```p4
+#include <core.p4>
+#include <v1model.p4>
+
+header Ethernet_h {
+    bit<48> dstAddr;
+    bit<48> srcAddr;
+    bit<16> etherType;
+}
+
+struct Headers { Ethernet_h ethernet; }
+struct Meta { }
+
+parser MyParser(packet_in pkt, out Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    state start {
+        pkt.extract(hdr.ethernet);
+        transition accept;
+    }
+}
+
+control VerifyChecksum(inout Headers hdr, inout Meta meta) { apply { } }
+
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    apply { }
+}
+
+control MyEgress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    apply { }
+}
+
+control ComputeChecksum(inout Headers hdr, inout Meta meta) { apply { } }
+
+control MyDeparser(packet_out pkt, in Headers hdr) {
+    apply { pkt.emit(hdr.ethernet); }
+}
+
+V1Switch(MyParser(), VerifyChecksum(), MyIngress(), MyEgress(), ComputeChecksum(), MyDeparser()) main;
+```
+
+---
+
+## 六、小结
+
+| 概念 | 作用 |
+|------|------|
+| V1Model | BMv2 的参考架构 |
+| 六大块 | Parser → VerifyChecksum → Ingress → Egress → ComputeChecksum → Deparser |
+| `standard_metadata` | 元数据结构 |
+| `egress_spec` | 指定出端口，511 表示丢弃 |
+
+---
+
+**下一篇**：[开发环境：p4c + BMv2 + Mininet](/blog/p4/p4-08-environment) — 搭建 P4 开发环境

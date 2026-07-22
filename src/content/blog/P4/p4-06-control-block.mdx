@@ -1,0 +1,180 @@
+---
+title: "Control Block：连接 Parser 和 Table"
+publishDate: 2026-07-21 00:00:00
+description: "P4 Control Block 的作用和 apply 逻辑"
+tags: ["P4", "Control", "Control Block", "入门"]
+categories: ["P4"]
+language: "中文"
+draft: false
+comment: true
+---
+
+前面理解了 Parser 和 Match-Action，这一篇看 Control Block 如何把它们连接起来。
+
+---
+
+## 一、Control Block 是什么
+
+Control Block 是 P4 程序的"大脑"，负责：
+
+1. 定义 Action（动作）
+2. 定义 Table（匹配-动作表）
+3. 在 `apply` 中编写处理逻辑
+
+---
+
+## 二、基本结构
+
+```p4
+control MyIngress(inout Headers hdr, inout standard_metadata_t meta) {
+    // Action 定义
+    action drop() {
+        mark_to_drop(meta);
+    }
+
+    action set_egress(bit<9> port) {
+        meta.egress_spec = port;
+    }
+
+    // Table 定义
+    table forward {
+        key = { hdr.ethernet.dstAddr: exact; }
+        actions = { set_egress; drop; }
+        default_action = drop();
+    }
+
+    // Apply 逻辑
+    apply {
+        forward.apply();
+    }
+}
+```
+
+---
+
+## 三、apply：执行逻辑
+
+`apply` 是 Control Block 的入口，按顺序执行：
+
+### 3.1 简单逻辑
+
+```p4
+apply {
+    forward.apply();
+}
+```
+
+### 3.2 条件判断
+
+```p4
+apply {
+    if (hdr.ipv4.isValid()) {
+        ipv4_table.apply();
+    } else {
+        drop();
+    }
+}
+```
+
+### 3.3 for 循环
+
+```p4
+apply {
+    for (bit<32> i = 0; i < 2; i++) {
+        if (hdr.vlan[i].isValid()) {
+            hdr.vlan[i].vid = hdr.vlan[i].vid + 1;
+        }
+    }
+}
+```
+
+---
+
+## 四、isValid()：检查报头
+
+在处理前检查报头是否有效：
+
+```p4
+if (hdr.ethernet.isValid()) {
+    // 以太网头存在
+}
+
+if (!hdr.ipv4.isValid()) {
+    // 没有 IPv4 头，跳过
+}
+```
+
+---
+
+## 五、修改 Header 字段
+
+直接赋值：
+
+```p4
+hdr.ethernet.dstAddr = 48w0xFF_FF_FF_FF_FF_FF;
+hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+hdr.ipv4.srcAddr = 32w0x0A_00_00_01;
+```
+
+位运算：
+
+```p4
+hdr.ipv4.flags = hdr.ipv4.flags & 3w0b110;
+```
+
+---
+
+## 六、V1Model 的四大 Control Block
+
+```
+Parser → MyIngress → MyEgress → Deparser
+```
+
+| Block | 作用 |
+|-------|------|
+| `MyParser` | 解析报文 |
+| `MyIngress` | 入口处理（主要逻辑） |
+| `MyEgress` | 出口处理 |
+| `MyDeparser` | 打包报文 |
+
+---
+
+## 七、完整示例
+
+```p4
+control MyIngress(inout Headers hdr, inout Meta meta, inout standard_metadata_t standard_metadata) {
+    action drop() {
+        mark_to_drop(standard_metadata);
+    }
+
+    action set_egress(bit<9> port) {
+        standard_metadata.egress_spec = port;
+    }
+
+    table port_forward {
+        key = { hdr.ethernet.dstAddr: exact; }
+        actions = { set_egress; drop; }
+        default_action = drop();
+    }
+
+    apply {
+        port_forward.apply();
+    }
+}
+```
+
+---
+
+## 八、小结
+
+| 概念 | 作用 |
+|------|------|
+| `control` | 定义处理逻辑的容器 |
+| `action` | 可复用的处理动作 |
+| `apply` | 按顺序执行逻辑 |
+| `isValid()` | 检查报头是否有效 |
+| `mark_to_drop()` | 标记丢弃报文 |
+
+---
+
+**下一篇**：[V1Model：BMv2 的参考架构](/blog/p4/p4-07-v1model) — 理解 BMv2 的架构

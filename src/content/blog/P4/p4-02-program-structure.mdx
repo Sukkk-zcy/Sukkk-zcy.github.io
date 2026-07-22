@@ -1,0 +1,190 @@
+---
+title: "P4 程序的骨架：从输入到输出"
+publishDate: 2026-07-21 00:00:00
+description: "理解 P4 程序的整体结构和数据流向"
+tags: ["P4", "架构", "入门"]
+categories: ["P4"]
+language: "中文"
+draft: false
+comment: true
+---
+
+上一篇了解了 P4 的背景，这一篇来认识 P4 程序的整体结构——就像盖房子先看图纸一样。
+
+---
+
+## 一、P4 程序处理报文的流程
+
+一个数据包进入交换机后，会经过以下几个阶段：
+
+```
+报文进入
+   ↓
+┌─────────┐
+│ Parser  │  ← 解析：从字节流提取报头
+└────┬────┘
+     ↓
+┌─────────────┐
+│ Control     │  ← 处理：匹配-动作
+│ (Ingress)   │
+└────┬────────┘
+     ↓
+┌─────────────┐
+│ Egress      │  ← 出口处理
+└────┬────────┘
+     ↓
+┌──────────┐
+│ Deparser │  ← 打包：把报头重新变成字节流
+└────┬─────┘
+     ↓
+报文离开
+```
+
+---
+
+## 二、四大组成部分
+
+一个完整的 P4 程序包含四部分：
+
+### 2.1 Header（报头定义）
+
+定义报文的结构，类似 C 语言的结构体：
+
+```p4
+header Ethernet_h {
+    bit<48> dstAddr;    // 目的 MAC
+    bit<48> srcAddr;    // 源 MAC
+    bit<16> etherType;  // 类型
+}
+```
+
+### 2.2 Parser（解析器）
+
+把原始字节流"翻译"成结构化的报头：
+
+```p4
+parser MyParser(packet_in pkt, out Headers hdr) {
+    state start {
+        pkt.extract(hdr.ethernet);  // 提取以太网头
+        transition accept;          // 解析完成
+    }
+}
+```
+
+### 2.3 Control（控制逻辑）
+
+定义报文的处理逻辑，核心是 Match-Action 表：
+
+```p4
+control MyIngress(inout Headers hdr, inout standard_metadata_t meta) {
+    action set_port(bit<9> port) {
+        meta.egress_spec = port;  // 设置出端口
+    }
+    
+    table forward {
+        key = { hdr.ethernet.dstAddr: exact; }
+        actions = { set_port; }
+    }
+    
+    apply {
+        forward.apply();
+    }
+}
+```
+
+### 2.4 Deparser（反解析器）
+
+把处理后的报头重新打包成字节流：
+
+```p4
+control MyDeparser(packet_out pkt, in Headers hdr) {
+    apply {
+        pkt.emit(hdr.ethernet);  // 输出以太网头
+        pkt.emit(hdr.ipv4);      // 输出 IPv4 头
+    }
+}
+```
+
+---
+
+## 三、完整的 P4 程序长什么样
+
+把四部分组合起来：
+
+```p4
+#include <core.p4>
+#include <v1model.p4>
+
+// 1. Header 定义
+header Ethernet_h {
+    bit<48> dstAddr;
+    bit<48> srcAddr;
+    bit<16> etherType;
+}
+
+// 2. Headers 结构
+struct Headers {
+    Ethernet_h ethernet;
+}
+
+// 3. Parser
+parser MyParser(packet_in pkt, out Headers hdr) {
+    state start {
+        pkt.extract(hdr.ethernet);
+        transition accept;
+    }
+}
+
+// 4. Control
+control MyIngress(inout Headers hdr, inout standard_metadata_t meta) {
+    apply { }
+}
+
+// 5. Deparser
+control MyDeparser(packet_out pkt, in Headers hdr) {
+    apply { pkt.emit(hdr.ethernet); }
+}
+
+// 6. 主函数
+V1Switch(MyParser(), MyIngress(), MyDeparser()) main;
+```
+
+---
+
+## 四、数据流向总结
+
+```
+原始字节流
+    ↓
+  Parser（提取报头）
+    ↓
+  Control（匹配-动作处理）
+    ↓
+  Deparser（重新打包）
+    ↓
+输出字节流
+```
+
+每个阶段的输入输出：
+
+| 阶段 | 输入 | 输出 |
+|------|------|------|
+| Parser | packet_in（字节流） | Headers（结构化报头） |
+| Control | Headers + standard_metadata | 修改后的 Headers |
+| Deparser | Headers | packet_out（字节流） |
+
+---
+
+## 五、关键概念
+
+| 概念 | 说明 |
+|------|------|
+| `packet_in` | 输入报文（字节流） |
+| `packet_out` | 输出报文（字节流） |
+| `Headers` | 所有报头的集合 |
+| `standard_metadata` | 标准元数据（端口号、长度等） |
+| `V1Switch` | BMv2 的参考架构 |
+
+---
+
+**下一篇**：[Header：网络报文的"身份证"](/blog/p4/p4-03-header) — 深入理解 header 类型

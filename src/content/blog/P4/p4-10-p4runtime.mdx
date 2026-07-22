@@ -1,43 +1,114 @@
 ---
-title: "P4Runtime 控制平面"
+title: "P4Runtime：控制平面与数据平面的桥梁"
 publishDate: 2026-07-21 00:00:00
-description: "P4Runtime 协议、gRPC 通信、Python 控制平面"
-tags: ["P4", "P4Runtime", "控制平面", "Python"]
+description: "P4Runtime 协议和控制平面入门"
+tags: ["P4", "P4Runtime", "控制平面", "gRPC"]
 categories: ["P4"]
 language: "中文"
 draft: false
 comment: true
 ---
 
-用 Python 程序控制 BMv2。
-
-> 本文基于 [P4 中文教程](https://github.com/zhh2001/p4-language-guide-zh) 第 15 章整理。
+前面的实验都是静态配置表项。实际使用中，表项由控制平面动态下发——这就是 P4Runtime 的作用。
 
 ---
 
-## 一、P4Runtime 工作流程
+## 一、P4Runtime 是什么
 
-1. 读取 P4Info
-2. 选择主控制器
-3. 推送 pipeline
-4. 读写表项
-5. 收发 Packet-in/Packet-out
+P4Runtime 是一个标准的**控制平面-数据平面通信协议**，用于：
+
+1. 下发表项（Match-Action 表）
+2. 收发报文（Packet-in/Packet-out）
+3. 读取统计信息（Counter 等）
 
 ---
 
-## 二、Python 控制平面
+## 二、工作流程
+
+```
+1. 控制器读取 P4Info（表/动作清单）
+2. 选择主控制器（Master Arbitration）
+3. 推送 Pipeline 配置
+4. 下发表项（Write）
+5. 收发报文（Packet-in/Packet-out）
+```
+
+---
+
+## 三、P4Info 文件
+
+编译 P4 程序时会生成 `.p4i` 文件，描述：
+
+- 哪些 Table
+- 哪些 Action
+- 哪些 Match 字段
+
+控制器通过 P4Info 了解如何与交换机通信。
+
+---
+
+## 四、Python 控制平面示例
 
 ```python
-from p4runtime_lib.bmv2 import Bmv2Connection
+import p4runtime_lib.bmv2
 
+# 连接 BMv2
 conn = Bmv2Connection(
     device_id=0,
     grpc_addr='localhost:50051',
     election_id=(0, 1)
 )
 conn.setup()
+
+# 推送 Pipeline
+conn.push_pipeline_config(
+    p4info='build/hello.p4i',
+    bmv2_json='build/hello.json'
+)
+
+# 下发表项
+entry = conn.table_entry(
+    table_name='MyIngress.forward',
+    action_name='MyIngress.set_egress',
+    match={'hdr.ethernet.dstAddr': encode('00:00:00:00:00:01', 48)},
+    action_params={'port': encode(1, 9)}
+)
+conn.write_table_entry(entry)
 ```
 
 ---
 
-**下一篇**：[P4 进阶与研究入门](/blog/p4/p4-11-advanced-research)
+## 五、Packet-in / Packet-out
+
+### Packet-in
+
+交换机把报文发给控制器：
+
+```p4
+action send_to_controller() {
+    // 标记发送给控制器
+}
+```
+
+### Packet-out
+
+控制器向交换机发送报文：
+
+```python
+conn.packet_out(packet)
+```
+
+---
+
+## 六、小结
+
+| 概念 | 作用 |
+|------|------|
+| P4Runtime | 控制平面-数据平面通信协议 |
+| P4Info | 表/动作的元数据描述 |
+| Packet-in | 报文从交换机发给控制器 |
+| Packet-out | 报文从控制器发给交换机 |
+
+---
+
+**下一篇**：[P4 的未来：研究方向与资源](/blog/p4/p4-11-future) — 研究热点和学习资源

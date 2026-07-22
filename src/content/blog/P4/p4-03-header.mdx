@@ -154,7 +154,7 @@ if (hdr.ipv4.isValid()) {
 | 概念 | 说明 |
 |------|------|
 | `header` | 定义报文结构 |
-| `bit<W>` | W 位无符号整数 |
+| `bit\\<W\\>` | W 位无符号整数 |
 | `header_stack` | 处理重复报头 |
 | `union` | 处理互斥报头 |
 | `isValid()` | 检查报头是否有效 |
@@ -162,10 +162,3 @@ if (hdr.ipv4.isValid()) {
 ---
 
 **下一篇**：[Parser：报文解析的状态机](/blog/p4/p4-04-parser) — 理解 Parser 的工作原理
-
----
-
-## 参考文献
-
-1. P4 Language Consortium. *P4_16 Language Specification Version 1.2.5*, Section 7: Type System
-2. 张恒华. *P4 中文教程* 第 04-05 章. https://github.com/zhh2001/p4-language-guide-zh

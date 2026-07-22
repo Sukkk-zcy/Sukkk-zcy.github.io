@@ -17,49 +17,25 @@ comment: true
 
 Parser 是一个**有限状态机（FSM）**。每个状态做两件事：
 
-<div style="background: #0a0a0a; border-radius: 12px; padding: 20px; margin: 20px 0;">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" style="width: 100%; height: auto;">
-  <!-- 标题 -->
-  <text x="400" y="30" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="bold">Parser 状态机</text>
-  
-  <!-- 状态节点 -->
-  <ellipse cx="100" cy="150" rx="60" ry="30" fill="#1b4965" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="100" y="155" text-anchor="middle" fill="#ffffff" font-size="12">start</text>
-  
-  <ellipse cx="300" cy="150" rx="60" ry="30" fill="#1b4965" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="300" y="155" text-anchor="middle" fill="#ffffff" font-size="12">parse_eth</text>
-  
-  <ellipse cx="500" cy="150" rx="60" ry="30" fill="#1b4965" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="500" y="155" text-anchor="middle" fill="#ffffff" font-size="12">parse_ipv4</text>
-  
-  <ellipse cx="700" cy="150" rx="50" ry="30" fill="#2d6a4f" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="700" y="155" text-anchor="middle" fill="#ffffff" font-size="12">accept</text>
-  
-  <ellipse cx="700" cy="250" rx="50" ry="30" fill="#8b0000" stroke="#ff6666" stroke-width="2"/>
-  <text x="700" y="255" text-anchor="middle" fill="#ffffff" font-size="12">reject</text>
-  
-  <!-- 转换箭头 -->
-  <line x1="160" y1="150" x2="240" y2="150" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="200" y="140" text-anchor="middle" fill="#888888" font-size="10">extract</text>
-  
-  <line x1="360" y1="150" x2="440" y2="150" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="400" y="140" text-anchor="middle" fill="#888888" font-size="10">select</text>
-  
-  <line x1="560" y1="150" x2="650" y2="150" stroke="#4ecdc4" stroke-width="2"/>
-  <text x="605" y="140" text-anchor="middle" fill="#888888" font-size="10">accept</text>
-  
-  <line x1="560" y1="170" x2="650" y2="240" stroke="#ff6666" stroke-width="2"/>
-  <text x="620" y="210" text-anchor="middle" fill="#ff6666" font-size="10">reject</text>
-</svg>
-</div>
-
 1. **Extract**：从报文中提取若干字节到对应的 Header
 2. **Select**：根据某个字段的值，决定跳转到下一个状态
 
 整个过程从 `start` 状态开始，到 `accept` 状态结束。
 
-```
-报文进入 → start → extract → select → ... → accept
+```mermaid
+stateDiagram-v2
+    [*] --> start
+    start --> parse_ethernet: extract ethernet
+    parse_ethernet --> parse_ipv4: select 0x0800
+    parse_ethernet --> accept: default
+    parse_ipv4 --> accept: accept
+    parse_ipv4 --> reject: verify fail
+    
+    start: start
+    parse_ethernet: parse_ethernet
+    parse_ipv4: parse_ipv4
+    accept: accept
+    reject: reject
 ```
 
 ---
@@ -199,11 +175,3 @@ parser MyParser(packet_in pkt, out Headers hdr) {
 ---
 
 **下一篇**：[Match-Action：网络转发的核心](/blog/p4/p4-05-match-action) — 理解匹配-动作表的工作原理
-
----
-
-## 参考文献
-
-1. P4 Language Consortium. *P4_16 Language Specification Version 1.2.5*, Section 12: Architectures
-2. 张恒华. *P4 中文教程* 第 06 章. https://github.com/zhh2001/p4-language-guide-zh
-3. P4.org. *BMv2 Simple Switch*. https://github.com/p4lang/behavioral-model

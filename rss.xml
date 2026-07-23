@@ -1,0 +1,1209 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/scripts/pretty-feed-v3.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:h="http://www.w3.org/TR/html4/"><channel><title>Sukkk</title><description>记录技术笔记和成长历程</description><link>https://sukkk-zcy.github.io</link><item><title>CloudFlare ImgBed 图床搭建</title><link>https://sukkk-zcy.github.io/blog/devtools/cloudflare-imgbed-setup</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/cloudflare-imgbed-setup</guid><description>使用 CloudFlare Pages + Telegram Bot 搭建免费图床，解决博客图片加载慢的问题。</description><pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;博客托管在 GitHub Pages 上，国内访问图片加载慢甚至加载不出来。本文记录使用 &lt;a href=&quot;https://github.com/MarSeventh/CloudFlare-ImgBed&quot;&gt;CloudFlare ImgBed&lt;/a&gt; 搭建免费图床的完整过程。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;为什么需要图床&lt;/h2&gt;
+&lt;p&gt;GitHub Pages 的图片托管有以下问题：&lt;/p&gt;
+&lt;p&gt;| 问题 | 说明 |
+|------|------|
+| 加载慢 | GitHub 域名在国内访问速度不稳定 |
+| 加载失败 | 部分网络环境直接无法访问 |
+| 无 CDN | 没有全球加速，全靠 GitHub 单一节点 |&lt;/p&gt;
+&lt;p&gt;CloudFlare ImgBed 的方案：&lt;strong&gt;Cloudflare Pages（免费托管 + 全球 CDN）&lt;/strong&gt; + &lt;strong&gt;Telegram Bot（免费存储 + 无限容量）&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;p&gt;需要准备以下账号和工具：&lt;/p&gt;
+&lt;p&gt;| 需要 | 说明 |
+|------|------|
+| Cloudflare 账号 | 免费注册，用于部署 Pages |
+| GitHub 账号 | 用于 Fork 项目 |
+| Telegram 账号 | 用于创建 Bot 和频道作为存储后端 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;第一步：创建 Telegram Bot&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;在 Telegram 搜索 &lt;code&gt;@BotFather&lt;/code&gt;，进入对话&lt;/li&gt;
+&lt;li&gt;发送 &lt;code&gt;/newbot&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;按提示输入 Bot 名称（如 &lt;code&gt;My Image Bed&lt;/code&gt;）和用户名（必须以 &lt;code&gt;bot&lt;/code&gt; 结尾）&lt;/li&gt;
+&lt;li&gt;记录 BotFather 回复的 &lt;strong&gt;Bot Token&lt;/strong&gt;（格式：&lt;code&gt;123456789:ABCdefGHI...&lt;/code&gt;）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第二步：创建 Telegram 频道&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Telegram 中新建频道，选&lt;strong&gt;私密&lt;/strong&gt;（只是存储后端，不需要公开）&lt;/li&gt;
+&lt;li&gt;进入频道设置 → 管理员 → 添加管理员&lt;/li&gt;
+&lt;li&gt;搜索你的 Bot 用户名，添加为管理员&lt;/li&gt;
+&lt;li&gt;在频道中发送一条测试消息&lt;/li&gt;
+&lt;li&gt;长按消息 → 转发 → 搜索 &lt;code&gt;@VersaToolsBot&lt;/code&gt;，转发给它&lt;/li&gt;
+&lt;li&gt;记录返回的&lt;strong&gt;频道 ID&lt;/strong&gt;（格式：&lt;code&gt;-1001234567890&lt;/code&gt;）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第三步：Fork 项目&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;打开 https://github.com/MarSeventh/CloudFlare-ImgBed&lt;/li&gt;
+&lt;li&gt;点右上角 &lt;strong&gt;Fork&lt;/strong&gt; 到你的 GitHub 账户&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第四步：部署到 Cloudflare Pages&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;登录 https://dash.cloudflare.com/&lt;/li&gt;
+&lt;li&gt;左侧菜单：&lt;strong&gt;计算和 AI&lt;/strong&gt; → &lt;strong&gt;Workers &amp;#x26; Pages&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;点 &lt;strong&gt;创建应用程序&lt;/strong&gt; → &lt;strong&gt;Get started&lt;/strong&gt; → 连接 GitHub 仓库&lt;/li&gt;
+&lt;li&gt;选择刚 Fork 的 &lt;code&gt;CloudFlare-ImgBed&lt;/code&gt; 仓库&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;配置填写：&lt;/p&gt;
+&lt;p&gt;| 配置项 | 值 |
+|--------|-----|
+| 项目名称 | &lt;code&gt;sukk-imgbed&lt;/code&gt;（自定义） |
+| 生产分支 | &lt;code&gt;main&lt;/code&gt; |
+| 构建命令 | &lt;code&gt;npm install&lt;/code&gt; |
+| 构建输出目录 | &lt;code&gt;/frontend-dist&lt;/code&gt; |&lt;/p&gt;
+&lt;ol start=&quot;5&quot;&gt;
+&lt;li&gt;点 &lt;strong&gt;保存并部署&lt;/strong&gt;，等待 2-3 分钟&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第五步：创建 KV 数据库&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Cloudflare Dashboard → &lt;strong&gt;存储和数据库&lt;/strong&gt; → &lt;strong&gt;Workers KV&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;点 &lt;strong&gt;创建实例&lt;/strong&gt;，命名空间名称填 &lt;code&gt;img_url&lt;/code&gt;（必须是这个名字）&lt;/li&gt;
+&lt;li&gt;回到 Pages 项目 → &lt;strong&gt;设置&lt;/strong&gt; → &lt;strong&gt;Bindings&lt;/strong&gt; → &lt;strong&gt;添加&lt;/strong&gt; → &lt;strong&gt;KV 命名空间&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;变量名称填 &lt;code&gt;img_url&lt;/code&gt;，选择刚创建的命名空间，保存&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第六步：配置环境变量&lt;/h2&gt;
+&lt;p&gt;在 Pages 项目的 &lt;strong&gt;设置&lt;/strong&gt; → &lt;strong&gt;Variables and secrets&lt;/strong&gt; 中，添加以下 Secret：&lt;/p&gt;
+&lt;p&gt;| 变量名 | 值 |
+|--------|-----|
+| &lt;code&gt;TG_BOT_TOKEN&lt;/code&gt; | 你的 Bot Token |
+| &lt;code&gt;TG_CHAT_ID&lt;/code&gt; | 你的频道 ID |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;第七步：重新部署&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;进入项目的 &lt;strong&gt;Deployments&lt;/strong&gt; 页面&lt;/li&gt;
+&lt;li&gt;找到最新部署记录，点 &lt;strong&gt;...&lt;/strong&gt; → &lt;strong&gt;Retry deployment&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;等待部署完成&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;部署完成后访问 &lt;code&gt;https://你的项目名.pages.dev&lt;/code&gt;，进入管理后台。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;第八步：配置访问码&lt;/h2&gt;
+&lt;p&gt;默认情况下任何人都能上传图片，需要设置访问码：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;访问 &lt;code&gt;https://你的项目名.pages.dev/dashboard&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;系统设置&lt;/strong&gt; → &lt;strong&gt;安全设置&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;设置管理员用户名和密码&lt;/li&gt;
+&lt;li&gt;设置用户端认证码&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;使用方法&lt;/h2&gt;
+&lt;h3&gt;通过网页上传&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;打开图床地址&lt;/li&gt;
+&lt;li&gt;输入认证码&lt;/li&gt;
+&lt;li&gt;选择图片上传&lt;/li&gt;
+&lt;li&gt;复制返回的图片 URL&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;在博客中引用&lt;/h3&gt;
+&lt;p&gt;直接使用 Markdown 图片语法即可：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;![图片描述](https://你的图床域名/file/xxx.png)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;前后各空一行，确保图片独占一行。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;踩坑记录&lt;/h2&gt;
+&lt;h3&gt;1. Hugo 编译时图片加载失败&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;现象&lt;/strong&gt;：博客编译后图片不显示，&lt;code&gt;&amp;#x3C;img&gt;&lt;/code&gt; 标签没有 &lt;code&gt;src&lt;/code&gt; 属性&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;原因&lt;/strong&gt;：Hugo 的图片处理功能会尝试下载远程图片进行处理，失败后去掉 &lt;code&gt;src&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;解决&lt;/strong&gt;：在 &lt;code&gt;layouts/_markup/render-image.html&lt;/code&gt; 添加自定义渲染钩子，检测到远程 URL（&lt;code&gt;http://&lt;/code&gt; 或 &lt;code&gt;https://&lt;/code&gt; 开头）时直接输出 &lt;code&gt;&amp;#x3C;img&gt;&lt;/code&gt; 标签，不走 Hugo 图片处理&lt;/p&gt;
+&lt;h3&gt;2. API 上传失败（405 Method Not Allowed）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;现象&lt;/strong&gt;：POST &lt;code&gt;/api/upload&lt;/code&gt; 返回 405&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;原因&lt;/strong&gt;：API 端点是 &lt;code&gt;/upload&lt;/code&gt; 不是 &lt;code&gt;/api/upload&lt;/code&gt;，且认证码要通过 URL 参数传递&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;正确调用方式&lt;/strong&gt;：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;curl -X POST &apos;https://你的图床域名/upload?authCode=你的认证码&amp;#x26;uploadChannel=telegram&apos; \
+  -F &apos;file=@/path/to/image.jpg&apos;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3. KV 绑定找不到入口&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;位置&lt;/strong&gt;：Pages 项目 → 设置 → 左侧菜单 &lt;strong&gt;Bindings&lt;/strong&gt;（不是&quot;函数&quot;）&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/MarSeventh/CloudFlare-ImgBed&quot;&gt;CloudFlare ImgBed 项目&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cfbed.sanyue.de/&quot;&gt;CloudFlare ImgBed 文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cfbed.sanyue.de/deployment/pages.html&quot;&gt;Cloudflare Pages 部署指南&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「开发环境搭建」系列文章。&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>开发环境搭建</category></item><item><title>加热台复刻参考</title><link>https://sukkk-zcy.github.io/blog/embedded/heating-table-replica</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/heating-table-replica</guid><description>加热台复刻的完整参考指南，包含物料清单、焊接接线、组装过程与温控器配置。</description><pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
+&lt;p&gt;本项目涉及 220V 交流电，复刻过程中请务必注意安全，认真检查接线无误再通电。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;QQ 交流群：815160214&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;h3&gt;铝合金外壳&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://gf.jlcfa.com/machine-detail/485423353462165506&quot;&gt;机电工坊-加热台&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;不要忘记印字&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;元器件&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://lcnomepz51b1.feishu.cn/file/%E5%8A%A0%E7%83%AD%E5%8F%B0%E9%9B%B6%E4%BB%B6%E6%B8%85%E5%8D%95.xlsx&quot;&gt;加热台零件清单.xlsx&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;电路板&lt;/h3&gt;
+&lt;p&gt;共需下单 &lt;strong&gt;4 个板&lt;/strong&gt;，注意网页版 EDA 无法识别 eprj 文件，推荐安装嘉立创专业版客户端。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;双击即可打开 eprj 文件，不是导入&lt;/strong&gt;&lt;/em&gt;，eprj 文件无法导入客户端。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;控制板&lt;/strong&gt;（捷配/嘉立创）&lt;/p&gt;
+&lt;p&gt;材质 FR4，两种尺寸二选一即可，若选择捷配需要先输尺寸，10.5×9.92cm。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;风扇固定板&lt;/strong&gt;（嘉立创）&lt;/p&gt;
+&lt;p&gt;材质 FR4&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;加热片固定板&lt;/strong&gt;（嘉立创）&lt;/p&gt;
+&lt;p&gt;材质 1.6mm 铝基板&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://lcnomepz51b1.feishu.cn/file/%E5%8A%A0%E7%83%AD%E5%8F%B0%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6.eprj&quot;&gt;加热台工程文件.eprj&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;加热台面&lt;/strong&gt;（嘉立创 CNC）&lt;/p&gt;
+&lt;p&gt;嘉立创 CNC 官网首页免费打样横幅进入，上传 zip 文件即可。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://lcnomepz51b1.feishu.cn/file/%E5%8A%A0%E7%83%AD%E5%8F%B0%E9%9D%A23D%E6%A8%A1%E5%9E%8B.zip&quot;&gt;加热台面 3D 模型.zip&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;光孔&lt;/strong&gt;：约 10 元，但需要攻丝（M3 规格），用电钻攻丝可适当上油，没电钻可用手用丝锥，攻丝时注意进退交替，不要大力出奇迹。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;螺纹孔&lt;/strong&gt;：每个孔加 1 元，动手能力弱的可直接选螺纹孔。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526693915_3D_PCB2_2025-10-05.png&quot; alt=&quot;3D PCB&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526702808_3D_%E9%A3%8E%E6%89%87%E5%9B%BA%E5%AE%9A%E6%9D%BF_2025-10-05.png&quot; alt=&quot;3D 风扇固定板&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526705858_3D_%E5%8A%A0%E7%83%AD%E7%89%87%E5%9B%BA%E5%AE%9A%E6%9D%BF%E9%93%9D%E5%9F%BA%E6%9D%BF_2025-10-05.png&quot; alt=&quot;3D 加热片固定板铝基板&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526707014_Screenshot_2025-10-05-23-00-37-825_com.szjlc.mobi.png&quot; alt=&quot;嘉立创 CNC 截图&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;焊接参考&lt;/h2&gt;
+&lt;p&gt;焊接时注意检查风扇端子与下图风扇端子母座 &lt;strong&gt;正负极线序是否匹配&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;检查线序，检查线序，检查线序，重要的事情说三遍&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526711001_Image_1759675966471.jpg&quot; alt=&quot;风扇端子线序&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;接线说明&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;有压线钳会压端子的只需购买 BOM 清单中的端子即可，无压线钳可购买压好端子的成品线&lt;/li&gt;
+&lt;li&gt;如需购买压线钳，型号推荐 SN2549，普通款 10-20 元即可&lt;/li&gt;
+&lt;li&gt;接线线材自备，电源线注意适当加粗，2.54 端子 0.5 平即可，太粗的线压不了，3.96 端子可使用稍粗的线材&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;接线对照控制板 PCB 丝印&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;L/N&lt;/strong&gt;：接 PCB 温控表电源。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;12V OUT AM2 12V AM1&lt;/strong&gt;：接 5P 的 3.96 端子。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;温控线&lt;/strong&gt;：热电偶的红黄线注意不要接反，否则温度会是负数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526712829_IMG_20251006_000041.jpg&quot; alt=&quot;接线参考&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;组装过程&lt;/h2&gt;
+&lt;h3&gt;加热台面&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526719679_IMG_20251005_154124.jpg&quot; alt=&quot;组装1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526733041_IMG_20251005_154559.jpg&quot; alt=&quot;组装2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526741552_IMG_20251005_161204.jpg&quot; alt=&quot;组装3&quot;&gt;&lt;/p&gt;
+&lt;h3&gt;上半部分&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526747885_IMG_20251005_154907.jpg&quot; alt=&quot;上半1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526773792_IMG_20251005_155409.jpg&quot; alt=&quot;上半2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526799786_IMG_20251005_172324.jpg&quot; alt=&quot;上半3&quot;&gt;&lt;/p&gt;
+&lt;h3&gt;下半部分&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526806415_IMG_20251005_155700.jpg&quot; alt=&quot;下半1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526826486_IMG_20251005_172707.jpg&quot; alt=&quot;下半2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526847638_IMG_20251005_172711.jpg&quot; alt=&quot;下半3&quot;&gt;&lt;/p&gt;
+&lt;h3&gt;整体组装&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526855504_IMG_20251006_161436.jpeg&quot; alt=&quot;整体1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526860479_IMG_20251006_161410.jpeg&quot; alt=&quot;整体2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526862082_IMG_20251006_161341.jpeg&quot; alt=&quot;整体3&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;温控器配置&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;整机装配完成通电检查无异常后，需先对温控器进行设置才能实现分段加热功能。&lt;/p&gt;
+&lt;p&gt;配置教程摘自立创开源平台枫叶大佬的教程：
+&lt;a href=&quot;https://oshwhub.com/cqlcp/adjustable-timing-constant-temperature-heating-table&quot;&gt;https://oshwhub.com/cqlcp/adjustable-timing-constant-temperature-heating-table&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;进入各参数设置界面的方法请对照 &lt;a href=&quot;https://lcnomepz51b1.feishu.cn/wiki/HisWw9J50iCPg5khWuXcIWN2n7d#share-SSfKdBjecoE7RSxEwa3c5tVFnuc&quot;&gt;温控表说明书&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;务必严格按照教程修改参数，其它 &lt;strong&gt;默认参数不要随意修改&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;将启动复位开关置于复位状态，再打开电源开关。&lt;/li&gt;
+&lt;li&gt;设置第一组三个参数，设置完成后关电源重启。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526867746_image.png&quot; alt=&quot;参数设置1&quot;&gt;&lt;/p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;设置第二组三个参数（以 217°C 中温无铅焊锡膏为例）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526875940_image_1.png&quot; alt=&quot;参数设置2&quot;&gt;&lt;/p&gt;
+&lt;ol start=&quot;4&quot;&gt;
+&lt;li&gt;将 ATU 自整定设置为 0001，然后长按温控器 &quot;SET&quot; 键退出设定模式。&lt;/li&gt;
+&lt;li&gt;将 &quot;模式开关&quot; 置于恒温位，再打开启动开关，此时温控器会自动进行 PID 自整定，AT 灯闪烁。&lt;/li&gt;
+&lt;li&gt;温度逐渐上升到 200 度以上，然后降温到 200 度以下，然后再升温降温……，反复持续几个回合，AT 灯停止闪烁，温度应该被恒温在 200°C 左右。&lt;/li&gt;
+&lt;li&gt;手动单击风扇开关，风扇启动开始降温，直至温度降至 50°C 以下手动关机，设置完成。&lt;/li&gt;
+&lt;li&gt;关机重启后进行测试，测试现象参考下节。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;系统测试&lt;/h2&gt;
+&lt;h3&gt;恒温模式&lt;/h3&gt;
+&lt;p&gt;加热灯亮，温度逐渐升温至预先设定好的 200 度，并维持在 200 度左右。
+使用完毕后，需手动开启风扇降温，此时加热灯灭，风扇灯亮，降温至 30-50 度。&lt;/p&gt;
+&lt;h3&gt;回流模式&lt;/h3&gt;
+&lt;p&gt;加热灯亮，温度逐渐升温至预先设定好的 250 度。&lt;/p&gt;
+&lt;p&gt;达到 250 度自动开启风扇降温，此时加热灯灭，风扇灯亮，降温至 30-50 度。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;开关使用指南&lt;/h2&gt;
+&lt;h3&gt;回流/恒温开关 &amp;#x26;&amp;#x26; 启动/复位开关&lt;/h3&gt;
+&lt;p&gt;可以把这两个开关想象成 &quot;模式选择 + 确认执行&quot; 的组合，就像点外卖选餐然后确认下单一样：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;先看右边的启动/复位开关，确保它是 &quot;复位&quot; 状态（就像你还没点 &quot;确认下单&quot;，处于可以选餐的状态）。&lt;/li&gt;
+&lt;li&gt;操作左边的回流/恒温开关，选 &quot;恒温&quot; 或者 &quot;回流&quot;（就像选 &quot;麻辣烫&quot; 还是 &quot;黄焖鸡&quot;）。&lt;/li&gt;
+&lt;li&gt;再把右边的启动/复位开关打到 &quot;启动&quot;（就像点 &quot;确认下单&quot;，设备开始按照你选的模式工作）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;如果想停止或重新来，就把右边的启动/复位开关打回 &quot;复位&quot;（就像取消订单，一切回到可以重新选的状态）。&lt;/p&gt;
+&lt;h3&gt;风扇开关&lt;/h3&gt;
+&lt;p&gt;手动单击风扇开关即可停止加热，启动风扇降温。&lt;/p&gt;
+&lt;p&gt;风扇无论是自动或手动打开，都不会自动关闭，将右开关打到复位即可关闭风扇。&lt;/p&gt;
+&lt;p&gt;如需继续使用加热台，重新打到启动档位即可。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;温控器配置修改说明&lt;/h2&gt;
+&lt;p&gt;使用不同熔点的焊锡膏，只需要调节 SV AL1 和 AL2 三个参数即可。关于回流焊的温度设置可参考网上相关文章，不同焊料设置温度设置不一样。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;示例 1&lt;/strong&gt;：需要恒温 230 度，将 SV 设置为 230 度保存即可。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;示例 2&lt;/strong&gt;：需要回流 260 度，将 AL2 设置为 260 度即可。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;温控表说明书&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526903329_image_2.png&quot; alt=&quot;温控表说明书1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526928615_image_3.png&quot; alt=&quot;温控表说明书2&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文参考自飞书文档，图片来源已迁移至图床。&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>嵌入式开发</category></item><item><title>Nushell + Starship 终端环境配置指南</title><link>https://sukkk-zcy.github.io/blog/devtools/nushell-starship-guide</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/nushell-starship-guide</guid><description>Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。</description><pubDate>Sun, 28 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;简介&lt;/h2&gt;
+&lt;h3&gt;Nushell&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.nushell.sh/&quot;&gt;Nushell&lt;/a&gt;（简称 Nu）是一个全新的 Shell，与传统 Shell 最大的区别在于它将一切视为&lt;strong&gt;结构化数据&lt;/strong&gt;（表格、列表、记录），而不是纯文本流。这意味着你可以像操作数据库一样操作命令行输出：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;ls | where size &gt; 1mb | sort-by modified
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Nu 同时支持 Windows / macOS / Linux，当前最新稳定版为 &lt;strong&gt;0.113.1&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3&gt;Starship&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://starship.rs/&quot;&gt;Starship&lt;/a&gt; 是一个用 Rust 编写的 Shell 提示符工具，速度极快（每次渲染约 1-5ms），使用&lt;strong&gt;单一的 TOML 配置文件&lt;/strong&gt;，可以跨 Shell（Bash、Zsh、Fish、PowerShell、Nushell）共享同一套配置。当前最新版本为 &lt;strong&gt;1.25.1&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;安装 Nushell&lt;/h2&gt;
+&lt;h3&gt;方式一：winget（推荐 / Windows）&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;winget install nushell
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式二：Scoop&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;scoop install nu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式三：cargo&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;cargo install nu --locked
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;安装完成后，在终端输入 &lt;code&gt;nu&lt;/code&gt; 即可进入 Nushell。&lt;/p&gt;
+&lt;h3&gt;设置 Nushell 为默认 Shell&lt;/h3&gt;
+&lt;p&gt;在 Windows Terminal 中，进入设置 → 配置文件 → 添加新配置文件，命令行指向 Nu 可执行文件路径：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;C:\Users\&amp;#x3C;用户名&gt;\AppData\Local\Programs\nu\bin\nu.exe
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;也可以在 PowerShell 中通过 &lt;code&gt;$PROFILE&lt;/code&gt; 添加：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;nu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;配置 Nushell&lt;/h2&gt;
+&lt;p&gt;Nushell 的配置文件位于 &lt;code&gt;%AppData%\nushell\config.nu&lt;/code&gt;，在 Nu 中可以用以下命令直接打开：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;config nu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;以下是实际使用的配置（&lt;code&gt;C:\Users\29016\AppData\Roaming\nushell\config.nu&lt;/code&gt;）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;# Nushell Configuration
+
+use std
+
+# ─── Starship Prompt ───────────────────────────────────────────
+$env.STARSHIP_SHELL = &quot;nu&quot;
+$env.PROMPT_COMMAND = { ||
+    starship prompt --cmd-duration $env.CMD_DURATION_MS $&quot;--status=($env.LAST_EXIT_CODE)&quot;
+}
+$env.PROMPT_COMMAND_RIGHT = &quot;&quot;
+$env.PROMPT_INDICATOR = &quot;&quot;
+$env.PROMPT_INDICATOR_VI_INSERT = &quot;: &quot;
+$env.PROMPT_INDICATOR_VI_NORMAL = &quot;〉&quot;
+$env.PROMPT_MULTILINE_INDICATOR = &quot;::: &quot;
+
+# ─── Editor ───────────────────────────────────────────────────
+$env.EDITOR = &quot;notepad&quot;
+$env.VISUAL = &quot;notepad&quot;
+
+# ─── Aliases ──────────────────────────────────────────────────
+alias ll = ls -l
+alias la = ls -a
+alias lla = ls -la
+alias g = git
+alias c = clear
+alias vim = nvim
+alias python = python3
+
+# ─── PATH ─────────────────────────────────────────────────────
+$env.Path = ($env.Path | split row (char esep) | append &apos;C:\Users\29016\AppData\Local\Programs\nu\bin&apos;)
+
+# ─── Default Configurations ──────────────────────────────────
+$env.config.show_banner = false   # 隐藏启动 banner
+$env.config.history.max_size = 10000
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;配置说明&lt;/h3&gt;
+&lt;p&gt;| 配置项 | 说明 |
+|--------|------|
+| &lt;code&gt;$env.STARSHIP_SHELL = &quot;nu&quot;&lt;/code&gt; | 告诉 Starship 当前 Shell 是 Nushell |
+| &lt;code&gt;$env.PROMPT_COMMAND&lt;/code&gt; | 设置 Starship 为主提示符，传递持续时间和退出状态码 |
+| &lt;code&gt;$env.PROMPT_INDICATOR&lt;/code&gt; | 普通模式下提示符为空（由 Starship 接管） |
+| &lt;code&gt;$env.PROMPT_INDICATOR_VI_INSERT&lt;/code&gt; | VI 插入模式提示符设为 &lt;code&gt;: &lt;/code&gt; |
+| &lt;code&gt;$env.PROMPT_INDICATOR_VI_NORMAL&lt;/code&gt; | VI 普通模式提示符 |
+| &lt;code&gt;show_banner = false&lt;/code&gt; | 隐藏 Nushell 启动时的 logo 横幅 |
+| &lt;code&gt;history.max_size = 10000&lt;/code&gt; | 限制历史记录最大条数 |&lt;/p&gt;
+&lt;h3&gt;别名一览&lt;/h3&gt;
+&lt;p&gt;| 别名 | 等价命令 |
+|------|----------|
+| &lt;code&gt;ll&lt;/code&gt; | &lt;code&gt;ls -l&lt;/code&gt; |
+| &lt;code&gt;la&lt;/code&gt; | &lt;code&gt;ls -a&lt;/code&gt; |
+| &lt;code&gt;lla&lt;/code&gt; | &lt;code&gt;ls -la&lt;/code&gt; |
+| &lt;code&gt;g&lt;/code&gt; | &lt;code&gt;git&lt;/code&gt; |
+| &lt;code&gt;c&lt;/code&gt; | &lt;code&gt;clear&lt;/code&gt; |
+| &lt;code&gt;vim&lt;/code&gt; | &lt;code&gt;nvim&lt;/code&gt; |
+| &lt;code&gt;python&lt;/code&gt; | &lt;code&gt;python3&lt;/code&gt; |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;安装 Starship&lt;/h2&gt;
+&lt;h3&gt;方式一：winget（Windows）&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;winget install starship
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式二：官方安装脚本&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;curl -sS https://starship.rs/install.sh | sh
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;验证安装&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;starship --version
+# starship 1.25.1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;配置 Starship&lt;/h2&gt;
+&lt;p&gt;Starship 的配置文件位于 &lt;code&gt;~\.config\starship.toml&lt;/code&gt;（即 &lt;code&gt;C:\Users\&amp;#x3C;用户名&gt;\.config\starship.toml&lt;/code&gt;）。&lt;/p&gt;
+&lt;h3&gt;使用预设快速起步&lt;/h3&gt;
+&lt;p&gt;Starship 内置了 12 个官方预设，推荐使用 Gruvbox Rainbow：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;starship preset gruvbox-rainbow -o ~\.config\starship.toml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;其他热门预设：&lt;/p&gt;
+&lt;p&gt;| 预设 | 风格 |
+|------|------|
+| &lt;code&gt;gruvbox-rainbow&lt;/code&gt; | 温暖大地色 + Powerline 箭头（推荐） |
+| &lt;code&gt;tokyo-night&lt;/code&gt; | 深色蓝紫冷色调 |
+| &lt;code&gt;pastel-powerline&lt;/code&gt; | 粉彩 Powerline 风格 |
+| &lt;code&gt;catppuccin-powerline&lt;/code&gt; | Catppuccin 主题 |
+| &lt;code&gt;pure-preset&lt;/code&gt; | 极简单行提示符 |
+| &lt;code&gt;no-runtime-versions&lt;/code&gt; | 不显示运行时版本信息 |&lt;/p&gt;
+&lt;h3&gt;自定义配置&lt;/h3&gt;
+&lt;p&gt;以下是在 Gruvbox Rainbow 预设基础上实际使用的完整配置：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-toml&quot;&gt;&quot;$schema&quot; = &apos;https://starship.rs/config-schema.json&apos;
+
+scan_timeout = 500
+
+format = &quot;&quot;&quot;
+[](color_orange)\
+$os\
+$username\
+[](bg:color_yellow fg:color_orange)\
+$directory\
+[](fg:color_yellow bg:color_aqua)\
+$git_branch\
+$git_status\
+[](fg:color_aqua bg:color_blue)\
+$c\
+$cpp\
+$rust\
+$golang\
+$nodejs\
+$bun\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+[](fg:color_blue bg:color_bg3)\
+$docker_context\
+$conda\
+$pixi\
+[](fg:color_bg3 bg:color_bg1)\
+$time\
+[ ](fg:color_bg1)\
+$line_break$character&quot;&quot;&quot;
+
+palette = &apos;gruvbox_dark&apos;
+
+[palettes.gruvbox_dark]
+color_fg0 = &apos;#fbf1c7&apos;
+color_bg1 = &apos;#3c3836&apos;
+color_bg3 = &apos;#665c54&apos;
+color_blue = &apos;#458588&apos;
+color_aqua = &apos;#689d6a&apos;
+color_green = &apos;#98971a&apos;
+color_orange = &apos;#d65d0e&apos;
+color_purple = &apos;#b16286&apos;
+color_red = &apos;#cc241d&apos;
+color_yellow = &apos;#d79921&apos;
+
+[os]
+disabled = false
+style = &quot;bg:color_orange fg:color_fg0&quot;
+
+[os.symbols]
+Windows = &quot;&quot;
+Ubuntu = &quot;&quot;
+# ... 其他系统图标
+
+[username]
+show_always = true
+style_user = &quot;bg:color_orange fg:color_fg0&quot;
+style_root = &quot;bg:color_orange fg:color_fg0&quot;
+format = &apos;[ $user ]($style)&apos;
+
+[directory]
+style = &quot;fg:color_fg0 bg:color_yellow&quot;
+format = &quot;[ $path ]($style)&quot;
+truncation_length = 3
+truncation_symbol = &quot;…/&quot;
+
+[directory.substitutions]
+&quot;Documents&quot; = &quot; &quot;
+&quot;Downloads&quot; = &quot; &quot;
+&quot;Music&quot; = &quot; &quot;
+&quot;Pictures&quot; = &quot; &quot;
+&quot;Developer&quot; = &quot; &quot;
+
+[git_branch]
+symbol = &quot;&quot;
+style = &quot;bg:color_aqua&quot;
+format = &apos;[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)&apos;
+
+[git_status]
+style = &quot;bg:color_aqua&quot;
+format = &apos;[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)&apos;
+
+# 语言模块（统一蓝底风格）
+[nodejs]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[bun]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[c]
+symbol = &quot; &quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[cpp]
+symbol = &quot; &quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[rust]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[golang]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[python]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[docker_context]
+symbol = &quot;&quot;
+style = &quot;bg:color_bg3&quot;
+format = &apos;[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)&apos;
+
+[conda]
+style = &quot;bg:color_bg3&quot;
+format = &apos;[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)&apos;
+
+[pixi]
+style = &quot;bg:color_bg3&quot;
+format = &apos;[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)&apos;
+
+[time]
+disabled = false
+time_format = &quot;%R&quot;
+style = &quot;bg:color_bg1&quot;
+format = &apos;[[ $time ](fg:color_fg0 bg:color_bg1)]($style)&apos;
+
+[line_break]
+disabled = false
+
+[character]
+disabled = false
+success_symbol = &apos;[[](bold fg:color_green)]&apos;
+error_symbol = &apos;[[](bold fg:color_red)]&apos;
+vimcmd_symbol = &apos;[](bold fg:color_green)&apos;
+vimcmd_replace_one_symbol = &apos;[](bold fg:color_purple)&apos;
+vimcmd_replace_symbol = &apos;[](bold fg:color_purple)&apos;
+vimcmd_visual_symbol = &apos;[](bold fg:color_yellow)&apos;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;配置结构解析&lt;/h3&gt;
+&lt;p&gt;整条提示符由 Powerline 风格的分段箭头连接，自左向右依次为：&lt;/p&gt;
+&lt;p&gt;| 模块 | 背景色 | 显示内容 |
+|------|--------|----------|
+| &lt;code&gt;$os&lt;/code&gt; | 橙色 | 当前操作系统图标 |
+| &lt;code&gt;$username&lt;/code&gt; | 橙色 | 用户名 |
+| &lt;code&gt;$directory&lt;/code&gt; | 黄色 | 当前目录路径（截断至 3 级） |
+| &lt;code&gt;$git_branch&lt;/code&gt; | 青色 | Git 分支名 |
+| &lt;code&gt;$git_status&lt;/code&gt; | 青色 | Git 状态（修改/暂存/冲突/ ahead/behind） |
+| 语言模块 | 蓝色 | C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本 |
+| &lt;code&gt;$docker_context&lt;/code&gt; | 灰 3 | Docker 上下文 |
+| &lt;code&gt;$conda&lt;/code&gt; | 灰 3 | Conda 环境 |
+| &lt;code&gt;$pixi&lt;/code&gt; | 灰 3 | Pixi 环境 |
+| &lt;code&gt;$time&lt;/code&gt; | 灰 1 | 当前时间（24h） |
+| &lt;code&gt;$character&lt;/code&gt; | — | 提示符箭头（绿色成功 / 红色失败） |&lt;/p&gt;
+&lt;h3&gt;检查配置&lt;/h3&gt;
+&lt;p&gt;Starship 提供了方便的调试命令：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;# 查看当前渲染的配置值
+starship config
+
+# 查看各模块渲染耗时
+starship timings
+
+# 查看预设默认配置
+starship preset gruvbox-rainbow
+
+# 检查 TOML 语法（需要 taplo）
+taplo lint ~\.config\starship.toml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;Nushell + Starship 集成&lt;/h2&gt;
+&lt;p&gt;将 Nushell 和 Starship 结合使用的关键配置在 &lt;code&gt;config.nu&lt;/code&gt; 中：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;$env.STARSHIP_SHELL = &quot;nu&quot;
+$env.PROMPT_COMMAND = { ||
+    starship prompt --cmd-duration $env.CMD_DURATION_MS $&quot;--status=($env.LAST_EXIT_CODE)&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这段配置做了三件事：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;$env.STARSHIP_SHELL = &quot;nu&quot;&lt;/code&gt;&lt;/strong&gt; — 设置环境变量，Starship 据此加载 Nushell 特有的提示符模块&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;$env.PROMPT_COMMAND&lt;/code&gt;&lt;/strong&gt; — 定义一个闭包，每次绘制提示符时调用 &lt;code&gt;starship prompt&lt;/code&gt;，并传入命令执行时间 &lt;code&gt;CMD_DURATION_MS&lt;/code&gt; 和上一条命令的退出状态码 &lt;code&gt;LAST_EXIT_CODE&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;清空其它提示符变量&lt;/strong&gt; — &lt;code&gt;PROMPT_COMMAND_RIGHT&lt;/code&gt;、&lt;code&gt;PROMPT_INDICATOR&lt;/code&gt; 等设为空，完全由 Starship 接管渲染&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;额外技巧&lt;/h2&gt;
+&lt;h3&gt;1. 目录图标替换&lt;/h3&gt;
+&lt;p&gt;Starship 支持将常见目录名替换为 Nerd Font 图标，当前配置中的替换表：&lt;/p&gt;
+&lt;p&gt;| 原目录 | 替换图标 |
+|--------|----------|
+| &lt;code&gt;Documents&lt;/code&gt; |   |
+| &lt;code&gt;Downloads&lt;/code&gt; |   |
+| &lt;code&gt;Music&lt;/code&gt; |   |
+| &lt;code&gt;Pictures&lt;/code&gt; |   |
+| &lt;code&gt;Developer&lt;/code&gt; |   |&lt;/p&gt;
+&lt;h3&gt;2. 提示符颜色随退出状态变化&lt;/h3&gt;
+&lt;p&gt;Starship 的 &lt;code&gt;$character&lt;/code&gt; 模块会根据上一条命令的退出码自动变色：成功为绿色 &lt;code&gt;, 失败为红色 &lt;/code&gt;, 无需额外配置。&lt;/p&gt;
+&lt;h3&gt;3. 调试慢提示符&lt;/h3&gt;
+&lt;p&gt;如果感觉提示符响应变慢，使用 &lt;code&gt;starship timings&lt;/code&gt; 查看各模块耗时。常见的耗时模块是 &lt;code&gt;git_status&lt;/code&gt;，可以设置 &lt;code&gt;scan_timeout = 500&lt;/code&gt;（当前已配置）来限制 Git 扫描超时。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.nushell.sh/book/&quot;&gt;Nushell 官方文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/nushell/nushell&quot;&gt;Nushell GitHub&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://starship.rs/guide/&quot;&gt;Starship 官方文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://starship.rs/presets/&quot;&gt;Starship 预设列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://starship.rs/presets/gruvbox-rainbow&quot;&gt;Gruvbox Rainbow 预设&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>开发环境搭建</category></item><item><title>Blinker 开发入门指南</title><link>https://sukkk-zcy.github.io/blog/embedded/blinker-getting-started</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/blinker-getting-started</guid><description>Blinker开发规范，适合嵌入式开发者快速上手</description><pubDate>Thu, 25 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;什么是 Blinker？&lt;/h2&gt;
+&lt;p&gt;Blinker 是一套跨硬件、跨平台的物联网解决方案，提供 APP 端、设备端、服务器端支持，使用公有云服务进行数据传输存储。适用于智能家居、数据监测等场景。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GitHub&lt;/strong&gt;: https://github.com/blinker-iot/&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;官网&lt;/strong&gt;: https://diandeng.tech/&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;APP&lt;/strong&gt;: 点灯科技 APP（iOS / Android）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;许可证&lt;/strong&gt;: MIT License&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;硬件平台支持&lt;/h2&gt;
+&lt;p&gt;Blinker 目前支持三大主流开发板：&lt;/p&gt;
+&lt;p&gt;| 平台 | WiFi | BLE | NB-IoT | GPRS |
+|------|------|-----|--------|------|
+| ESP32 | ✅ | ✅ 内置 | ✅ SIM7020/SIM7000 | ✅ Air202 |
+| ESP8266 | ✅ | ✅ 外接透传模块 | ✅ | ✅ |
+| Arduino R4 | ✅ AT固件 | ✅ | - | - |&lt;/p&gt;
+&lt;p&gt;ESP32 凭借内置蓝牙和丰富的外设接口，是目前最推荐的入门选择。&lt;/p&gt;
+&lt;h2&gt;通信模式&lt;/h2&gt;
+&lt;p&gt;WiFi 和蓝牙&lt;strong&gt;不能同时启用&lt;/strong&gt;，通过宏定义切换：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;#define WIFIMODE   // 启用WiFi模式
+//#define BLEMODE  // 启用蓝牙模式
+
+#if defined(WIFIMODE)
+    #define BLINKER_WIFI
+#endif
+#if defined(BLEMODE)
+    #define BLINKER_BLE
+#endif
+
+#include &amp;#x3C;Blinker.h&gt;  // 必须在通信模式宏定义之后
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;关键规则&lt;/strong&gt;：&lt;code&gt;#include &amp;#x3C;Blinker.h&gt;&lt;/code&gt; 必须放在通信模式宏定义之后，否则编译会出错。&lt;/p&gt;
+&lt;p&gt;WiFi 模式初始化：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;Blinker.begin(auth, ssid, pswd);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;BLE 模式初始化（ESP32 内置蓝牙）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;Blinker.begin();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;程序结构：九大标准模块&lt;/h2&gt;
+&lt;p&gt;Blinker 标准程序按以下顺序组织：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;程序版本备注&lt;/strong&gt; — 记录日期和功能&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;通信模式宏定义&lt;/strong&gt; — WIFIMODE / BLEMODE 切换&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;包含库&lt;/strong&gt; — &lt;code&gt;#include &amp;#x3C;Blinker.h&gt;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;全局变量声明&lt;/strong&gt; — WiFi 信息、引脚、状态变量&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;组件声明&lt;/strong&gt; — 必须放在回调函数前面&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;回调函数&lt;/strong&gt; — APP 发来数据时由 &lt;code&gt;Blinker.run()&lt;/code&gt; 调用&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;功能函数&lt;/strong&gt; — WiFi 掉线检测等&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;setup() 初始化&lt;/strong&gt; — 开机后只执行一次&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;loop() 主循环&lt;/strong&gt; — 循环执行到关机&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这个结构清晰地分离了配置、声明和逻辑，是编写 Blinker 程序的基本骨架。&lt;/p&gt;
+&lt;h2&gt;组件：APP 端的交互元素&lt;/h2&gt;
+&lt;p&gt;Blinker 提供丰富的内置组件：&lt;/p&gt;
+&lt;p&gt;| 组件 | 类名 | 用途 |
+|------|------|------|
+| 按钮 | &lt;code&gt;BlinkerButton&lt;/code&gt; | 开关、模式切换 |
+| 滑块 | &lt;code&gt;BlinkerSlider&lt;/code&gt; | 阈值、亮度、速度 |
+| 数值 | &lt;code&gt;BlinkerNumber&lt;/code&gt; | 显示传感器数据 |
+| 文本 | &lt;code&gt;BlinkerText&lt;/code&gt; | 显示字符串 |
+| RGB | &lt;code&gt;BlinkerRGB&lt;/code&gt; | 颜色控制 |
+| 摇杆 | &lt;code&gt;BlinkerJoystick&lt;/code&gt; | 方向控制 |
+| 开关 | &lt;code&gt;BlinkerSwitch&lt;/code&gt; | 内置开关 |&lt;/p&gt;
+&lt;p&gt;声明示例：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;BlinkerButton Button1(&quot;b1&quot;);      // 键名 &quot;b1&quot;，对应APP中组件名
+BlinkerSlider Slider1(&quot;s1&quot;);      // 键名 &quot;s1&quot;
+BlinkerNumber NUM1(&quot;abcd&quot;);       // 键名 &quot;abcd&quot;
+BlinkerText Text1(&quot;1234&quot;);        // 键名 &quot;1234&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;核心规则&lt;/strong&gt;：组件声明&lt;strong&gt;必须放在回调函数前面&lt;/strong&gt;，键名必须与 APP 中的组件名完全一致。&lt;/p&gt;
+&lt;h2&gt;回调函数：设备与 APP 的数据桥梁&lt;/h2&gt;
+&lt;h3&gt;按钮回调&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void button1_callback(const String&amp;#x26; state)
+{
+  if (state == &quot;tap&quot;)      { b1_state = !b1_state; }  // 普通按键：反转
+  else if (state == &quot;on&quot;)  { b1_state = true; }       // 开关：开启
+  else if (state == &quot;off&quot;) { b1_state = false; }      // 开关：关闭
+  else if (state == &quot;press&quot;)   { b1_state = true; }   // 长按：开启
+  else if (state == &quot;pressup&quot;) { b1_state = false; }  // 松开：关闭
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);  // 立即反馈到APP
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;重要&lt;/strong&gt;：不要简化按钮的五种处理，防止 APP 设置不同出现逻辑错误。&lt;/p&gt;
+&lt;h3&gt;滑块回调&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void slider1_callback(int32_t value)
+{
+  s1_value = value;  // 赋值全局变量即可
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：滑块&lt;strong&gt;不可在回调函数里调用 print&lt;/strong&gt;，否则拖不动。&lt;/p&gt;
+&lt;h3&gt;注册回调&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void setup()
+{
+  Button1.attach(button1_callback);
+  Slider1.attach(slider1_callback);
+  Blinker.attachHeartbeat(heartbeat);
+  Blinker.attachDataStorage(dataStorage);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;心跳包：APP 获取设备数据的核心机制&lt;/h2&gt;
+&lt;p&gt;心跳包是 APP 获取设备数据的主要方式，&lt;strong&gt;间隔约 30 秒一次&lt;/strong&gt;。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void heartbeat()
+{
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);   // 按钮：回调+心跳包双保险
+  Slider1.print(s1_value);                   // 滑块：仅心跳包
+  NUM1.print(100);                           // 数值：仅心跳包
+  Text1.print(&quot;Hello Blinker&quot;);              // 文本：仅心跳包
+  Blinker.notify(&quot;页面数据已刷新&quot;);           // APP内弹窗推送
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;数据上报位置规则&lt;/h3&gt;
+&lt;p&gt;| 数据类型 | 上报位置 | 原因 |
+|----------|----------|------|
+| 按钮状态 | 回调函数 + 心跳包 | 即时反馈 + 兜底 |
+| 滑块值 | 仅心跳包 | 回调里 print 会拖不动 |
+| 数值/文本 | 仅心跳包 | 统一管理 |&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;关键&lt;/strong&gt;：&lt;code&gt;print&lt;/code&gt; 必须放心跳包回调或按钮回调，&lt;strong&gt;不能放 loop()&lt;/strong&gt;，否则触发 &lt;code&gt;MQTT NOT ALIVE OR MESSAGE LIMIT&lt;/code&gt; 错误。&lt;/p&gt;
+&lt;h2&gt;数据存储与图表&lt;/h2&gt;
+&lt;p&gt;生成传感器数据折线图表：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void dataStorage()
+{
+  Blinker.dataStorage(&quot;data1&quot;, random(0, 120));
+}
+
+void setup()
+{
+  Blinker.attachDataStorage(dataStorage);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;实时数据（RT_DATA）&lt;/h2&gt;
+&lt;p&gt;实时数据每秒以上一次，适用于高频刷新场景。&lt;strong&gt;不支持文本组件，只支持数值组件&lt;/strong&gt;。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void rtData()
+{
+  Blinker.sendRtData(&quot;data1&quot;, (int32_t)random(0, 120));
+  Blinker.sendRtData(&quot;data2&quot;, random(0, 120) / (float)1.5);
+  Blinker.printRtData();  // 刷新到 APP
+}
+
+void setup()
+{
+  Blinker.attachRTData(rtData);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;WiFi 掉线检测&lt;/h2&gt;
+&lt;p&gt;WiFi 模式下必须实现掉线重启检测：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void wifiOfflineMonitor()
+{
+  if (Blinker.connect()) {
+    offline_millis = 0;
+    offline_flag = false;
+  }
+  else if (!Blinker.connect() &amp;#x26;&amp;#x26; millis() &gt; 180000) {
+    offline_flag = true;
+  }
+  
+  if (millis() &gt; 180000 &amp;#x26;&amp;#x26; offline_millis &amp;#x26;&amp;#x26; millis() - offline_millis &gt;= 180000) {
+    ESP.restart();  // 掉线超三分钟重启
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;在 &lt;code&gt;loop()&lt;/code&gt; 中调用：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void loop()
+{
+  Blinker.run();
+  wifiOfflineMonitor();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;调试与日志&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void setup()
+{
+  Serial.begin(115200);
+  BLINKER_DEBUG.stream(Serial);     // 调试信息输出到串口
+  BLINKER_DEBUG.debugAll();         // 开启所有调试信息
+  BLINKER_LOG(&quot;版本信息&quot;);           // 打印日志
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;常见错误排查&lt;/h2&gt;
+&lt;p&gt;| 错误 | 原因 | 解决 |
+|------|------|------|
+| &lt;code&gt;MQTT NOT ALIVE OR MESSAGE LIMIT&lt;/code&gt; | print 放在 loop() 中 | 移到心跳包回调或按钮回调 |
+| 按钮状态不更新 | APP 按钮类型与代码不匹配 | 保留五种状态处理 |
+| 滑块拖动不灵敏 | 回调里调用了 print | 滑块 print 只放心跳包 |
+| WiFi 连不上 | 非 2.4GHz / 密码错误 | 检查频段和密码 |
+| 授权码错误 | 引号/空格问题 | 从点灯 APP 复制 |&lt;/p&gt;
+&lt;h2&gt;ESP32 Web 配网&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;ESP32_Blinker_NET&lt;/code&gt; 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;工作流程&lt;/strong&gt;：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;开机读取 EEPROM 中的 WiFi 配置&lt;/li&gt;
+&lt;li&gt;有配置则尝试连接，无配置则进入配网模式&lt;/li&gt;
+&lt;li&gt;手机连接热点 &lt;code&gt;ESP32_Config&lt;/code&gt;，访问 &lt;code&gt;192.168.4.1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;在 Web 页面选择 WiFi、输入密码和授权码&lt;/li&gt;
+&lt;li&gt;保存后 ESP32 重启，自动连接&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;核心代码&lt;/strong&gt;：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;WIFIConnect wifiManager(&quot;ESP32_Config&quot;);
+
+void setup() {
+    Serial.begin(115200);
+    wifiManager.begin();
+    if (wifiManager.isConnected()) {
+        Blinker.begin(
+            wifiManager.getAuth().c_str(),
+            wifiManager.getSSID().c_str(), &quot;&quot;
+        );
+    }
+}
+
+void loop() {
+    wifiManager.loop();
+    if (wifiManager.isConnected()) Blinker.run();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;完整模板代码&lt;/h2&gt;
+&lt;p&gt;以下是一个包含按钮、滑块、数值、文本、数据存储、心跳包、APP弹窗七大功能的完整模板：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;#define NOTE &quot;Blinker 完整模板&quot;
+
+#define WIFIMODE
+
+#if defined(WIFIMODE)
+    #define BLINKER_WIFI
+#endif
+
+#include &amp;#x3C;Blinker.h&gt;
+
+char ssid[] = &quot;WiFi名称&quot;;
+char pswd[] = &quot;WiFi密码&quot;;
+char auth[] = &quot;授权码&quot;;
+
+#define RELAYPIN_1 2
+bool b1_state = false;
+int s1_value = 0;
+
+BlinkerButton Button1(&quot;b1&quot;);
+BlinkerSlider Slider1(&quot;s1&quot;);
+BlinkerNumber NUM1(&quot;abcd&quot;);
+BlinkerText Text1(&quot;1234&quot;);
+
+void button1_callback(const String&amp;#x26; state)
+{
+  if (state == &quot;tap&quot;)      { b1_state = !b1_state; }
+  else if (state == &quot;on&quot;)  { b1_state = true; }
+  else if (state == &quot;off&quot;) { b1_state = false; }
+  else if (state == &quot;press&quot;)   { b1_state = true; }
+  else if (state == &quot;pressup&quot;) { b1_state = false; }
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);
+  digitalWrite(RELAYPIN_1, !b1_state);
+}
+
+void slider1_callback(int32_t value) { s1_value = value; }
+
+void heartbeat()
+{
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);
+  Slider1.print(s1_value);
+  NUM1.print(100);
+  Text1.print(&quot;Hello Blinker&quot;);
+  Blinker.notify(&quot;页面数据已刷新&quot;);
+}
+
+void dataStorage() { Blinker.dataStorage(&quot;data1&quot;, random(0, 120)); }
+
+void setup()
+{
+  Serial.begin(115200);
+  BLINKER_DEBUG.stream(Serial);
+  BLINKER_DEBUG.debugAll();
+
+  pinMode(RELAYPIN_1, OUTPUT);
+  Blinker.begin(auth, ssid, pswd);
+
+  Button1.attach(button1_callback);
+  Slider1.attach(slider1_callback);
+  Blinker.attachDataStorage(dataStorage);
+  Blinker.attachHeartbeat(heartbeat);
+}
+
+void loop() { Blinker.run(); }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;Blinker 以其简洁的 API、丰富的组件和跨平台支持，极大降低了物联网开发门槛。掌握以下核心要点即可快速上手：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;宏定义在前，头文件在后&lt;/strong&gt; — 通信模式决定编译路径&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;组件声明在回调前&lt;/strong&gt; — 否则绑定失败&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;print 不放 loop()&lt;/strong&gt; — 否则触发 MQTT 限流&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;滑块回调不 print&lt;/strong&gt; — 否则拖不动&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;按钮保留五种状态&lt;/strong&gt; — 防止 APP 模式不匹配&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;WiFi 掉线要检测&lt;/strong&gt; — 三分钟无响应自动重启&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;遵循这些规范，你就能用 Blinker 快速搭建出稳定可靠的物联网应用。&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>嵌入式开发</category></item><item><title>ESP32 Web 配网实战</title><link>https://sukkk-zcy.github.io/blog/embedded/esp32-blinker-web-config</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/esp32-blinker-web-config</guid><description>通过 Web 页面为 ESP32 配置 WiFi 和 Blinker 授权码，支持历史配置记录，开机自动重连</description><pubDate>Thu, 25 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
+&lt;p&gt;在上一篇 &lt;a href=&quot;/post/blinker-getting-started/&quot;&gt;Blinker 开发入门指南&lt;/a&gt; 中，我们了解了 Blinker 的基础用法。但在实际项目中，WiFi 名称和密码写死在代码里非常不方便——每换一个网络就要重新烧录。&lt;/p&gt;
+&lt;p&gt;本文介绍一个 ESP32 Web 配网方案，通过手机连接 ESP32 热点，在网页上配置 WiFi 和 Blinker 授权码，配置保存后开机自动重连。&lt;/p&gt;
+&lt;h2&gt;功能特性&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;开机自动连接已保存的 WiFi&lt;/li&gt;
+&lt;li&gt;连接失败时自动进入配网模式（AP 热点 + Web 服务器）&lt;/li&gt;
+&lt;li&gt;Web 页面支持 WiFi 扫描选择、密码输入、Blinker 授权码填写&lt;/li&gt;
+&lt;li&gt;历史配置记录（最多3条），点击快速填充&lt;/li&gt;
+&lt;li&gt;GPIO0 长按3秒清除配置并重启&lt;/li&gt;
+&lt;li&gt;LED 指示灯状态：常亮=已连接，闪烁=配网中，熄灭=断开&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;项目结构&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;ESP32_Blinker_NET/
+├── src/
+│   ├── main.cpp          # 主程序：Blinker 初始化 + WiFi 管理
+│   └── WIFIConnect.cpp   # WiFi 配网模块实现
+├── include/
+│   └── WIFIConnect.h     # WiFi 配网模块头文件
+├── lib/
+│   └── blinker-library-master/  # 本地 Blinker 库
+└── platformio.ini        # PlatformIO 配置
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;工作流程&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    A[开机] --&gt; B{有已保存配置?}
+    B --&gt;|是| C[尝试连接WiFi]
+    B --&gt;|否| D[进入配网模式]
+    C --&gt;|成功| E[初始化Blinker]
+    C --&gt;|失败 20秒超时| D
+    D --&gt; F[ESP32_Config热点]
+    F --&gt; G[手机连接热点]
+    G --&gt; H[访问192.168.4.1]
+    H --&gt; I[Web页面配置]
+    I --&gt; J[保存配置]
+    J --&gt; K[ESP32重启]
+    K --&gt; C
+    E --&gt; L[正常运行]
+    L --&gt; M{WiFi断开?}
+    M --&gt;|是| N[自动重连]
+    M --&gt;|否| L
+    N --&gt;|重连失败3分钟| O[重启ESP32]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;核心代码解析&lt;/h2&gt;
+&lt;h3&gt;主程序 main.cpp&lt;/h3&gt;
+&lt;p&gt;主程序非常简洁，核心逻辑就三步：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;#define BLINKER_PRINT Serial
+#define BLINKER_WIFI
+
+#include &amp;#x3C;Blinker.h&gt;
+#include &quot;WIFIConnect.h&quot;
+
+WIFIConnect wifiManager(&quot;ESP32_Config&quot;);
+
+void setup() {
+    Serial.begin(115200);
+    wifiManager.begin();
+
+    if (wifiManager.isConnected()) {
+        Blinker.begin(
+            wifiManager.getAuth().c_str(),
+            wifiManager.getSSID().c_str(),
+            &quot;&quot;
+        );
+        Blinker.attachData(dataRead);
+    }
+}
+
+void loop() {
+    wifiManager.loop();
+    if (wifiManager.isConnected()) {
+        Blinker.run();
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;关键点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;wifiManager.begin()&lt;/code&gt; 内部处理了所有 WiFi 连接逻辑&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Blinker.begin()&lt;/code&gt; 的密码参数传空字符串，因为 WiFi 已经通过 &lt;code&gt;WiFi.begin()&lt;/code&gt; 连接&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;loop()&lt;/code&gt; 中先处理 WiFi 状态，再运行 Blinker&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;WIFIConnect 类&lt;/h3&gt;
+&lt;p&gt;这是配网的核心模块，封装了 AP 热点、Web 服务器、DNS 重定向、EEPROM 存储等功能。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;初始化流程：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::begin() {
+    pinMode(_ledPin, OUTPUT);
+    pinMode(_resetPin, INPUT_PULLUP);
+
+    if (restoreConfig()) {
+        // 有保存的配置 → 尝试连接
+        WiFi.begin(savedSSID, savedPassword);
+        // 等待20秒...
+        if (WiFi.status() == WL_CONNECTED) {
+            // 连接成功
+        } else {
+            setupMode();  // 进入配网模式
+        }
+    } else {
+        setupMode();  // 无配置，直接配网
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;配网模式启动：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::setupMode() {
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP(_apName);  // 创建热点 &quot;ESP32_Config&quot;
+    dnsServer.start(53, &quot;*&quot;, IPAddress(192, 168, 4, 1));  // DNS重定向
+    server.on(&quot;/&quot;, HTTP_GET, handleRootCallback);
+    server.on(&quot;/save&quot;, HTTP_POST, handleSaveCallback);
+    server.begin();
+    scanWiFi();  // 扫描可用WiFi
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;配置保存：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::handleSave() {
+    String ssid = server.arg(&quot;ssid&quot;);
+    String password = server.arg(&quot;password&quot;);
+    String auth = server.arg(&quot;auth&quot;);
+
+    preferences.putString(&quot;ssid&quot;, ssid);
+    preferences.putString(&quot;password&quot;, password);
+    preferences.putString(&quot;auth&quot;, auth);
+    saveWiFiHistory(ssid, password, auth);
+
+    delay(1000);
+    ESP.restart();  // 保存后重启
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Web 配网页面&lt;/h3&gt;
+&lt;p&gt;配网页面包含：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;WiFi 网络下拉选择（自动扫描）&lt;/li&gt;
+&lt;li&gt;WiFi 密码输入（支持显示/隐藏切换）&lt;/li&gt;
+&lt;li&gt;Blinker 授权码输入&lt;/li&gt;
+&lt;li&gt;历史配置列表（点击快速填充）&lt;/li&gt;
+&lt;li&gt;保存并连接按钮&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;页面使用渐变背景和圆角卡片设计，手机端体验友好。&lt;/p&gt;
+&lt;h3&gt;WiFi 掉线检测&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::loop() {
+    // 每5秒检查WiFi状态
+    if (millis() - lastWifiCheck &gt; 5000) {
+        if (WiFi.status() != WL_CONNECTED &amp;#x26;&amp;#x26; !_isSettingMode) {
+            WiFi.begin(savedSSID, savedPassword);  // 尝试重连
+        }
+        lastWifiCheck = millis();
+    }
+
+    // 长按GPIO0超过3秒 → 清除配置重启
+    if (digitalRead(_resetPin) == LOW) {
+        if (millis() - _buttonPressStartTime &gt; 3000) {
+            reset();
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;硬件连接&lt;/h2&gt;
+&lt;p&gt;| 引脚 | 功能 | 说明 |
+|------|------|------|
+| GPIO2 | LED 指示灯 | 连接=常亮，配网=闪烁，断开=熄灭 |
+| GPIO0 | 重置按键 | 长按3秒清除配置并重启 |&lt;/p&gt;
+&lt;h2&gt;使用步骤&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;烧录固件到 ESP32&lt;/li&gt;
+&lt;li&gt;手机连接热点 &lt;code&gt;ESP32_Config&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;浏览器访问 &lt;code&gt;192.168.4.1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;选择 WiFi、输入密码和 Blinker 授权码&lt;/li&gt;
+&lt;li&gt;点击保存，ESP32 自动重启并连接&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;这个 Web 配网方案解决了 Blinker 项目中 WiFi 配置固化的问题，通过 Web 页面和历史记录功能，让用户无需重新烧录即可切换网络。配合 Blinker 的心跳包和回调机制，可以快速搭建物联网应用。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本项目完整代码见 &lt;code&gt;E:\Embedded\库\Blinker开发规范\ESP32_Blinker_NET&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>嵌入式开发</category></item><item><title>CC AIR MONITOR 固件烧录指南</title><link>https://sukkk-zcy.github.io/blog/embedded/cc-air-monitor</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/cc-air-monitor</guid><description>基于CCAirDetector修改的CC AIR MONITOR固件烧录与配置教程</description><pubDate>Mon, 22 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;说明&lt;/h2&gt;
+&lt;p&gt;本固件基于 @大聪明的二手脑袋 开源的 CCAirDetector 进行修改，改动如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;修改默认上电界面为 page3&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;调换了 page2 和 page3 的部分显示组件&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;web 配网界面新增和风天气认证参数填写，无需配置 Arduino 环境，直接烧录固件即可&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520432087_CC_AIR_MONITOR_Page2.JPEG&quot; alt=&quot;CC AIR MONITOR Page2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520433016_CC_AIR_MONITOR_Page3.JPEG&quot; alt=&quot;CC AIR MONITOR Page3&quot;&gt;&lt;/p&gt;
+&lt;h2&gt;下载工具和 bin 文件&lt;/h2&gt;
+&lt;p&gt;下载并解压以下文件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/ccair-firmware/flash_download_tool.zip&quot;&gt;flash_download_tool.zip&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/ccair-firmware/CCAIR.bin&quot;&gt;CCAIR.bin&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;固件烧录&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;选择你的芯片型号&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;选择 bin 文件路径，左侧复选框需要打勾，地址为 &lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;选择 COM 端口，点击 START，等待显示 FINISH 即烧录成功&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;单击 PCB 上的 RST 以重启系统&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>嵌入式开发</category></item><item><title>PlatformIO首次安装使用注意事项</title><link>https://sukkk-zcy.github.io/blog/devtools/platformio-notes</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/platformio-notes</guid><description>PlatformIO首次安装使用时遇到的问题及解决方案</description><pubDate>Sun, 21 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;引言&lt;/h2&gt;
+&lt;p&gt;因网络原因，PlatformIO首次创建项目时容易出些一些问题，目前网络教程大多是切换网络、镜像源、配置Python环境等，此类教程大都比较繁琐，且不一定能解决问题。&lt;/p&gt;
+&lt;p&gt;本文以VS Code为例，提供首次安装和创建项目时无法加载的解决方案，其它IDE也可自行尝试。&lt;/p&gt;
+&lt;h2&gt;扩展启动失败&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;切换网络，使用热点/代理。&lt;/li&gt;
+&lt;li&gt;使用离线安装包。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520413232_%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85.png&quot; alt=&quot;离线安装&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/platformio-offline/platformio.platformio-ide-3.1.1@win32-x64.vsix&quot;&gt;点击下载PlatformIO离线安装包&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;首次创建项目无法加载&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;打开任务管理器将关于vscode/platformIO/python的进程全部关掉，不会关可以直接关机重启。&lt;/li&gt;
+&lt;li&gt;根据你的电脑路径，找到.platfromio文件夹将其删除。&lt;/li&gt;
+&lt;li&gt;下载中的.platformio解压在原文件夹路径，重新打开vscode，可能还有其他依赖加载，一般几十秒就可以正常启动了。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520426575_platformio%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84.png&quot; alt=&quot;PlatformIO文件路径&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://pan.baidu.com/s/1wgq2J7eosyw5shmHPX-7SA?pwd=v1t3&quot;&gt;点击下载.platformio文件&lt;/a&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>开发环境搭建</category></item><item><title>QSextend - Chrome浏览器扩展合集</title><link>https://sukkk-zcy.github.io/blog/devtools/qsextend-overview</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/qsextend-overview</guid><description>5款实用Chrome扩展：自动抢单、倒计时提醒、沙子监控、答题快捷键、界面优化</description><pubDate>Sun, 21 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
+&lt;p&gt;QSextend 是一个 Chrome 浏览器扩展合集，包含 5 款针对特定场景开发的实用工具，涵盖自动化操作、快捷键增强、倒计时提醒、监控检测和界面优化。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;下载地址：&lt;/strong&gt; &lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/qsextend-v1.4/QSextend-v1.4.zip&quot;&gt;QSextend-v1.4.zip&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;安装方式&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;解压下载的压缩包&lt;/li&gt;
+&lt;li&gt;打开 Chrome 浏览器，访问 &lt;code&gt;chrome://extensions/&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;开启右上角「开发者模式」&lt;/li&gt;
+&lt;li&gt;点击「加载已解压的扩展程序」，选择对应扩展文件夹&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;扩展一览&lt;/h2&gt;
+&lt;p&gt;| 扩展 | 版本 | 说明 |
+|------|------|------|
+| AutoMouseRelease | v1.3 | 自动任务领取，三坐标循环点击抢单 |
+| ClockPro | v1.3 | 多功能倒计时提醒，进度条预警 + 自动提交 |
+| SandMonitor | v1.4 | 沙子关键词监控，检测关键词组合并提醒记录 |
+| SpeedKey | v1.3 | 答题快捷键增强，A/S自动回车，D+数字快速选择 |
+| label-optimizer | v1.0 | 做题界面优化助手，隐藏多余元素最大化图片展示空间 |&lt;/p&gt;
+&lt;h2&gt;AutoMouseRelease v1.3&lt;/h2&gt;
+&lt;p&gt;自动任务领取扩展，设置三个坐标点自动循环点击。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;核心功能：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;三坐标点击：查询、领取、确定，支持点选和手动输入&lt;/li&gt;
+&lt;li&gt;自动循环：按设定间隔和延迟执行点击序列&lt;/li&gt;
+&lt;li&gt;参数校验：查询间隔和领取延迟最低 300ms&lt;/li&gt;
+&lt;li&gt;毛玻璃 UI，平滑动画，折叠展开&lt;/li&gt;
+&lt;li&gt;面板可拖拽，位置自动保存&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;使用方式：&lt;/strong&gt; 点击扩展图标注入控制面板，点击「点选」后点击页面对应位置设置坐标，调整参数后点击「开始」。&lt;/p&gt;
+&lt;h2&gt;ClockPro v1.3&lt;/h2&gt;
+&lt;p&gt;倒计时提醒扩展，监听网络请求自动启动倒计时，支持进度条预警和自动提交。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;核心功能：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;监听特定请求自动启动倒计时&lt;/li&gt;
+&lt;li&gt;预警进度条：剩余指定秒数时顶部显示红色进度条&lt;/li&gt;
+&lt;li&gt;自动提交：剩余指定秒数时自动模拟回车&lt;/li&gt;
+&lt;li&gt;面板可拖拽、可缩放，配置通过 Chrome Sync 多设备同步&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;参数说明：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;| 参数 | 默认值 | 说明 |
+|------|--------|------|
+| 总倒计时 | 60s | 倒计时总时长 |
+| 预警提醒秒数 | 10s | 剩余多少秒触发预警 |
+| 自动提交触发秒数 | 5s | 剩余多少秒自动按回车 |&lt;/p&gt;
+&lt;h2&gt;SandMonitor v1.4&lt;/h2&gt;
+&lt;p&gt;沙子关键词监控扩展，实时检测页面中的关键词组合并提醒记录。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;核心功能：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;实时监控页面文本中的 HW、ZZ、1688 关键词&lt;/li&gt;
+&lt;li&gt;触发规则：HW×2 / HW+ZZ / HW+1688 任意满足即弹窗&lt;/li&gt;
+&lt;li&gt;红色顶部横幅提醒，6 秒后自动消失&lt;/li&gt;
+&lt;li&gt;自动记录触发历史，支持按任务包分组、复制链接&lt;/li&gt;
+&lt;li&gt;F2 快捷键手动记录当前页面&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;SpeedKey v1.3&lt;/h2&gt;
+&lt;p&gt;答题快捷键增强扩展，专为答题场景设计。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;核心功能：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A 键：按下后延迟自动触发回车&lt;/li&gt;
+&lt;li&gt;S 键：按下后延迟自动触发回车（独立延迟）&lt;/li&gt;
+&lt;li&gt;D+1~8：按下 D 键后按数字键，自动完成 D+数字+回车序列&lt;/li&gt;
+&lt;li&gt;每个功能支持独立开关和延迟调节（0~1000ms）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;label-optimizer v1.0&lt;/h2&gt;
+&lt;p&gt;做题界面优化助手，用于优化做题界面布局，最大化图片和数据展示空间。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;核心功能：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;隐藏左侧菜单栏和顶部导航按钮&lt;/li&gt;
+&lt;li&gt;最大化商品图片显示区域&lt;/li&gt;
+&lt;li&gt;优化数据面板布局，压缩顶部 header 高度&lt;/li&gt;
+&lt;li&gt;悬浮按钮 / 扩展图标 / Ctrl+Shift+O 快捷键切换&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;技术栈&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Chrome Extension Manifest V3&lt;/li&gt;
+&lt;li&gt;Content Script + Background Service Worker&lt;/li&gt;
+&lt;li&gt;Chrome Storage API&lt;/li&gt;
+&lt;li&gt;纯 JavaScript，无外部依赖&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;许可证&lt;/h2&gt;
+&lt;p&gt;仅供学习和个人使用。&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>开发环境搭建</category></item></channel></rss>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1b2e"/>
+      <stop offset="100%" stop-color="#0f1019"/>
+    </linearGradient>
+    <linearGradient id="blue-glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4d8bf5"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <linearGradient id="green-glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+    <linearGradient id="red-glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f87171"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="540" fill="url(#bg)"/>
+
+  <!-- Grid dots -->
+  <g opacity="0.06">
+    <pattern id="dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="1" fill="#fff"/>
+    </pattern>
+    <rect width="960" height="540" fill="url(#dots)"/>
+  </g>
+
+  <!-- Title -->
+  <text x="480" y="55" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" letter-spacing="1">传统网络 vs P4 网络</text>
+  <text x="480" y="82" text-anchor="middle" fill="#64748b" font-family="system-ui, sans-serif" font-size="14">从固定功能到可编程的演进</text>
+
+  <!-- Divider line -->
+  <line x1="480" y1="100" x2="480" y2="480" stroke="#2d3748" stroke-width="1" stroke-dasharray="6,4"/>
+
+  <!-- LEFT: Traditional Switch -->
+  <g transform="translate(60, 110)">
+    <!-- Label -->
+    <text x="180" y="20" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="16" font-weight="600">传统交换机</text>
+
+    <!-- Switch body -->
+    <rect x="30" y="35" width="300" height="180" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+
+    <!-- Control Plane -->
+    <rect x="50" y="50" width="260" height="65" rx="6" fill="#16a34a" opacity="0.15" stroke="#22c55e" stroke-width="1"/>
+    <text x="180" y="72" text-anchor="middle" fill="#4ade80" font-family="system-ui, sans-serif" font-size="13" font-weight="600">控制面（可编程）</text>
+    <text x="180" y="92" text-anchor="middle" fill="#86efac" font-family="system-ui, sans-serif" font-size="11">SDN 控制器下发流表</text>
+
+    <!-- Divider -->
+    <line x1="50" y1="125" x2="310" y2="125" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- Data Plane -->
+    <rect x="50" y="135" width="260" height="65" rx="6" fill="#dc2626" opacity="0.15" stroke="#f87171" stroke-width="1"/>
+    <text x="180" y="157" text-anchor="middle" fill="#fca5a5" font-family="system-ui, sans-serif" font-size="13" font-weight="600">数据面（固定）</text>
+    <text x="180" y="177" text-anchor="middle" fill="#fecaca" font-family="system-ui, sans-serif" font-size="11">查表转发，不可更改</text>
+
+    <!-- Ports -->
+    <g transform="translate(50, 225)">
+      <rect x="0" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="35" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="70" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="105" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="140" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="175" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="210" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+      <rect x="245" y="0" width="30" height="12" rx="2" fill="#334155" stroke="#475569" stroke-width="0.5"/>
+    </g>
+
+    <!-- Limit tag -->
+    <g transform="translate(100, 260)">
+      <rect x="0" y="0" width="160" height="28" rx="14" fill="#dc2626" opacity="0.12" stroke="#f87171" stroke-width="0.8"/>
+      <text x="80" y="18" text-anchor="middle" fill="#fca5a5" font-family="system-ui, sans-serif" font-size="11" font-weight="500">只支持预定义协议</text>
+    </g>
+  </g>
+
+  <!-- Arrow -->
+  <g transform="translate(480, 260)">
+    <line x1="0" y1="0" x2="60" y2="0" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrowhead)"/>
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+      </marker>
+    </defs>
+    <text x="30" y="-10" text-anchor="middle" fill="#fbbf24" font-family="system-ui, sans-serif" font-size="13" font-weight="600">演进</text>
+  </g>
+
+  <!-- RIGHT: P4 Switch -->
+  <g transform="translate(520, 110)">
+    <!-- Label -->
+    <text x="180" y="20" text-anchor="middle" fill="#60a5fa" font-family="system-ui, sans-serif" font-size="16" font-weight="600">P4 交换机</text>
+
+    <!-- Switch body -->
+    <rect x="30" y="35" width="300" height="180" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+
+    <!-- Control Plane -->
+    <rect x="50" y="50" width="260" height="65" rx="6" fill="#16a34a" opacity="0.15" stroke="#22c55e" stroke-width="1"/>
+    <text x="180" y="72" text-anchor="middle" fill="#4ade80" font-family="system-ui, sans-serif" font-size="13" font-weight="600">控制面（P4Runtime）</text>
+    <text x="180" y="92" text-anchor="middle" fill="#86efac" font-family="system-ui, sans-serif" font-size="11">标准化 API 统一配置</text>
+
+    <!-- Divider - highlighted -->
+    <line x1="50" y1="125" x2="310" y2="125" stroke="#3b82f6" stroke-width="1.5"/>
+
+    <!-- Data Plane - KEY DIFFERENCE -->
+    <rect x="50" y="135" width="260" height="65" rx="6" fill="#2563eb" opacity="0.15" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="180" y="157" text-anchor="middle" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="13" font-weight="600">数据面（可编程）</text>
+    <text x="180" y="177" text-anchor="middle" fill="#bfdbfe" font-family="system-ui, sans-serif" font-size="11">用户自定义报文处理逻辑</text>
+
+    <!-- Ports -->
+    <g transform="translate(50, 225)">
+      <rect x="0" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="35" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="70" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="105" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="140" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="175" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="210" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+      <rect x="245" y="0" width="30" height="12" rx="2" fill="#1e3a5f" stroke="#3b82f6" stroke-width="0.5"/>
+    </g>
+
+    <!-- Advantage tag -->
+    <g transform="translate(100, 260)">
+      <rect x="0" y="0" width="160" height="28" rx="14" fill="#2563eb" opacity="0.12" stroke="#60a5fa" stroke-width="0.8"/>
+      <text x="80" y="18" text-anchor="middle" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="11" font-weight="500">支持任意协议</text>
+    </g>
+
+    <!-- Star highlight - positioned at top-right corner of switch body -->
+    <g transform="translate(255, 28)">
+      <rect x="0" y="0" width="80" height="22" rx="11" fill="#f59e0b" opacity="0.95"/>
+      <text x="40" y="15" text-anchor="middle" fill="#1a1b2e" font-family="system-ui, sans-serif" font-size="10" font-weight="700">核心差异</text>
+    </g>
+  </g>
+
+  <!-- Bottom summary -->
+  <g transform="translate(0, 430)">
+    <rect x="80" y="0" width="800" height="50" rx="8" fill="#1e293b" opacity="0.6" stroke="#334155" stroke-width="0.5"/>
+    <text x="480" y="20" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="12" font-weight="500">关键区别</text>
+    <text x="280" y="40" text-anchor="middle" fill="#f87171" font-family="system-ui, sans-serif" font-size="11">OpenFlow：仅控制面可编程，数据面固定</text>
+    <text x="680" y="40" text-anchor="middle" fill="#60a5fa" font-family="system-ui, sans-serif" font-size="11">P4：控制面 + 数据面均可编程</text>
+  </g>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "allow": [
+    "git add *",
+    "git commit *",
+    "git push",
+    "git pull",
+    "git status",
+    "git log *",
+    "git diff *",
+    "git checkout *",
+    "git restore *",
+    "git remote *",
+    "Remove-Item *",
+    "New-Item *",
+    "Copy-Item *",
+    "npm run *",
+    "npm install *",
+    "curl.exe *"
+  ]
+}

@@ -17,6 +17,16 @@ comment: true
 
 一个数据包进入交换机后，会经过以下几个阶段：
 
+```
+报文进入
+    ↓
+┌──────────┐
+│  Parser   │  ← 解析：把字节流翻译成结构化的报头
+└────┬─────┘
+     ↓
+┌─────────────┐
+│ Ingress     │  ← 入口处理：查表、转发、修改报文
+└────┬────────┘
      ↓
 ┌─────────────┐
 │ Egress      │  ← 出口处理
@@ -125,17 +135,35 @@ parser MyParser(packet_in pkt, out Headers hdr) {
 }
 
 // 4. Control
+control VerifyChecksum(inout Headers hdr) {
+    apply { }
+}
+
 control MyIngress(inout Headers hdr, inout standard_metadata_t meta) {
     apply { }
 }
 
-// 5. Deparser
+control MyEgress(inout Headers hdr, inout standard_metadata_t meta) {
+    apply { }
+}
+
+control ComputeChecksum(inout Headers hdr) {
+    apply { }
+}
+
 control MyDeparser(packet_out pkt, in Headers hdr) {
     apply { pkt.emit(hdr.ethernet); }
 }
 
 // 6. 主函数
-V1Switch(MyParser(), MyIngress(), MyDeparser()) main;
+V1Switch(
+    MyParser(),
+    VerifyChecksum(),
+    MyIngress(),
+    MyEgress(),
+    ComputeChecksum(),
+    MyDeparser()
+) main;
 ```
 
 ---

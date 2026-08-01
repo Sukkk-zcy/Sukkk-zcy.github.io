@@ -13,6 +13,7 @@ Astro Theme Iris - an Astro 6.x blog theme with knowledge management features (w
 ```bash
 # Install (MUST use --legacy-peer-deps due to TypeScript 6.x conflicts)
 npm install --legacy-peer-deps
+# Alternative: bun install (faster, avoids some version conflicts)
 
 # Development
 npm run dev              # Start dev server
@@ -21,11 +22,13 @@ npm run dev:check        # Dev with type checking
 # Build (runs checks first)
 # 注意：构建时内存不足需要设置 NODE_OPTIONS
 $env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
+npm run build:full       # 更完整的构建: astro-pure check + astro check + astro build
 
 # Lint & Format
-npm run lint             # ESLint with Astro plugin
+npm run lint             # ESLint with Astro plugin (自带 --fix)
 npm run format           # Prettier (Astro + import sorting)
 npm run yijiansilian     # One-click: lint + sync + check + format
+                         # 注意：此脚本内部用 `bun` 执行，需先安装 bun
 
 # Clean build cache (Windows)
 Remove-Item -Path ".astro","dist" -Recurse -Force
@@ -43,6 +46,7 @@ Remove-Item -Path ".astro","dist" -Recurse -Force
 - `astro.config.ts` - Astro framework config (integrations, build options)
 - `src/content/blog/<Category>/` - Blog posts in MDX format
 - `src/components/` - Astro components (custom + theme)
+- `src/plugins/` - Custom remark/rehype/shiki plugins (wikilinks, autolink headings, shiki transformers), wired in `astro.config.ts`
 - `src/utils/content-paths.ts` - Category/tag path utilities
 
 ### Content Collections
@@ -63,6 +67,9 @@ Remove-Item -Path ".astro","dist" -Recurse -Force
 - **Category case sensitivity**: Windows filesystem doesn't preserve case. Use `KNOWN_ACRONYMS` mapping in `src/utils/content-paths.ts` to handle `sdn` → `SDN`, `p4` → `P4`, etc.
 - **Renaming directories**: Use intermediate names (`sdn` → `sdn_tmp` → `SDN`) to avoid conflicts
 
+### Git Workflow
+- **禁止直接 `git pull`**：项目频繁更新，自动合并可能覆盖本地定制。改用 `git fetch` + `git merge --no-commit` 手动审查合并结果（见 README CAUTION）
+
 ### Content Rules
 - **Categories are directory-based**: Structure in `src/content/blog/<Category>/` determines category
 - **Frontmatter `categories` field**: Must match directory name (case-sensitive)
@@ -72,24 +79,17 @@ Remove-Item -Path ".astro","dist" -Recurse -Force
 
 ### Build & Deploy
 - **Output**: Static site to `dist/` directory
-- **Deployment**: 本地 `npm run build` 后，运行 `deploy.ps1` 推送到 `gh-pages` 分支
-- **CI**: GitHub Pages 自动从 `gh-pages` 分支部署（无 deploy.yml）
-
-### Deployment Steps
-```powershell
-# 1. 构建（设置内存限制）
-$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
-
-# 2. 部署到 gh-pages（SSH 方式，无需授权）
-Remove-Item -Path "deploy-temp" -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path "deploy-temp" | Out-Null
-Copy-Item -Path "dist\*" -Destination "deploy-temp\" -Recurse -Force
-New-Item -ItemType File -Force -Path "deploy-temp\.nojekyll" | Out-Null
-Push-Location deploy-temp
-git init; git add .; git commit -m "deploy: $(Get-Date)"
-git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
-Pop-Location
-```
+- **Deployment**: 一键部署用根目录 `deploy.ps1`（SSH 方式推送到 `gh-pages`，内部含清理缓存 + 构建 + 部署）
+- **CI**: 仓库内无 `.github/workflows`，GitHub Pages 直接服务 `gh-pages` 分支
+- **手动部署等价命令**（`deploy.ps1` 的步骤，需要时参考）:
+  ```powershell
+  $env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
+  Copy-Item -Path "dist\*" -Destination "deploy-temp\" -Recurse -Force
+  Push-Location deploy-temp
+  git init; git add .; git commit -m "deploy: $(Get-Date)"
+  git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
+  Pop-Location
+  ```
 
 ### Dependencies
 - `node_modules` is ~520MB, don't delete unless necessary
@@ -112,9 +112,14 @@ Pop-Location
 
 TypeScript path aliases defined in `tsconfig.json`:
 - `@/assets/*` → `./src/assets/*`
+- `@/public/*` → `./public/*`
 - `@/components/*` → `./src/components/*`
 - `@/layouts/*` → `./src/layouts/*`
 - `@/utils` → `./src/utils/index.ts`
+- `@/utils/*` → `./src/utils/*`
+- `@/plugins/*` → `./src/plugins/*`
+- `@/pages/*` → `./src/pages/*`
+- `@/types` → `./src/types/index.ts`
 - `@/site-config` → `./src/site.config.ts`
 
 ## Style Conventions

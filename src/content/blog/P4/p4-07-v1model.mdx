@@ -9,6 +9,8 @@ draft: true
 comment: true
 ---
 
+import { Aside } from 'astro-pure/user'
+
 前面理解了 P4 程序的各个部分，这一篇看它们如何在 BMv2 中组织。
 
 ---
@@ -59,6 +61,8 @@ V1Model 是 BMv2（Behavioral Model v2）的**参考架构**，定义了报文�
 | `MyEgress` | 出口处理 |
 | `ComputeChecksum` | 计算校验和 |
 | `MyDeparser` | 打包报文 |
+
+<Aside type='note' title='执行顺序'>六大块按固定顺序执行：Parser → VerifyChecksum → Ingress → Egress → ComputeChecksum → Deparser。你可以跳过某些块（留空 apply），但顺序不能变。</Aside>
 
 ---
 

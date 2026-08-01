@@ -40,3 +40,5 @@ bunfig.toml
 deploy.ps1
 /src/content/blog/test.*
 /test/
+
+deploy-temp/

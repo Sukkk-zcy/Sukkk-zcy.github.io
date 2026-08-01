@@ -9,6 +9,8 @@ draft: true
 comment: true
 ---
 
+import { Steps, Collapse } from 'astro-pure/user'
+
 概念讲完了，现在动手搭建环境。P4 工具链包含编译器（p4c）、软件交换机（BMv2）、拓扑仿真（Mininet）等组件。
 
 ---
@@ -71,6 +73,8 @@ sudo mn --version
 
 ---
 
+<Collapse title='常见问题'>
+
 ## 四、常见问题
 
 | 问题 | 解决方案 |
@@ -79,6 +83,7 @@ sudo mn --version
 | 镜像拉取慢 | 使用国内镜像源 |
 | 编译报错 | 检查 P4 文件语法 |
 
+</Collapse>
 ---
 
 **下一篇**：[第一个 P4 程序：Hello P4](/blog/p4/p4-09-hello-p4) — 最小可运行示例

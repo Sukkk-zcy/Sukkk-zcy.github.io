@@ -5,9 +5,11 @@ description: "理解 SDN 的诞生背景、三层架构与核心概念"
 tags: ["SDN", "入门"]
 categories: ["SDN"]
 language: '中文'
-draft: true
+draft: false
 comment: true
 ---
+
+import { Aside } from 'astro-pure/user'
 
 如果你学过计算机网络，那你一定听过 **SDN（Software-Defined Networking，软件定义网络）** 这个词。SDN 到底是什么？它解决了什么问题？它和传统网络有什么不同？
 
@@ -64,6 +66,9 @@ SDN 的核心思想就一句话：
 - SDN = 一个中央交通指挥中心 + 遍布路口的信号灯
 
 中央指挥中心掌握全局路况，可以动态调整信号灯，实现全局最优的流量调度。
+
+<Aside type='tip' title='记住这个'>SDN 的核心只有三个字：**分、控、转**。控制面与数据面分离，控制器集中管理，交换机只负责转发。</Aside>
+
 
 ---
 

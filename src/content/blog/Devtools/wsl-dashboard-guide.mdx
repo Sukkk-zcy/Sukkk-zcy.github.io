@@ -1,0 +1,96 @@
+---
+title: "WSL Dashboard：WSL 实例图形化管理工具推荐"
+publishDate: 2026-08-01 00:00:00
+description: "WSL Dashboard 是一个基于 Rust + Slint 的 WSL 图形化管理工具，轻量低内存，支持实例管理、端口转发、USB 透传等，强烈推荐给日常重度使用 WSL 的开发者。"
+tags: ["WSL2", "Windows", "开发工具"]
+categories: ["Devtools"]
+language: '中文'
+draft: false
+comment: true
+---
+
+## 前言
+
+我之前的 [Mininet 网络实验](/blog/sdn/sdn-04-mininet-experiment) 就是在 **WSL2 + Ubuntu 24.04** 上跑的，平时做嵌入式开发和环境搭建也离不开 WSL。但用的时间越长，越觉得 WSL 的「命令行管理」方式不太顺手：
+
+- 想启动 / 关闭某个发行版，得记 `wsl --terminate`、`wsl --shutdown` 这一堆命令
+- 想导出备份、迁移到别的盘，命令又长又容易敲错
+- 磁盘占用、端口转发、USB 透传更是全靠手动
+
+直到我发现了 **[WSL Dashboard](https://github.com/owu/wsl-dashboard)**，一个开源的 WSL 图形化管理面板，用起来舒服太多了，推荐给大家。
+
+## 项目简介
+
+WSL Dashboard 是一个**基于 Rust + Slint** 编写的 WSL 实例管理面板，主打**轻量、低内存、高性能**：
+
+- 技术栈：Rust（核心逻辑）+ Slint / Skia（UI 渲染）+ Tokio（异步运行时）
+- 开源协议：GPL-3.0
+- 托管在 GitHub，目前已有 3.3k+ Star
+
+官方项目地址：[github.com/owu/wsl-dashboard](https://github.com/owu/wsl-dashboard)
+
+## 核心功能
+
+### 1. 实例管理
+
+一键**启动 / 停止 / 终止 / 注销**任意 WSL 发行版，实时监控运行状态，还能查看磁盘占用和虚拟磁盘文件位置。再也不用背 `wsl` 命令了。
+
+### 2. 发行版管理
+
+- 设置默认发行版
+- **迁移 VHDX**：把发行版整体搬到其他盘，省空间利器
+- **导出 / 克隆**：一键备份成 `.tar` / `.tar.gz` 归档
+- 安装新发行版：支持 Microsoft Store、GitHub、本地 RootFS / VHDX 文件，还内置在线镜像源并自动测速选最快的
+
+### 3. 快速集成
+
+直接在面板上把当前发行版**打开到 Windows Terminal、VS Code 或文件资源管理器**，支持自定义工作目录和启动脚本钩子，开发体验拉满。
+
+### 4. 系统托盘
+
+支持最小化到系统托盘（约 **10MB** 内存），双击切换显示，托盘右键菜单功能完整。还能配置开机自启、退出时自动关闭 WSL 发行版，非常省心。
+
+### 5. 网络与 USB
+
+- **端口转发**：图形化管理 WSL 端口转发，自动创建防火墙规则
+- **HTTP 代理**：全局代理配置，统一网络出口
+- **USB 透传**：集成 `usbipd-win`，在界面里直接绑定、附加 USB 设备到指定发行版，对做嵌入式开发（比如我的 ESP32 调试）特别有用
+
+## 安装方式
+
+### 方式一：winget（推荐）
+
+```powershell
+winget install Owu.WSLDashboard
+```
+
+### 方式二：官网下载
+
+访问 [www.wslui.com/download](https://www.wslui.com/download/)，提供多个镜像源，可以挑个快的。
+
+### 方式三：GitHub Releases
+
+到 [Releases 页面](https://github.com/owu/wsl-dashboard/releases) 下载最新的 `wsldashboard.exe`，**单个便携版可执行文件，免安装**。
+
+## 系统要求
+
+- Windows 10 / 11，已启用 WSL（推荐 WSL2）
+- 至少安装一个 WSL 发行版
+- 64 位 CPU，建议 4GB 以上内存
+
+## 注意事项
+
+> 官方明确提醒：**WSL Dashboard 没有上架 Microsoft Store**。商店里同名应用是未经授权的，可能是假冒或带捆绑的，千万不要下载。
+
+## 总结
+
+如果你和我一样，把 WSL 当成日常开发主力环境（跑 Mininet、做嵌入式、搭开发环境），WSL Dashboard 绝对值得一试。它把原来散落在命令行的操作全部收进一个现代 GUI 里，内存占用只有几十 MB，便携版随下随用。
+
+觉得好用的话，去 GitHub 给作者点个 Star 吧。
+
+## 参考资料
+
+- [WSL Dashboard GitHub 仓库](https://github.com/owu/wsl-dashboard)
+- [WSL Dashboard 官网](https://www.wslui.com/)
+- [WSL Dashboard 下载页](https://www.wslui.com/download/)
+- [Slint UI 框架](https://slint.dev)

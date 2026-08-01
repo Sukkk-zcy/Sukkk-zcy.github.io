@@ -5,9 +5,11 @@ description: "WSL2 环境搭建、Mininet 安装与基础拓扑实验"
 tags: ["SDN", "Mininet", "WSL2"]
 categories: ["SDN"]
 language: '中文'
-draft: true
+draft: false
 comment: true
 ---
+
+import { Steps, Aside } from 'astro-pure/user'
 
 在前面的文章中我们一直在看理论，今天终于要动手了。Mininet 是 SDN 领域最常用的网络仿真工具，它能在一台电脑上模拟出由多台交换机和主机组成的网络拓扑，用来做各种网络实验。
 
@@ -69,6 +71,9 @@ WSL 是 Windows 系统内嵌的 Linux 环境。通过 WSL 可以：
 - Windows 11：默认就是 WSL2
 - Windows 10 2004 及以后版本：默认是 WSL2
 - Windows 10 2004 以前的版本：默认是 WSL1，需要升级系统
+
+
+<Aside type='tip' title='提示'>Windows 11 用户可以直接跳到下一节，WSL2 已经默认启用。</Aside>
 
 ### 2.4 安装步骤
 

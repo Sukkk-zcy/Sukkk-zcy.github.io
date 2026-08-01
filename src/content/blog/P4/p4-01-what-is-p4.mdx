@@ -9,6 +9,8 @@ draft: true
 comment: true
 ---
 
+import { Aside, GithubCard } from 'astro-pure/user'
+
 开始学习 P4 之前，我们先搞清楚两个问题：P4 到底是什么，以及为什么我们需要它。
 
 ---
@@ -96,7 +98,11 @@ P4（Programming Protocol-independent Packet Processors）的出现，让**数�
 | 协议支持 | 固定协议 | 任意协议 |
 | 硬件要求 | 支持 OpenFlow 的交换机 | BMv2（软件）/ Tofino（硬件） |
 
-简单说：**OpenFlow 让你能写控制器，P4 让你能写交换机本身。**
+<Aside type='tip' title='核心理解'>
+
+**OpenFlow 让你能写控制器，P4 让你能写交换机本身。** 这是最本质的区别。
+
+</Aside>
 
 ---
 

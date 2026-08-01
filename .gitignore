@@ -48,6 +48,7 @@ deploy-temp/
 # 工具目录
 .mimocode/
 .vscode/
+.github/
 
 # 构建配置与依赖锁文件
 node_modules/
@@ -82,3 +83,6 @@ src/site.config.ts
 src/content.config.ts
 src/type.d.ts
 src/env.d.ts
+
+# 站点静态资源（本地保留）
+public/

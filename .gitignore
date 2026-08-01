@@ -42,3 +42,43 @@ deploy.ps1
 /test/
 
 deploy-temp/
+
+# 仅向 GitHub 推送文章与文档，其余项目文件保留在本地
+# ====================================================
+# 工具目录
+.mimocode/
+.vscode/
+
+# 构建配置与依赖锁文件
+node_modules/
+package.json
+package-lock.json
+bun.lock
+npm-shrinkwrap.json
+.yarnrc
+.pnpm-store/
+
+# 项目源码（主题、组件、页面、插件）仅保留本地
+packages/
+astro.config.ts
+tsconfig.json
+uno.config.ts
+eslint.config.mjs
+prettier.config.mjs
+.editorconfig
+.prettierignore
+.npmrc
+create-pptx.js
+AGENTS.md
+BLOG-OPS.md
+src/assets/
+src/components/
+src/layouts/
+src/pages/
+src/plugins/
+src/utils/
+src/types/
+src/site.config.ts
+src/content.config.ts
+src/type.d.ts
+src/env.d.ts

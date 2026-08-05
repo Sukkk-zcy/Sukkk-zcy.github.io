@@ -28,8 +28,8 @@ npm install --legacy-peer-deps
 # 开发服务器
 npm run dev
 
-# 构建（内存不足时需设置 NODE_OPTIONS）
-$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
+# 构建
+npm run build
 
 # 部署（推送到 gh-pages 分支）
 .\deploy.ps1

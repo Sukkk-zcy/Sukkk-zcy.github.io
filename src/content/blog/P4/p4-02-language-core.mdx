@@ -173,7 +173,7 @@ bit<16> t = lookahead(bit<16>);               // 预览但不消费字节
 | `ternary` | 值 + 掩码 | ACL、流量分类 |
 
 ```mermaid
-flowchart TD
+flowchart LR
     A["报文到达"] --> B["按 key 查表"]
     B -->|"命中"| C["执行 action"]
     B -->|"未命中"| D["执行 default_action"]
@@ -226,7 +226,7 @@ apply {
 `V1Switch(...)` 是 BMv2 的参考架构 V1Model，规定六个块的固定执行顺序（规范 §12）[1]。其他架构（PSA、TNA）的流水线结构不同。
 
 ```mermaid
-flowchart TD
+flowchart LR
     P["Parser<br/>解析报文"] --> V["VerifyChecksum<br/>校验和验证（可选）"]
     V --> I["MyIngress<br/>入口处理"]
     I --> E["MyEgress<br/>出口处理"]

@@ -1,7 +1,7 @@
 ---
 title: "P4 快速入门（二）：一次看懂一个 P4 程序"
-publishDate: 2026-08-04 00:00:00
-description: "从解析到转发：用一份可编译的最小示例讲透 Header、Parser、Match-Action 与 V1Model 流水线"
+publishDate: 2026-07-08 00:00:00
+description: "通过一个最小可运行示例讲解 header、parser、match-action 与 V1Model 流水线"
 tags: ["P4", "Parser", "Match-Action", "V1Model", "入门"]
 categories: ["P4"]
 language: "中文"
@@ -9,28 +9,25 @@ draft: false
 comment: true
 ---
 
-import { Aside } from 'astro-pure/user'
-
-上一篇建立了宏观认知。这一篇直接看代码：目标是让你**读懂并跑通一个最小的 P4 程序**，并且知道每个关键字在干什么。本文不重复规范原文，需要查细节的地方直接给出规范章节号，建议配合 [P4-16 规范 v1.2.5](https://p4.org/p4-specs/) 阅读 [1]。
+本文通过一个最小可运行示例讲解 P4 程序的核心构件：header、parser、match-action 表、control 与 deparser，最后介绍 V1Model 流水线与编译运行方法。语法细节对应规范章节 [1]。
 
 ---
 
-## 一、最小可运行的 P4 程序
+## 一、最小可运行示例
 
-这是一个完整的以太网二层转发程序，可以直接用 `p4c` 编译（环境搭建见第三篇）：
+以下程序实现以太网二层转发，可直接用 p4c 编译（环境搭建见第三篇）：
 
 ```p4
 #include <core.p4>
 #include <v1model.p4>
 
-/* 1. 报头定义：以太网头 */
+/* 1. 报头定义 */
 header ethernet_t {
     bit<48> dstAddr;
     bit<48> srcAddr;
     bit<16> etherType;
 }
 
-/* 2. IPv4 头（简化版） */
 header ipv4_t {
     bit<4>  version;
     bit<4>  ihl;
@@ -46,14 +43,13 @@ header ipv4_t {
     bit<32> dstAddr;
 }
 
-/* 3. 所有报头的集合 + 用户自定义元数据 */
 struct headers {
     ethernet_t ethernet;
     ipv4_t     ipv4;
 }
 struct metadata { }
 
-/* 4. Parser：把字节流解析成报头 */
+/* 2. Parser：字节流解析为报头 */
 parser MyParser(packet_in pkt, out headers hdr,
                 inout metadata meta, inout standard_metadata_t standard_metadata) {
     state start {
@@ -72,7 +68,7 @@ parser MyParser(packet_in pkt, out headers hdr,
     }
 }
 
-/* 5. 入口处理：查表转发 */
+/* 3. 入口处理：查表转发 */
 control MyIngress(inout headers hdr, inout metadata meta,
                   inout standard_metadata_t standard_metadata) {
     action drop() {
@@ -92,7 +88,7 @@ control MyIngress(inout headers hdr, inout metadata meta,
     }
 }
 
-/* 6. 出口处理 / 校验和（这里留空） */
+/* 4. 出口处理与校验和（此处留空） */
 control MyEgress(inout headers hdr, inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     apply { }
@@ -104,7 +100,7 @@ control ComputeChecksum(inout headers hdr, inout metadata meta) {
     apply { }
 }
 
-/* 7. Deparser：把报头重新打包 */
+/* 5. Deparser：报头重新打包 */
 control MyDeparser(packet_out pkt, in headers hdr) {
     apply {
         pkt.emit(hdr.ethernet);
@@ -112,46 +108,36 @@ control MyDeparser(packet_out pkt, in headers hdr) {
     }
 }
 
-/* 8. 主函数：按 V1Model 顺序组装 */
+/* 6. 按 V1Model 顺序组装 */
 V1Switch(MyParser(), VerifyChecksum(), MyIngress(),
          MyEgress(), ComputeChecksum(), MyDeparser()) main;
 ```
 
-这段程序做的事：收到报文 → 解析以太网头（如果是 IPv4 继续解析）→ 查 `l2_forward` 表决定从哪个端口转发或丢弃 → 重新打包发出。下面逐个拆解。
+程序流程：解析以太网头，IPv4 报文继续解析，查表决定转发端口或丢弃，重新打包发出。
 
 ---
 
-## 二、四大构件逐个讲
+## 二、核心构件
 
-### 2.1 Header：报文的"身份证"
+### Header：报头定义
 
-`header` 用来描述一个协议头的布局，字段类型就是位宽固定的整数 `bit<W>`（W 是位数）：
+`header` 描述协议头布局，字段为定宽整数 `bit<W>`。相关概念（规范 §7）[1]：
 
-```p4
-header ethernet_t {
-    bit<48> dstAddr;   // 48 位 MAC 地址
-    bit<48> srcAddr;
-    bit<16> etherType; // 0x0800 表示 IPv4
-}
-```
-
-几个相关概念（规范 §7）：
-
-- **struct**：把多个 header 组合成一个集合（就是程序里的 `headers`）；
-- **header stack**：重复出现的报头，如 VLAN 标签栈。P4-16 用数组语法 `vlan_tag[2] vlan;` 声明——**注意不是 P4-14 时代的 `header_stack<...>` 写法**（规范 §7.2.3）[1]；
-- **union**：互斥报头（IPv4 / IPv6 二选一）用 `union L3_h { ipv4_t v4; ipv6_t v6; }`；
-- **isValid()**：只有被 `extract` 过的 header 才有效，处理前先检查。
+- `struct`：组合多个报头；
+- header stack：表示重复报头（如 VLAN 标签栈）。P4-16 使用数组语法 `vlan_tag[2]`，P4-14 的 `header_stack<...>` 已废弃（规范 §7.2.3）；
+- `union`：表示互斥报头（IPv4 / IPv6 二选一）；
+- `isValid()`：仅被 `extract` 过的报头有效。
 
 ```mermaid
 flowchart TD
-    H["header（单个报头）"] --> S["struct（报头集合）"]
+    H["header"] --> S["struct（报头集合）"]
     H --> ST["header stack<br/>H[n] 数组语法"]
-    H --> U["union<br/>互斥报头"]
+    H --> U["union（互斥报头）"]
 ```
 
-### 2.2 Parser：报文解析的状态机
+### Parser：报文解析状态机
 
-Parser 是一个**有限状态机（FSM）**（规范 §13 定义了 parser 模型 [1]）：每个状态做两件事——`extract` 提取字节到报头，`select` 根据字段值决定跳到哪个状态。
+parser 为有限状态机：每个状态 `extract` 提取字节，`select` 按字段值选择后续状态（规范 §13）[1]。
 
 ```mermaid
 stateDiagram-v2
@@ -164,7 +150,7 @@ stateDiagram-v2
     accept --> [*]
 ```
 
-核心原语：
+常用原语：
 
 ```p4
 pkt.extract(hdr.ethernet);                    // 提取以太网头
@@ -172,30 +158,30 @@ transition select(hdr.ethernet.etherType) {   // 按 etherType 跳转
     0x0800: parse_ipv4;
     default: accept;
 }
-verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);  // 条件校验，失败进 reject
-bit<16> t = lookahead(bit<16>);               // 偷看但不消费字节
+verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);  // 校验失败进入 reject
+bit<16> t = lookahead(bit<16>);               // 预览但不消费字节
 ```
 
-### 2.3 Match-Action：转发的灵魂
+### Match-Action：匹配-动作表
 
-`table` 定义一张匹配-动作表：用 `key` 声明匹配字段和匹配类型，命中后执行对应 `action`（规范 §13 [1]）。
+`table` 声明匹配字段（key）与可选动作（actions），命中后执行对应 action。三种匹配类型：
 
 | 匹配类型 | 语义 | 典型用途 |
 |----------|------|----------|
 | `exact` | 全比特精确匹配 | MAC 表、VLAN 表 |
 | `lpm` | 最长前缀匹配 | IP 路由表 |
-| `ternary` | 值 + 掩码（可通配） | ACL、灵活流分类 |
+| `ternary` | 值 + 掩码 | ACL、流量分类 |
 
 ```mermaid
 flowchart TD
     A["报文到达"] --> B["按 key 查表"]
-    B -->|"命中"| C["执行对应 action"]
+    B -->|"命中"| C["执行 action"]
     B -->|"未命中"| D["执行 default_action"]
-    C --> E["继续后续流水线 / 发出"]
+    C --> E["继续流水线 / 发出"]
     D --> E
 ```
 
-计数器、限速器、寄存器是数据平面做状态的关键（规范 §13、v1model 的 extern [1]）。**v1model 里它们的绑定方式不同，容易写错**：
+数据面状态通过 `counter` / `meter` / `register` 维护。注意 v1model 中表属性 `counters` 仅可绑定 `direct_counter`；普通 `counter` 需在 action 中显式调用 `count(index)` [2]。
 
 ```p4
 // direct_counter：绑定到表，命中表项自动计数
@@ -206,25 +192,21 @@ table l2_forward {
     counters = port_counter;
 }
 
-// 普通 counter：不能在表属性里绑定，要在 action 里显式 count(index)
+// 普通 counter：在 action 中显式计数
 counter<bit<64>, bit<32>>(1024, CounterType.PACKETS_AND_BYTES) flow_counter;
 action count_packet() {
     flow_counter.count((bit<32>)standard_metadata.ingress_port);
 }
 
-// register：数据平面"内存"，按索引读写
+// register：按索引读写的数据平面存储
 register<bit<32>>(1024) per_port_pps;
 ```
 
-### 2.4 Control 与 Deparser
+### Control 与 Deparser
 
-`control` 是处理逻辑的容器，入口是 `apply`：里面按顺序调表、做条件判断、改报头字段。Deparser 负责把处理后的报头用 `emit` 按顺序打回字节流——没被 `emit` 的报头会从报文里消失。
+`control` 的 `apply` 为处理逻辑入口，按顺序执行查表、判断与字段修改。Deparser 通过 `emit` 按序输出报头，未 emit 的报头将从报文中移除。
 
-<Aside type='note' title='容易踩坑'>
-
-**P4-16 的控制块里没有通用的 `for` 循环**——语言设计上要求每个报文的处理时间有界，所以循环只存在于 Parser 的状态机里。处理 header stack 需要展开写（或借助 Parser 循环）[1]。
-
-</Aside>
+P4-16 控制块不提供 `for` 循环（语言设计保证每包处理时间有界，循环仅存在于 parser 状态机，规范 §11）[1]。遍历 header stack 需展开：
 
 ```p4
 apply {
@@ -239,14 +221,14 @@ apply {
 
 ---
 
-## 三、V1Model：六个块怎么串起来
+## 三、V1Model 流水线
 
-程序里的 `V1Switch(...)` 是 BMv2 的参考架构 **V1Model**：它规定了 Parser、校验和、Ingress、Egress、计算校验和、Deparser 六个块的固定执行顺序（规范 §12 架构概念 [1]）。**注意这只是 BMv2 的架构**——PSA、TNA 等其他架构的流水线结构并不相同。
+`V1Switch(...)` 是 BMv2 的参考架构 V1Model，规定六个块的固定执行顺序（规范 §12）[1]。其他架构（PSA、TNA）的流水线结构不同。
 
 ```mermaid
 flowchart TD
     P["Parser<br/>解析报文"] --> V["VerifyChecksum<br/>校验和验证（可选）"]
-    V --> I["MyIngress<br/>入口处理（主要逻辑）"]
+    V --> I["MyIngress<br/>入口处理"]
     I --> E["MyEgress<br/>出口处理"]
     E --> C["ComputeChecksum<br/>计算校验和（可选）"]
     C --> D["MyDeparser<br/>打包"]
@@ -255,56 +237,47 @@ flowchart TD
 
 | 块 | 作用 |
 |----|------|
-| `Parser` | 把字节流解析成结构化报头 |
-| `VerifyChecksum` | 验证校验和（可选，可留空） |
+| `Parser` | 字节流解析为报头 |
+| `VerifyChecksum` | 校验和验证（可选） |
 | `MyIngress` | 入口处理：查表、修改报头、决定出端口 |
-| `MyEgress` | 出口处理：通常做限速、复制等 |
-| `ComputeChecksum` | 计算校验和（可选，可留空） |
-| `MyDeparser` | 把报头重新打包成字节流 |
+| `MyEgress` | 出口处理 |
+| `ComputeChecksum` | 计算校验和（可选） |
+| `MyDeparser` | 报头重新打包 |
 
 ---
 
-## 四、跑起来：编译与验证
+## 四、编译与运行
 
-把上面的代码存成 `l2_forward.p4`，在装好 P4 工具链的环境里（第三篇讲环境）：
+将上述代码保存为 `l2_forward.p4`，在已安装 P4 工具链的环境中：
 
 ```bash
-# 编译成 BMv2 可加载的 JSON
 p4c --target bmv2 --arch v1model l2_forward.p4 -o build
-
-# 启动软件交换机（两个端口映射到虚拟网卡）
 sudo simple_switch --log-console -i 0@veth0 -i 1@veth1 build/l2_forward.json
-
-# 另一个终端：下发一条 MAC 转发表项
 simple_switch_CLI
 table_add MyIngress.l2_forward forward 00:00:00:00:00:02 => 1
 ```
 
-验证方法：从端口 0 发给目的 MAC `00:00:00:00:00:02` 的报文，应当从端口 1 出来；未匹配的报文被默认动作丢弃。具体抓包验证和 Mininet 拓扑见第三篇。
+预期行为：目的 MAC 为 `00:00:00:00:00:02` 的报文从端口 1 转发，其余报文被默认动作丢弃。
 
 ---
 
-## 五、常见坑一览
+## 五、常见编译错误
 
-| 坑 | 正确做法 | 依据 |
-|----|----------|------|
-| header stack 用 `header_stack<2, H>` | P4-16 用 `H[2]` | 规范 §7.2.3 [1] |
-| 控制块里写 `for` 循环 | 展开写，或用 Parser 状态机 | 规范 §11 语句 [1] |
-| `counters = c` 挂普通 counter | 只能挂 `direct_counter` | v1model.p4 [2] |
-| 以为所有 P4 都是 V1Model | PSA / TNA 结构不同 | 规范 §12 [1] |
-| 编译产物叫 `.p4i` | 是 `.p4info.txt`（P4Info） | p4c 文档 [3] |
+1. header stack 未使用 P4-16 数组语法；
+2. 控制块中使用 `for` 循环；
+3. counter 绑定方式错误（应使用 `direct_counter`）。
 
 ---
 
-## 参考文献与进阶指引
+## 参考文献
 
-1. P4 Language Consortium. *P4-16 Language Specification v1.2.5*（Parser §13、类型 §7、语句 §11、架构 §12）. https://p4.org/p4-specs/
-2. p4lang. *v1model.p4*（v1model 的 extern 定义）. https://github.com/p4lang/p4c/blob/main/p4include/v1model.p4
-3. p4lang. *p4c（P4 编译器）*. https://github.com/p4lang/p4c
-4. p4lang. *P4 Tutorials（官方练习：basic、p4runtime 等）*. https://github.com/p4lang/tutorials
-5. 张恒华. *P4 中文教程*（作为中文查阅资料）. https://github.com/zhh2001/p4-language-guide-zh
+1. P4 Language Consortium. *P4-16 Language Specification v1.2.5*（类型 §7、语句 §11、架构 §12、Parser §13）. https://p4.org/p4-specs/
+2. p4lang. *v1model.p4*. https://github.com/p4lang/p4c/blob/main/p4include/v1model.p4
+3. p4lang. *p4c*. https://github.com/p4lang/p4c
+4. p4lang. *P4 Tutorials*. https://github.com/p4lang/tutorials
+5. 张恒华. *P4 中文教程*. https://github.com/zhh2001/p4-language-guide-zh
 
-> 阅读提示：本文示例基于官方教程的 `basic` 练习结构整理，完整练习和答案在 p4lang/tutorials 仓库 [4]，建议直接跑官方练习而不是抄教程。
+> 说明：示例结构参考官方 tutorials 的 basic 练习，完整练习与答案见 [4]。
 
 ---
 

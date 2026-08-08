@@ -149,6 +149,9 @@ const toc = generateToc(headings)
 
   toc-heading :global(.toc-item) {
     display: flow-root;
+    /* TOC 用稍小字号，配合加宽后的栏位避免标题换行 */
+    font-size: 0.875rem;
+    line-height: 1.45;
   }
 
   /* Custom scrollbar for TOC content */

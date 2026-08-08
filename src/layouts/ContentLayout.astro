@@ -411,7 +411,7 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     width: min(80rem, calc(100vw - 3rem));
     margin-inline: 50%;
     display: grid;
-    grid-template-columns: minmax(8rem, 13rem) minmax(0, 50rem) minmax(8rem, 13rem);
+    grid-template-columns: minmax(8rem, 11rem) minmax(0, 50rem) minmax(11rem, 15.5rem);
     gap: clamp(1rem, 2vw, 1.75rem);
     /* 左右栏贴向容器边缘，中间内容列尽可能宽 */
     justify-content: space-between;
@@ -496,7 +496,7 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     .article-reading-layout {
       width: 100%;
       margin-inline: 0;
-      grid-template-columns: minmax(0, 50rem) minmax(11rem, 14rem);
+      grid-template-columns: minmax(0, 50rem) minmax(11rem, 15rem);
       justify-content: center;
       transform: none;
     }

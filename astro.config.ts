@@ -118,7 +118,29 @@ export default defineConfig({
     // astro-pure will automatically add sitemap, mdx & unocss
     // sitemap(),
     // mdx(),
-    mermaid(),
+    // https://github.com/astro-community/astro-mermaid
+    mermaid({
+      // 布局与文字优化：固定字号、紧凑节点、关闭自动缩放（宽图保持原生尺寸，容器横向滚动）
+      mermaidConfig: {
+        securityLevel: 'loose',
+        themeVariables: {
+          fontSize: '15px'
+        },
+        flowchart: {
+          curve: 'basis',
+          nodeSpacing: 50,
+          rankSpacing: 45,
+          padding: 8,
+          htmlLabels: true,
+          // 输出固定像素宽度，避免大图被压缩导致文字过小
+          useMaxWidth: false
+        },
+        sequence: {
+          mirrorActors: false,
+          useMaxWidth: false
+        }
+      }
+    }),
     // typst(),
     AstroPureIntegration(config)
   ],

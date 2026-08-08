@@ -68,7 +68,7 @@ comment: true
 
 ```mermaid
 flowchart TD
-    subgraph 基础[基础概念]
+    subgraph "基础"[基础概念]
         A[传统网络的问题]
         B[三层架构]
         B --> B1[应用层]
@@ -79,7 +79,7 @@ flowchart TD
         C --> C2[北向 REST API]
         C --> C3[东西向 控制器之间]
     end
-    subgraph of[OpenFlow 协议]
+    subgraph "of"[OpenFlow 协议]
         D[流表]
         D --> D1[匹配字段]
         D --> D2[优先级与计数器]
@@ -101,7 +101,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    subgraph mn[Mininet 实验]
+    subgraph "mn"[Mininet 实验]
         I[环境 WSL2 + Ubuntu]
         J[拓扑类型]
         J --> J1[default 1+2]
@@ -113,7 +113,7 @@ flowchart TD
         K --> K2[iperf 带宽]
         K --> K3[tcpdump 抓包]
     end
-    subgraph sec[安全与入侵检测]
+    subgraph "sec"[安全与入侵检测]
         L[SDN 安全威胁]
         L --> L1[控制器攻击]
         L --> L2[流表溢出]

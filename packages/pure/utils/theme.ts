@@ -33,6 +33,8 @@ export function setTheme(theme?: string, save = false) {
 
   // Set theme
   document.documentElement.classList.toggle('dark', targetTheme === 'dark')
+  // 同步 data-theme 属性（astro-mermaid 等集成通过该属性切换图表主题）
+  document.documentElement.setAttribute('data-theme', targetTheme ?? 'light')
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute('content', targetTheme === 'dark' ? '#0B0B10' : '#FCFCFD')

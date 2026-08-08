@@ -5,7 +5,7 @@ export const theme: ThemeUserConfig = {
   title: 'Sukkk',
   author: 'Sukkk',
   description: '记录技术笔记和成长历程',
-  favicon: '/favicon.ico',
+  favicon: '/favicon/favicon.svg',
   socialCard: '/images/social-card.png',
   locale: {
     lang: 'zh-CN',

@@ -110,15 +110,15 @@ SDN 架构中有三个方向的接口，它们构成了控制器与外部世界�
 
 ```mermaid
 graph TB
-    subgraph 应用层[应用层]
+    subgraph "应用层"[应用层]
         APP1[流量工程]
         APP2[安全防护]
     end
-    subgraph 控制层[控制层]
+    subgraph "控制层"[控制层]
         C[控制器 Controller]
         OTHER[其他控制器]
     end
-    subgraph 数据层[数据层]
+    subgraph "数据层"[数据层]
         SW1[交换机]
         SW2[交换机]
         SW3[交换机]

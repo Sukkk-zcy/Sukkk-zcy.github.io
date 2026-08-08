@@ -11,6 +11,8 @@
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
     document.documentElement.classList.toggle('dark', theme === 'dark')
+    // 同步 data-theme 属性（astro-mermaid 等集成通过该属性切换图表主题）
+    document.documentElement.setAttribute('data-theme', theme)
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', theme === 'dark' ? '#0B0B10' : '#FCFCFD')

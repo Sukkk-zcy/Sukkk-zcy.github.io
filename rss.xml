@@ -1,0 +1,3024 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/scripts/pretty-feed-v3.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:h="http://www.w3.org/TR/html4/"><channel><title>Sukkk</title><description>记录技术笔记和成长历程</description><link>https://sukkk-zcy.github.io</link><item><title>WSL Dashboard：WSL 实例图形化管理工具推荐</title><link>https://sukkk-zcy.github.io/blog/devtools/wsl-dashboard-guide</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/wsl-dashboard-guide</guid><description>WSL Dashboard 是一个基于 Rust + Slint 的 WSL 图形化管理工具，轻量低内存，支持实例管理、端口转发、USB 透传等，强烈推荐给日常重度使用 WSL 的开发者。</description><pubDate>Sat, 01 Aug 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
+&lt;p&gt;我之前的 &lt;a href=&quot;/blog/sdn/sdn-04-mininet-experiment&quot;&gt;Mininet 网络实验&lt;/a&gt; 就是在 &lt;strong&gt;WSL2 + Ubuntu 24.04&lt;/strong&gt; 上跑的，平时做嵌入式开发和环境搭建也离不开 WSL。但用的时间越长，越觉得 WSL 的「命令行管理」方式不太顺手：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;想启动 / 关闭某个发行版，得记 &lt;code&gt;wsl --terminate&lt;/code&gt;、&lt;code&gt;wsl --shutdown&lt;/code&gt; 这一堆命令&lt;/li&gt;
+&lt;li&gt;想导出备份、迁移到别的盘，命令又长又容易敲错&lt;/li&gt;
+&lt;li&gt;磁盘占用、端口转发、USB 透传更是全靠手动&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;直到我发现了 &lt;strong&gt;&lt;a href=&quot;https://github.com/owu/wsl-dashboard&quot;&gt;WSL Dashboard&lt;/a&gt;&lt;/strong&gt;，一个开源的 WSL 图形化管理面板，用起来舒服太多了，推荐给大家。&lt;/p&gt;
+&lt;h2&gt;项目简介&lt;/h2&gt;
+&lt;p&gt;WSL Dashboard 是一个&lt;strong&gt;基于 Rust + Slint&lt;/strong&gt; 编写的 WSL 实例管理面板，主打&lt;strong&gt;轻量、低内存、高性能&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;技术栈：Rust（核心逻辑）+ Slint / Skia（UI 渲染）+ Tokio（异步运行时）&lt;/li&gt;
+&lt;li&gt;开源协议：GPL-3.0&lt;/li&gt;
+&lt;li&gt;托管在 GitHub，目前已有 3.3k+ Star&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;官方项目地址：&lt;a href=&quot;https://github.com/owu/wsl-dashboard&quot;&gt;github.com/owu/wsl-dashboard&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;核心功能&lt;/h2&gt;
+&lt;h3&gt;1. 实例管理&lt;/h3&gt;
+&lt;p&gt;一键&lt;strong&gt;启动 / 停止 / 终止 / 注销&lt;/strong&gt;任意 WSL 发行版，实时监控运行状态，还能查看磁盘占用和虚拟磁盘文件位置。再也不用背 &lt;code&gt;wsl&lt;/code&gt; 命令了。&lt;/p&gt;
+&lt;h3&gt;2. 发行版管理&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;设置默认发行版&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;迁移 VHDX&lt;/strong&gt;：把发行版整体搬到其他盘，省空间利器&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;导出 / 克隆&lt;/strong&gt;：一键备份成 &lt;code&gt;.tar&lt;/code&gt; / &lt;code&gt;.tar.gz&lt;/code&gt; 归档&lt;/li&gt;
+&lt;li&gt;安装新发行版：支持 Microsoft Store、GitHub、本地 RootFS / VHDX 文件，还内置在线镜像源并自动测速选最快的&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;3. 快速集成&lt;/h3&gt;
+&lt;p&gt;直接在面板上把当前发行版&lt;strong&gt;打开到 Windows Terminal、VS Code 或文件资源管理器&lt;/strong&gt;，支持自定义工作目录和启动脚本钩子，开发体验拉满。&lt;/p&gt;
+&lt;h3&gt;4. 系统托盘&lt;/h3&gt;
+&lt;p&gt;支持最小化到系统托盘（约 &lt;strong&gt;10MB&lt;/strong&gt; 内存），双击切换显示，托盘右键菜单功能完整。还能配置开机自启、退出时自动关闭 WSL 发行版，非常省心。&lt;/p&gt;
+&lt;h3&gt;5. 网络与 USB&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;端口转发&lt;/strong&gt;：图形化管理 WSL 端口转发，自动创建防火墙规则&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;HTTP 代理&lt;/strong&gt;：全局代理配置，统一网络出口&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;USB 透传&lt;/strong&gt;：集成 &lt;code&gt;usbipd-win&lt;/code&gt;，在界面里直接绑定、附加 USB 设备到指定发行版，对做嵌入式开发（比如我的 ESP32 调试）特别有用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;安装方式&lt;/h2&gt;
+&lt;h3&gt;方式一：winget（推荐）&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;winget install Owu.WSLDashboard
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式二：官网下载&lt;/h3&gt;
+&lt;p&gt;访问 &lt;a href=&quot;https://www.wslui.com/download/&quot;&gt;www.wslui.com/download&lt;/a&gt;，提供多个镜像源，可以挑个快的。&lt;/p&gt;
+&lt;h3&gt;方式三：GitHub Releases&lt;/h3&gt;
+&lt;p&gt;到 &lt;a href=&quot;https://github.com/owu/wsl-dashboard/releases&quot;&gt;Releases 页面&lt;/a&gt; 下载最新的 &lt;code&gt;wsldashboard.exe&lt;/code&gt;，&lt;strong&gt;单个便携版可执行文件，免安装&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2&gt;系统要求&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Windows 10 / 11，已启用 WSL（推荐 WSL2）&lt;/li&gt;
+&lt;li&gt;至少安装一个 WSL 发行版&lt;/li&gt;
+&lt;li&gt;64 位 CPU，建议 4GB 以上内存&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;注意事项&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;官方明确提醒：&lt;strong&gt;WSL Dashboard 没有上架 Microsoft Store&lt;/strong&gt;。商店里同名应用是未经授权的，可能是假冒或带捆绑的，千万不要下载。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;如果你和我一样，把 WSL 当成日常开发主力环境（跑 Mininet、做嵌入式、搭开发环境），WSL Dashboard 绝对值得一试。它把原来散落在命令行的操作全部收进一个现代 GUI 里，内存占用只有几十 MB，便携版随下随用。&lt;/p&gt;
+&lt;p&gt;觉得好用的话，去 GitHub 给作者点个 Star 吧。&lt;/p&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/owu/wsl-dashboard&quot;&gt;WSL Dashboard GitHub 仓库&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.wslui.com/&quot;&gt;WSL Dashboard 官网&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.wslui.com/download/&quot;&gt;WSL Dashboard 下载页&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://slint.dev&quot;&gt;Slint UI 框架&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Devtools</category></item><item><title>CloudFlare ImgBed 图床搭建</title><link>https://sukkk-zcy.github.io/blog/devtools/cloudflare-imgbed-setup</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/cloudflare-imgbed-setup</guid><description>使用 CloudFlare Pages + Telegram Bot 搭建免费图床，解决博客图片加载慢的问题。</description><pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;博客托管在 GitHub Pages 上，国内访问图片加载慢甚至加载不出来。本文记录使用 &lt;a href=&quot;https://github.com/MarSeventh/CloudFlare-ImgBed&quot;&gt;CloudFlare ImgBed&lt;/a&gt; 搭建免费图床的完整过程。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;为什么需要图床&lt;/h2&gt;
+&lt;p&gt;GitHub Pages 的图片托管有以下问题：&lt;/p&gt;
+&lt;p&gt;| 问题 | 说明 |
+|------|------|
+| 加载慢 | GitHub 域名在国内访问速度不稳定 |
+| 加载失败 | 部分网络环境直接无法访问 |
+| 无 CDN | 没有全球加速，全靠 GitHub 单一节点 |&lt;/p&gt;
+&lt;p&gt;CloudFlare ImgBed 的方案：&lt;strong&gt;Cloudflare Pages（免费托管 + 全球 CDN）&lt;/strong&gt; + &lt;strong&gt;Telegram Bot（免费存储 + 无限容量）&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;p&gt;需要准备以下账号和工具：&lt;/p&gt;
+&lt;p&gt;| 需要 | 说明 |
+|------|------|
+| Cloudflare 账号 | 免费注册，用于部署 Pages |
+| GitHub 账号 | 用于 Fork 项目 |
+| Telegram 账号 | 用于创建 Bot 和频道作为存储后端 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;第一步：创建 Telegram Bot&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;在 Telegram 搜索 &lt;code&gt;@BotFather&lt;/code&gt;，进入对话&lt;/li&gt;
+&lt;li&gt;发送 &lt;code&gt;/newbot&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;按提示输入 Bot 名称（如 &lt;code&gt;My Image Bed&lt;/code&gt;）和用户名（必须以 &lt;code&gt;bot&lt;/code&gt; 结尾）&lt;/li&gt;
+&lt;li&gt;记录 BotFather 回复的 &lt;strong&gt;Bot Token&lt;/strong&gt;（格式：&lt;code&gt;123456789:ABCdefGHI...&lt;/code&gt;）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第二步：创建 Telegram 频道&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Telegram 中新建频道，选&lt;strong&gt;私密&lt;/strong&gt;（只是存储后端，不需要公开）&lt;/li&gt;
+&lt;li&gt;进入频道设置 → 管理员 → 添加管理员&lt;/li&gt;
+&lt;li&gt;搜索你的 Bot 用户名，添加为管理员&lt;/li&gt;
+&lt;li&gt;在频道中发送一条测试消息&lt;/li&gt;
+&lt;li&gt;长按消息 → 转发 → 搜索 &lt;code&gt;@VersaToolsBot&lt;/code&gt;，转发给它&lt;/li&gt;
+&lt;li&gt;记录返回的&lt;strong&gt;频道 ID&lt;/strong&gt;（格式：&lt;code&gt;-1001234567890&lt;/code&gt;）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第三步：Fork 项目&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;打开 https://github.com/MarSeventh/CloudFlare-ImgBed&lt;/li&gt;
+&lt;li&gt;点右上角 &lt;strong&gt;Fork&lt;/strong&gt; 到你的 GitHub 账户&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第四步：部署到 Cloudflare Pages&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;登录 https://dash.cloudflare.com/&lt;/li&gt;
+&lt;li&gt;左侧菜单：&lt;strong&gt;计算和 AI&lt;/strong&gt; → &lt;strong&gt;Workers &amp;#x26; Pages&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;点 &lt;strong&gt;创建应用程序&lt;/strong&gt; → &lt;strong&gt;Get started&lt;/strong&gt; → 连接 GitHub 仓库&lt;/li&gt;
+&lt;li&gt;选择刚 Fork 的 &lt;code&gt;CloudFlare-ImgBed&lt;/code&gt; 仓库&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;配置填写：&lt;/p&gt;
+&lt;p&gt;| 配置项 | 值 |
+|--------|-----|
+| 项目名称 | &lt;code&gt;sukk-imgbed&lt;/code&gt;（自定义） |
+| 生产分支 | &lt;code&gt;main&lt;/code&gt; |
+| 构建命令 | &lt;code&gt;npm install&lt;/code&gt; |
+| 构建输出目录 | &lt;code&gt;/frontend-dist&lt;/code&gt; |&lt;/p&gt;
+&lt;ol start=&quot;5&quot;&gt;
+&lt;li&gt;点 &lt;strong&gt;保存并部署&lt;/strong&gt;，等待 2-3 分钟&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第五步：创建 KV 数据库&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;Cloudflare Dashboard → &lt;strong&gt;存储和数据库&lt;/strong&gt; → &lt;strong&gt;Workers KV&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;点 &lt;strong&gt;创建实例&lt;/strong&gt;，命名空间名称填 &lt;code&gt;img_url&lt;/code&gt;（必须是这个名字）&lt;/li&gt;
+&lt;li&gt;回到 Pages 项目 → &lt;strong&gt;设置&lt;/strong&gt; → &lt;strong&gt;Bindings&lt;/strong&gt; → &lt;strong&gt;添加&lt;/strong&gt; → &lt;strong&gt;KV 命名空间&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;变量名称填 &lt;code&gt;img_url&lt;/code&gt;，选择刚创建的命名空间，保存&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;第六步：配置环境变量&lt;/h2&gt;
+&lt;p&gt;在 Pages 项目的 &lt;strong&gt;设置&lt;/strong&gt; → &lt;strong&gt;Variables and secrets&lt;/strong&gt; 中，添加以下 Secret：&lt;/p&gt;
+&lt;p&gt;| 变量名 | 值 |
+|--------|-----|
+| &lt;code&gt;TG_BOT_TOKEN&lt;/code&gt; | 你的 Bot Token |
+| &lt;code&gt;TG_CHAT_ID&lt;/code&gt; | 你的频道 ID |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;第七步：重新部署&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;进入项目的 &lt;strong&gt;Deployments&lt;/strong&gt; 页面&lt;/li&gt;
+&lt;li&gt;找到最新部署记录，点 &lt;strong&gt;...&lt;/strong&gt; → &lt;strong&gt;Retry deployment&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;等待部署完成&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;部署完成后访问 &lt;code&gt;https://你的项目名.pages.dev&lt;/code&gt;，进入管理后台。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;第八步：配置访问码&lt;/h2&gt;
+&lt;p&gt;默认情况下任何人都能上传图片，需要设置访问码：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;访问 &lt;code&gt;https://你的项目名.pages.dev/dashboard&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;系统设置&lt;/strong&gt; → &lt;strong&gt;安全设置&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;设置管理员用户名和密码&lt;/li&gt;
+&lt;li&gt;设置用户端认证码&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;使用方法&lt;/h2&gt;
+&lt;h3&gt;通过网页上传&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;打开图床地址&lt;/li&gt;
+&lt;li&gt;输入认证码&lt;/li&gt;
+&lt;li&gt;选择图片上传&lt;/li&gt;
+&lt;li&gt;复制返回的图片 URL&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;在博客中引用&lt;/h3&gt;
+&lt;p&gt;直接使用 Markdown 图片语法即可：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-markdown&quot;&gt;![图片描述](https://你的图床域名/file/xxx.png)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;前后各空一行，确保图片独占一行。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;踩坑记录&lt;/h2&gt;
+&lt;h3&gt;1. Hugo 编译时图片加载失败&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;现象&lt;/strong&gt;：博客编译后图片不显示，&lt;code&gt;&amp;#x3C;img&gt;&lt;/code&gt; 标签没有 &lt;code&gt;src&lt;/code&gt; 属性&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;原因&lt;/strong&gt;：Hugo 的图片处理功能会尝试下载远程图片进行处理，失败后去掉 &lt;code&gt;src&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;解决&lt;/strong&gt;：在 &lt;code&gt;layouts/_markup/render-image.html&lt;/code&gt; 添加自定义渲染钩子，检测到远程 URL（&lt;code&gt;http://&lt;/code&gt; 或 &lt;code&gt;https://&lt;/code&gt; 开头）时直接输出 &lt;code&gt;&amp;#x3C;img&gt;&lt;/code&gt; 标签，不走 Hugo 图片处理&lt;/p&gt;
+&lt;h3&gt;2. API 上传失败（405 Method Not Allowed）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;现象&lt;/strong&gt;：POST &lt;code&gt;/api/upload&lt;/code&gt; 返回 405&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;原因&lt;/strong&gt;：API 端点是 &lt;code&gt;/upload&lt;/code&gt; 不是 &lt;code&gt;/api/upload&lt;/code&gt;，且认证码要通过 URL 参数传递&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;正确调用方式&lt;/strong&gt;：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;curl -X POST &apos;https://你的图床域名/upload?authCode=你的认证码&amp;#x26;uploadChannel=telegram&apos; \
+  -F &apos;file=@/path/to/image.jpg&apos;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3. KV 绑定找不到入口&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;位置&lt;/strong&gt;：Pages 项目 → 设置 → 左侧菜单 &lt;strong&gt;Bindings&lt;/strong&gt;（不是&quot;函数&quot;）&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/MarSeventh/CloudFlare-ImgBed&quot;&gt;CloudFlare ImgBed 项目&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cfbed.sanyue.de/&quot;&gt;CloudFlare ImgBed 文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://cfbed.sanyue.de/deployment/pages.html&quot;&gt;Cloudflare Pages 部署指南&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「开发环境搭建」系列文章。&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Devtools</category></item><item><title>加热台复刻参考</title><link>https://sukkk-zcy.github.io/blog/embedded/heating-table-replica</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/heating-table-replica</guid><description>加热台复刻的完整参考指南，包含物料清单、焊接接线、组装过程与温控器配置。</description><pubDate>Mon, 20 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;blockquote&gt;
+&lt;p&gt;本项目涉及 220V 交流电，复刻过程中请务必注意安全，认真检查接线无误再通电。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;QQ 交流群：815160214&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2&gt;前期准备&lt;/h2&gt;
+&lt;h3&gt;铝合金外壳&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://gf.jlcfa.com/machine-detail/485423353462165506&quot;&gt;机电工坊-加热台&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;不要忘记印字&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;元器件&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://lcnomepz51b1.feishu.cn/file/%E5%8A%A0%E7%83%AD%E5%8F%B0%E9%9B%B6%E4%BB%B6%E6%B8%85%E5%8D%95.xlsx&quot;&gt;加热台零件清单.xlsx&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;电路板&lt;/h3&gt;
+&lt;p&gt;共需下单 &lt;strong&gt;4 个板&lt;/strong&gt;，注意网页版 EDA 无法识别 eprj 文件，推荐安装嘉立创专业版客户端。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;双击即可打开 eprj 文件，不是导入&lt;/strong&gt;&lt;/em&gt;，eprj 文件无法导入客户端。&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;控制板&lt;/strong&gt;（捷配/嘉立创）&lt;/p&gt;
+&lt;p&gt;材质 FR4，两种尺寸二选一即可，若选择捷配需要先输尺寸，10.5×9.92cm。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;风扇固定板&lt;/strong&gt;（嘉立创）&lt;/p&gt;
+&lt;p&gt;材质 FR4&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;加热片固定板&lt;/strong&gt;（嘉立创）&lt;/p&gt;
+&lt;p&gt;材质 1.6mm 铝基板&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://lcnomepz51b1.feishu.cn/file/%E5%8A%A0%E7%83%AD%E5%8F%B0%E5%B7%A5%E7%A8%8B%E6%96%87%E4%BB%B6.eprj&quot;&gt;加热台工程文件.eprj&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;加热台面&lt;/strong&gt;（嘉立创 CNC）&lt;/p&gt;
+&lt;p&gt;嘉立创 CNC 官网首页免费打样横幅进入，上传 zip 文件即可。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://lcnomepz51b1.feishu.cn/file/%E5%8A%A0%E7%83%AD%E5%8F%B0%E9%9D%A23D%E6%A8%A1%E5%9E%8B.zip&quot;&gt;加热台面 3D 模型.zip&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;光孔&lt;/strong&gt;：约 10 元，但需要攻丝（M3 规格），用电钻攻丝可适当上油，没电钻可用手用丝锥，攻丝时注意进退交替，不要大力出奇迹。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;螺纹孔&lt;/strong&gt;：每个孔加 1 元，动手能力弱的可直接选螺纹孔。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526693915_3D_PCB2_2025-10-05.png&quot; alt=&quot;3D PCB&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526702808_3D_%E9%A3%8E%E6%89%87%E5%9B%BA%E5%AE%9A%E6%9D%BF_2025-10-05.png&quot; alt=&quot;3D 风扇固定板&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526705858_3D_%E5%8A%A0%E7%83%AD%E7%89%87%E5%9B%BA%E5%AE%9A%E6%9D%BF%E9%93%9D%E5%9F%BA%E6%9D%BF_2025-10-05.png&quot; alt=&quot;3D 加热片固定板铝基板&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526707014_Screenshot_2025-10-05-23-00-37-825_com.szjlc.mobi.png&quot; alt=&quot;嘉立创 CNC 截图&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;焊接参考&lt;/h2&gt;
+&lt;p&gt;焊接时注意检查风扇端子与下图风扇端子母座 &lt;strong&gt;正负极线序是否匹配&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;检查线序，检查线序，检查线序，重要的事情说三遍&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526711001_Image_1759675966471.jpg&quot; alt=&quot;风扇端子线序&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;接线说明&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;有压线钳会压端子的只需购买 BOM 清单中的端子即可，无压线钳可购买压好端子的成品线&lt;/li&gt;
+&lt;li&gt;如需购买压线钳，型号推荐 SN2549，普通款 10-20 元即可&lt;/li&gt;
+&lt;li&gt;接线线材自备，电源线注意适当加粗，2.54 端子 0.5 平即可，太粗的线压不了，3.96 端子可使用稍粗的线材&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;em&gt;&lt;strong&gt;接线对照控制板 PCB 丝印&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;L/N&lt;/strong&gt;：接 PCB 温控表电源。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;12V OUT AM2 12V AM1&lt;/strong&gt;：接 5P 的 3.96 端子。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;温控线&lt;/strong&gt;：热电偶的红黄线注意不要接反，否则温度会是负数。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526712829_IMG_20251006_000041.jpg&quot; alt=&quot;接线参考&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;组装过程&lt;/h2&gt;
+&lt;h3&gt;加热台面&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526719679_IMG_20251005_154124.jpg&quot; alt=&quot;组装1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526733041_IMG_20251005_154559.jpg&quot; alt=&quot;组装2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526741552_IMG_20251005_161204.jpg&quot; alt=&quot;组装3&quot;&gt;&lt;/p&gt;
+&lt;h3&gt;上半部分&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526747885_IMG_20251005_154907.jpg&quot; alt=&quot;上半1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526773792_IMG_20251005_155409.jpg&quot; alt=&quot;上半2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526799786_IMG_20251005_172324.jpg&quot; alt=&quot;上半3&quot;&gt;&lt;/p&gt;
+&lt;h3&gt;下半部分&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526806415_IMG_20251005_155700.jpg&quot; alt=&quot;下半1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526826486_IMG_20251005_172707.jpg&quot; alt=&quot;下半2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526847638_IMG_20251005_172711.jpg&quot; alt=&quot;下半3&quot;&gt;&lt;/p&gt;
+&lt;h3&gt;整体组装&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526855504_IMG_20251006_161436.jpeg&quot; alt=&quot;整体1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526860479_IMG_20251006_161410.jpeg&quot; alt=&quot;整体2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526862082_IMG_20251006_161341.jpeg&quot; alt=&quot;整体3&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;温控器配置&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;整机装配完成通电检查无异常后，需先对温控器进行设置才能实现分段加热功能。&lt;/p&gt;
+&lt;p&gt;配置教程摘自立创开源平台枫叶大佬的教程：
+&lt;a href=&quot;https://oshwhub.com/cqlcp/adjustable-timing-constant-temperature-heating-table&quot;&gt;https://oshwhub.com/cqlcp/adjustable-timing-constant-temperature-heating-table&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;进入各参数设置界面的方法请对照 &lt;a href=&quot;https://lcnomepz51b1.feishu.cn/wiki/HisWw9J50iCPg5khWuXcIWN2n7d#share-SSfKdBjecoE7RSxEwa3c5tVFnuc&quot;&gt;温控表说明书&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;务必严格按照教程修改参数，其它 &lt;strong&gt;默认参数不要随意修改&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;将启动复位开关置于复位状态，再打开电源开关。&lt;/li&gt;
+&lt;li&gt;设置第一组三个参数，设置完成后关电源重启。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526867746_image.png&quot; alt=&quot;参数设置1&quot;&gt;&lt;/p&gt;
+&lt;ol start=&quot;3&quot;&gt;
+&lt;li&gt;设置第二组三个参数（以 217°C 中温无铅焊锡膏为例）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526875940_image_1.png&quot; alt=&quot;参数设置2&quot;&gt;&lt;/p&gt;
+&lt;ol start=&quot;4&quot;&gt;
+&lt;li&gt;将 ATU 自整定设置为 0001，然后长按温控器 &quot;SET&quot; 键退出设定模式。&lt;/li&gt;
+&lt;li&gt;将 &quot;模式开关&quot; 置于恒温位，再打开启动开关，此时温控器会自动进行 PID 自整定，AT 灯闪烁。&lt;/li&gt;
+&lt;li&gt;温度逐渐上升到 200 度以上，然后降温到 200 度以下，然后再升温降温……，反复持续几个回合，AT 灯停止闪烁，温度应该被恒温在 200°C 左右。&lt;/li&gt;
+&lt;li&gt;手动单击风扇开关，风扇启动开始降温，直至温度降至 50°C 以下手动关机，设置完成。&lt;/li&gt;
+&lt;li&gt;关机重启后进行测试，测试现象参考下节。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;系统测试&lt;/h2&gt;
+&lt;h3&gt;恒温模式&lt;/h3&gt;
+&lt;p&gt;加热灯亮，温度逐渐升温至预先设定好的 200 度，并维持在 200 度左右。
+使用完毕后，需手动开启风扇降温，此时加热灯灭，风扇灯亮，降温至 30-50 度。&lt;/p&gt;
+&lt;h3&gt;回流模式&lt;/h3&gt;
+&lt;p&gt;加热灯亮，温度逐渐升温至预先设定好的 250 度。&lt;/p&gt;
+&lt;p&gt;达到 250 度自动开启风扇降温，此时加热灯灭，风扇灯亮，降温至 30-50 度。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;开关使用指南&lt;/h2&gt;
+&lt;h3&gt;回流/恒温开关 &amp;#x26;&amp;#x26; 启动/复位开关&lt;/h3&gt;
+&lt;p&gt;可以把这两个开关想象成 &quot;模式选择 + 确认执行&quot; 的组合，就像点外卖选餐然后确认下单一样：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;先看右边的启动/复位开关，确保它是 &quot;复位&quot; 状态（就像你还没点 &quot;确认下单&quot;，处于可以选餐的状态）。&lt;/li&gt;
+&lt;li&gt;操作左边的回流/恒温开关，选 &quot;恒温&quot; 或者 &quot;回流&quot;（就像选 &quot;麻辣烫&quot; 还是 &quot;黄焖鸡&quot;）。&lt;/li&gt;
+&lt;li&gt;再把右边的启动/复位开关打到 &quot;启动&quot;（就像点 &quot;确认下单&quot;，设备开始按照你选的模式工作）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;如果想停止或重新来，就把右边的启动/复位开关打回 &quot;复位&quot;（就像取消订单，一切回到可以重新选的状态）。&lt;/p&gt;
+&lt;h3&gt;风扇开关&lt;/h3&gt;
+&lt;p&gt;手动单击风扇开关即可停止加热，启动风扇降温。&lt;/p&gt;
+&lt;p&gt;风扇无论是自动或手动打开，都不会自动关闭，将右开关打到复位即可关闭风扇。&lt;/p&gt;
+&lt;p&gt;如需继续使用加热台，重新打到启动档位即可。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;温控器配置修改说明&lt;/h2&gt;
+&lt;p&gt;使用不同熔点的焊锡膏，只需要调节 SV AL1 和 AL2 三个参数即可。关于回流焊的温度设置可参考网上相关文章，不同焊料设置温度设置不一样。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;示例 1&lt;/strong&gt;：需要恒温 230 度，将 SV 设置为 230 度保存即可。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;示例 2&lt;/strong&gt;：需要回流 260 度，将 AL2 设置为 260 度即可。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;温控表说明书&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526903329_image_2.png&quot; alt=&quot;温控表说明书1&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784526928615_image_3.png&quot; alt=&quot;温控表说明书2&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文参考自飞书文档，图片来源已迁移至图床。&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Embedded</category></item><item><title>P4 快速入门（三）：环境、控制平面与研究前沿</title><link>https://sukkk-zcy.github.io/blog/p4/p4-03-practice-frontier</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/p4/p4-03-practice-frontier</guid><description>实验环境搭建、P4Runtime 控制平面，以及 P4 方向的当前研究热点</description><pubDate>Sun, 19 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;本文介绍 P4 实验环境的搭建方式、P4Runtime 控制平面的使用方法，以及当前活跃的研究方向。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、实验环境&lt;/h2&gt;
+&lt;p&gt;常用环境方案对比如下：&lt;/p&gt;
+&lt;p&gt;| 方案 | 优点 | 缺点 | 适用场景 |
+|------|------|------|----------|
+| 官方教程 VM / Docker | 即开即用，版本匹配 | 镜像较大 | 学习与常规实验 |
+| 源码编译（p4c + BMv2） | 可修改工具链 | 编译耗时长，依赖多 | 工具链开发 |
+| P4-DPDK（PNA） | 普通服务器接近线速 | 生态较新 | 性能实验 |&lt;/p&gt;
+&lt;p&gt;一般建议直接使用官方 tutorials 提供的 VM / Docker 环境 [1]；如需修改编译器或运行时再源码编译。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[&quot;实验目标&quot;] --&gt;|&quot;学习与验证功能&quot;| B[&quot;官方 VM / Docker&quot;]
+    A --&gt;|&quot;修改工具链&quot;| D[&quot;源码编译 p4c + BMv2&quot;]
+    A --&gt;|&quot;性能测量&quot;| E[&quot;P4-DPDK（PNA）&quot;]
+    B --&gt; F[&quot;编写数据平面程序&quot;]
+    D --&gt; F
+    E --&gt; F
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、工具链&lt;/h2&gt;
+&lt;p&gt;完整流程为：p4c 编译源码，生成 JSON 与 p4info；simple_switch 加载运行；Mininet 构建拓扑并验证。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[&quot;*.p4&quot;] --&gt; B[&quot;p4c&amp;#x3C;br/&gt;--target bmv2 --arch v1model&quot;]
+    B --&gt; C[&quot;JSON + p4info.txt&quot;]
+    C --&gt; D[&quot;simple_switch&quot;]
+    D --&gt; E[&quot;Mininet + 主机发包&quot;]
+    E --&gt; F[&quot;tcpdump / 控制器验证&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;核心命令（承接第二篇示例）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;p4c --target bmv2 --arch v1model l2_forward.p4 -o build
+sudo simple_switch_grpc --no-p4 -- --device-id 0 \
+  --grpc-server-addr 0.0.0.0:50051 \
+  -i 0@veth0 -i 1@veth1 build/l2_forward.json
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;完整实验流程（目录结构、run.sh、commands.txt）见官方 tutorials [1]。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、控制平面：P4Runtime&lt;/h2&gt;
+&lt;p&gt;静态实验中可通过 &lt;code&gt;simple_switch_CLI&lt;/code&gt; 手动下发流表；动态场景下，表项由控制器根据网络状态下发。P4Runtime 是基于 gRPC 的控制平面-数据平面通信协议 [3]，提供：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;表项读写（Write / Read）；&lt;/li&gt;
+&lt;li&gt;管线配置推送；&lt;/li&gt;
+&lt;li&gt;报文收发（Packet-in / Packet-out）；&lt;/li&gt;
+&lt;li&gt;计数器与寄存器状态读取。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;sequenceDiagram
+    participant C as 控制器
+    participant S as P4 交换机
+    C-&gt;&gt;C: 读取 p4info.txt
+    C-&gt;&gt;S: MasterArbitrationUpdate
+    C-&gt;&gt;S: SetForwardingPipelineConfig
+    C-&gt;&gt;S: WriteTableEntry
+    S--&gt;&gt;C: 统计 / Packet-in（可选）
+    C-&gt;&gt;S: SendPacket（可选）
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;以下代码基于官方 &lt;code&gt;p4runtime_lib&lt;/code&gt; [2]：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-python&quot;&gt;from p4runtime_lib.helper import P4InfoHelper
+import p4runtime_lib.bmv2
+
+p4info_helper = P4InfoHelper(&apos;build/l2_forward.p4info.txt&apos;)
+
+sw = p4runtime_lib.bmv2.Bmv2SwitchConnection(
+    name=&apos;s1&apos;, address=&apos;127.0.0.1:50051&apos;,
+    device_id=0, proto_dump_file=&apos;p4runtime.txt&apos;)
+
+sw.MasterArbitrationUpdate()
+sw.SetForwardingPipelineConfig(
+    p4info=p4info_helper.p4info,
+    bmv2_json_path=&apos;build/l2_forward.json&apos;)
+
+te = p4info_helper.build_table_entry(
+    table_name=&apos;MyIngress.l2_forward&apos;,
+    match_fields={&apos;hdr.ethernet.dstAddr&apos;: &apos;00:00:00:00:00:02&apos;},
+    action_name=&apos;MyIngress.forward&apos;,
+    action_params={&apos;egress_port&apos;: 1})
+sw.WriteTableEntry(te)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Packet-in / Packet-out 与 L2 学习交换机的完整实现见官方练习 [1]；协议规范见 &lt;a href=&quot;https://p4.org/p4-specs/p4runtime/&quot;&gt;P4Runtime Specification&lt;/a&gt; [3]。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、架构对比&lt;/h2&gt;
+&lt;p&gt;| 架构 | 全称 | 目标平台 | 特点 |
+|------|------|----------|------|
+| V1Model | — | BMv2 | 学习友好，六块流水线 |
+| PSA | Portable Switch Architecture | 多厂商交换机 | 面向生产，可移植性高 |
+| TNA | Tofino Native Architecture | Intel Tofino | 硬件专用，性能上限高 |&lt;/p&gt;
+&lt;p&gt;学习阶段使用 V1Model；性能实验可考虑 P4-DPDK；TNA 需要 Tofino 硬件，成本较高。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、研究前沿&lt;/h2&gt;
+&lt;p&gt;当前 P4 方向活跃的研究领域：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    ROOT[&quot;P4 研究方向&quot;]
+    ROOT --&gt; A[&quot;带内网络遥测（INT）&quot;]
+    ROOT --&gt; B[&quot;网络内计算&quot;]
+    ROOT --&gt; C[&quot;数据平面安全&quot;]
+    ROOT --&gt; D[&quot;P4 + ML/DL 协同检测&quot;]
+    ROOT --&gt; E[&quot;数据平面验证&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;推荐入口：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Programmable Data Planes for Network Security&lt;/em&gt;（arXiv 2025）：可编程交换机安全应用的系统综述，涵盖 heavy-hitter 检测与 DDoS 缓解 [4]；&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Leveraging programmable data plane for network intrusion detection: A survey&lt;/em&gt;（Computer Networks, 2026）：面向入侵检测的可编程数据平面综述 [5]；&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Advancing SDN from OpenFlow to P4: A Survey&lt;/em&gt;（ACM Computing Surveys, 2023）：第 3 节为应用分类，第 6 节为未来方向 [6]。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;P4 数据平面特征提取与深度学习检测的协同架构是当前活跃的交叉方向 [4][5]。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、下一步&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;完成官方 tutorials 的 hello 与 basic 练习；&lt;/li&gt;
+&lt;li&gt;实现 L2 学习交换机并配合 P4Runtime 控制器；&lt;/li&gt;
+&lt;li&gt;明确研究问题后阅读综述确定 gap；&lt;/li&gt;
+&lt;li&gt;记录实验过程，作为博客与论文素材。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考文献&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;p4lang. &lt;em&gt;P4 Tutorials&lt;/em&gt;. https://github.com/p4lang/tutorials&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;p4runtime_lib&lt;/em&gt;. https://github.com/p4lang/tutorials/tree/master/utils&lt;/li&gt;
+&lt;li&gt;P4 Language Consortium. &lt;em&gt;P4Runtime Specification&lt;/em&gt;. https://p4.org/p4-specs/p4runtime/&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Programmable Data Planes for Network Security&lt;/em&gt;. arXiv:2507.22165, 2025. https://arxiv.org/abs/2507.22165&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Leveraging programmable data plane for network intrusion detection: A survey&lt;/em&gt;. Computer Networks, 2026. https://www.sciencedirect.com/science/article/pii/S1389128626002148&lt;/li&gt;
+&lt;li&gt;A. Liatifis et al. &lt;em&gt;Advancing SDN from OpenFlow to P4: A Survey&lt;/em&gt;. ACM Computing Surveys, 2023. https://doi.org/10.1145/3556973&lt;/li&gt;
+&lt;li&gt;P4 Language Consortium. &lt;em&gt;P4-16 Language Specification v1.2.5&lt;/em&gt;. https://p4.org/p4-specs/&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;behavioral-model（BMv2）&lt;/em&gt;. https://github.com/p4lang/behavioral-model&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「P4 快速入门」系列的第 3 篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → &lt;a href=&quot;/blog/p4/p4-02-language-core&quot;&gt;一次看懂 P4 程序&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>P4</category></item><item><title>P4 快速入门（二）：一次看懂一个 P4 程序</title><link>https://sukkk-zcy.github.io/blog/p4/p4-02-language-core</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/p4/p4-02-language-core</guid><description>通过一个最小可运行示例讲解 header、parser、match-action 与 V1Model 流水线</description><pubDate>Wed, 08 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;本文通过一个最小可运行示例讲解 P4 程序的核心构件：header、parser、match-action 表、control 与 deparser，最后介绍 V1Model 流水线与编译运行方法。语法细节对应规范章节 [1]。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、最小可运行示例&lt;/h2&gt;
+&lt;p&gt;以下程序实现以太网二层转发，可直接用 p4c 编译（环境搭建见第三篇）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-p4&quot;&gt;#include &amp;#x3C;core.p4&gt;
+#include &amp;#x3C;v1model.p4&gt;
+
+/* 1. 报头定义 */
+header ethernet_t {
+    bit&amp;#x3C;48&gt; dstAddr;
+    bit&amp;#x3C;48&gt; srcAddr;
+    bit&amp;#x3C;16&gt; etherType;
+}
+
+header ipv4_t {
+    bit&amp;#x3C;4&gt;  version;
+    bit&amp;#x3C;4&gt;  ihl;
+    bit&amp;#x3C;8&gt;  diffserv;
+    bit&amp;#x3C;16&gt; totalLen;
+    bit&amp;#x3C;16&gt; identification;
+    bit&amp;#x3C;3&gt;  flags;
+    bit&amp;#x3C;13&gt; fragOffset;
+    bit&amp;#x3C;8&gt;  ttl;
+    bit&amp;#x3C;8&gt;  protocol;
+    bit&amp;#x3C;16&gt; hdrChecksum;
+    bit&amp;#x3C;32&gt; srcAddr;
+    bit&amp;#x3C;32&gt; dstAddr;
+}
+
+struct headers {
+    ethernet_t ethernet;
+    ipv4_t     ipv4;
+}
+struct metadata { }
+
+/* 2. Parser：字节流解析为报头 */
+parser MyParser(packet_in pkt, out headers hdr,
+                inout metadata meta, inout standard_metadata_t standard_metadata) {
+    state start {
+        transition parse_ethernet;
+    }
+    state parse_ethernet {
+        pkt.extract(hdr.ethernet);
+        transition select(hdr.ethernet.etherType) {
+            0x0800: parse_ipv4;
+            default: accept;
+        }
+    }
+    state parse_ipv4 {
+        pkt.extract(hdr.ipv4);
+        transition accept;
+    }
+}
+
+/* 3. 入口处理：查表转发 */
+control MyIngress(inout headers hdr, inout metadata meta,
+                  inout standard_metadata_t standard_metadata) {
+    action drop() {
+        mark_to_drop(standard_metadata);
+    }
+    action forward(bit&amp;#x3C;9&gt; egress_port) {
+        standard_metadata.egress_spec = egress_port;
+    }
+    table l2_forward {
+        key = { hdr.ethernet.dstAddr: exact; }
+        actions = { forward; drop; }
+        default_action = drop();
+        size = 1024;
+    }
+    apply {
+        l2_forward.apply();
+    }
+}
+
+/* 4. 出口处理与校验和（此处留空） */
+control MyEgress(inout headers hdr, inout metadata meta,
+                 inout standard_metadata_t standard_metadata) {
+    apply { }
+}
+control VerifyChecksum(inout headers hdr, inout metadata meta) {
+    apply { }
+}
+control ComputeChecksum(inout headers hdr, inout metadata meta) {
+    apply { }
+}
+
+/* 5. Deparser：报头重新打包 */
+control MyDeparser(packet_out pkt, in headers hdr) {
+    apply {
+        pkt.emit(hdr.ethernet);
+        pkt.emit(hdr.ipv4);
+    }
+}
+
+/* 6. 按 V1Model 顺序组装 */
+V1Switch(MyParser(), VerifyChecksum(), MyIngress(),
+         MyEgress(), ComputeChecksum(), MyDeparser()) main;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;程序流程：解析以太网头，IPv4 报文继续解析，查表决定转发端口或丢弃，重新打包发出。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、核心构件&lt;/h2&gt;
+&lt;h3&gt;Header：报头定义&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;header&lt;/code&gt; 描述协议头布局，字段为定宽整数 &lt;code&gt;bit&amp;#x3C;W&gt;&lt;/code&gt;。相关概念（规范 §7）[1]：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;struct&lt;/code&gt;：组合多个报头；&lt;/li&gt;
+&lt;li&gt;header stack：表示重复报头（如 VLAN 标签栈）。P4-16 使用数组语法 &lt;code&gt;vlan_tag[2]&lt;/code&gt;，P4-14 的 &lt;code&gt;header_stack&amp;#x3C;...&gt;&lt;/code&gt; 已废弃（规范 §7.2.3）；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;union&lt;/code&gt;：表示互斥报头（IPv4 / IPv6 二选一）；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;isValid()&lt;/code&gt;：仅被 &lt;code&gt;extract&lt;/code&gt; 过的报头有效。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    H[&quot;header&quot;] --&gt; S[&quot;struct（报头集合）&quot;]
+    H --&gt; ST[&quot;header stack&amp;#x3C;br/&gt;H[n] 数组语法&quot;]
+    H --&gt; U[&quot;union（互斥报头）&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Parser：报文解析状态机&lt;/h3&gt;
+&lt;p&gt;parser 为有限状态机：每个状态 &lt;code&gt;extract&lt;/code&gt; 提取字节，&lt;code&gt;select&lt;/code&gt; 按字段值选择后续状态（规范 §13）[1]。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;stateDiagram-v2
+    [*] --&gt; parse_ethernet
+    parse_ethernet --&gt; parse_ipv4 : etherType == 0x0800
+    parse_ethernet --&gt; parse_arp : etherType == 0x0806
+    parse_ethernet --&gt; accept : default
+    parse_ipv4 --&gt; accept
+    parse_arp --&gt; accept
+    accept --&gt; [*]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;常用原语：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-p4&quot;&gt;pkt.extract(hdr.ethernet);                    // 提取以太网头
+transition select(hdr.ethernet.etherType) {   // 按 etherType 跳转
+    0x0800: parse_ipv4;
+    default: accept;
+}
+verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);  // 校验失败进入 reject
+bit&amp;#x3C;16&gt; t = lookahead(bit&amp;#x3C;16&gt;);               // 预览但不消费字节
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Match-Action：匹配-动作表&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;table&lt;/code&gt; 声明匹配字段（key）与可选动作（actions），命中后执行对应 action。三种匹配类型：&lt;/p&gt;
+&lt;p&gt;| 匹配类型 | 语义 | 典型用途 |
+|----------|------|----------|
+| &lt;code&gt;exact&lt;/code&gt; | 全比特精确匹配 | MAC 表、VLAN 表 |
+| &lt;code&gt;lpm&lt;/code&gt; | 最长前缀匹配 | IP 路由表 |
+| &lt;code&gt;ternary&lt;/code&gt; | 值 + 掩码 | ACL、流量分类 |&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[&quot;报文到达&quot;] --&gt; B[&quot;按 key 查表&quot;]
+    B --&gt;|&quot;命中&quot;| C[&quot;执行 action&quot;]
+    B --&gt;|&quot;未命中&quot;| D[&quot;执行 default_action&quot;]
+    C --&gt; E[&quot;继续流水线 / 发出&quot;]
+    D --&gt; E
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;数据面状态通过 &lt;code&gt;counter&lt;/code&gt; / &lt;code&gt;meter&lt;/code&gt; / &lt;code&gt;register&lt;/code&gt; 维护。注意 v1model 中表属性 &lt;code&gt;counters&lt;/code&gt; 仅可绑定 &lt;code&gt;direct_counter&lt;/code&gt;；普通 &lt;code&gt;counter&lt;/code&gt; 需在 action 中显式调用 &lt;code&gt;count(index)&lt;/code&gt; [2]。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-p4&quot;&gt;// direct_counter：绑定到表，命中表项自动计数
+direct_counter(CounterType.PACKETS_AND_BYTES) port_counter;
+table l2_forward {
+    key = { hdr.ethernet.dstAddr: exact; }
+    actions = { forward; drop; }
+    counters = port_counter;
+}
+
+// 普通 counter：在 action 中显式计数
+counter&amp;#x3C;bit&amp;#x3C;64&gt;, bit&amp;#x3C;32&gt;&gt;(1024, CounterType.PACKETS_AND_BYTES) flow_counter;
+action count_packet() {
+    flow_counter.count((bit&amp;#x3C;32&gt;)standard_metadata.ingress_port);
+}
+
+// register：按索引读写的数据平面存储
+register&amp;#x3C;bit&amp;#x3C;32&gt;&gt;(1024) per_port_pps;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Control 与 Deparser&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;control&lt;/code&gt; 的 &lt;code&gt;apply&lt;/code&gt; 为处理逻辑入口，按顺序执行查表、判断与字段修改。Deparser 通过 &lt;code&gt;emit&lt;/code&gt; 按序输出报头，未 emit 的报头将从报文中移除。&lt;/p&gt;
+&lt;p&gt;P4-16 控制块不提供 &lt;code&gt;for&lt;/code&gt; 循环（语言设计保证每包处理时间有界，循环仅存在于 parser 状态机，规范 §11）[1]。遍历 header stack 需展开：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-p4&quot;&gt;apply {
+    if (hdr.vlan[0].isValid()) {
+        hdr.vlan[0].vid = hdr.vlan[0].vid + 1;
+    }
+    if (hdr.vlan[1].isValid()) {
+        hdr.vlan[1].vid = hdr.vlan[1].vid + 1;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、V1Model 流水线&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;V1Switch(...)&lt;/code&gt; 是 BMv2 的参考架构 V1Model，规定六个块的固定执行顺序（规范 §12）[1]。其他架构（PSA、TNA）的流水线结构不同。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    P[&quot;Parser&amp;#x3C;br/&gt;解析报文&quot;] --&gt; V[&quot;VerifyChecksum&amp;#x3C;br/&gt;校验和验证（可选）&quot;]
+    V --&gt; I[&quot;MyIngress&amp;#x3C;br/&gt;入口处理&quot;]
+    I --&gt; E[&quot;MyEgress&amp;#x3C;br/&gt;出口处理&quot;]
+    E --&gt; C[&quot;ComputeChecksum&amp;#x3C;br/&gt;计算校验和（可选）&quot;]
+    C --&gt; D[&quot;MyDeparser&amp;#x3C;br/&gt;打包&quot;]
+    D --&gt; OUT[&quot;报文离开&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;| 块 | 作用 |
+|----|------|
+| &lt;code&gt;Parser&lt;/code&gt; | 字节流解析为报头 |
+| &lt;code&gt;VerifyChecksum&lt;/code&gt; | 校验和验证（可选） |
+| &lt;code&gt;MyIngress&lt;/code&gt; | 入口处理：查表、修改报头、决定出端口 |
+| &lt;code&gt;MyEgress&lt;/code&gt; | 出口处理 |
+| &lt;code&gt;ComputeChecksum&lt;/code&gt; | 计算校验和（可选） |
+| &lt;code&gt;MyDeparser&lt;/code&gt; | 报头重新打包 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、编译与运行&lt;/h2&gt;
+&lt;p&gt;将上述代码保存为 &lt;code&gt;l2_forward.p4&lt;/code&gt;，在已安装 P4 工具链的环境中：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;p4c --target bmv2 --arch v1model l2_forward.p4 -o build
+sudo simple_switch --log-console -i 0@veth0 -i 1@veth1 build/l2_forward.json
+simple_switch_CLI
+table_add MyIngress.l2_forward forward 00:00:00:00:00:02 =&gt; 1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;预期行为：目的 MAC 为 &lt;code&gt;00:00:00:00:00:02&lt;/code&gt; 的报文从端口 1 转发，其余报文被默认动作丢弃。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、常见编译错误&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;header stack 未使用 P4-16 数组语法；&lt;/li&gt;
+&lt;li&gt;控制块中使用 &lt;code&gt;for&lt;/code&gt; 循环；&lt;/li&gt;
+&lt;li&gt;counter 绑定方式错误（应使用 &lt;code&gt;direct_counter&lt;/code&gt;）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考文献&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;P4 Language Consortium. &lt;em&gt;P4-16 Language Specification v1.2.5&lt;/em&gt;（类型 §7、语句 §11、架构 §12、Parser §13）. https://p4.org/p4-specs/&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;v1model.p4&lt;/em&gt;. https://github.com/p4lang/p4c/blob/main/p4include/v1model.p4&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;p4c&lt;/em&gt;. https://github.com/p4lang/p4c&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;P4 Tutorials&lt;/em&gt;. https://github.com/p4lang/tutorials&lt;/li&gt;
+&lt;li&gt;张恒华. &lt;em&gt;P4 中文教程&lt;/em&gt;. https://github.com/zhh2001/p4-language-guide-zh&lt;/li&gt;
+&lt;/ol&gt;
+&lt;blockquote&gt;
+&lt;p&gt;说明：示例结构参考官方 tutorials 的 basic 练习，完整练习与答案见 [4]。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「P4 快速入门」系列的第 2 篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → &lt;a href=&quot;/blog/p4/p4-01-quickstart-overview&quot;&gt;可编程数据平面，从黑盒到白盒&lt;/a&gt; | 下一篇 → &lt;a href=&quot;/blog/p4/p4-03-practice-frontier&quot;&gt;环境、控制平面与研究前沿&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>P4</category></item><item><title>P4 快速入门（一）：可编程数据平面，从黑盒到白盒</title><link>https://sukkk-zcy.github.io/blog/p4/p4-01-quickstart-overview</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/p4/p4-01-quickstart-overview</guid><description>P4 解决了什么问题、PISA 架构、生态与学习路径——一篇建立整体认知的入门文</description><pubDate>Wed, 01 Jul 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;本文面向已了解 SDN 基本概念、准备学习 P4 的读者，介绍三部分内容：P4 解决的问题、整体架构、推荐的学习路径。语言与实验细节见系列第二、三篇。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、传统网络设备的局限&lt;/h2&gt;
+&lt;p&gt;传统交换机和路由器的转发逻辑在出厂时由固件固定：能解析哪些协议、匹配哪些字段、执行哪些动作，均为预定义。验证新协议只能等待厂商更新固件或自行设计硬件，对研究者而言都不现实。这一困境在 2008 年的 OpenFlow 论文中被明确提出 [2]。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[&quot;传统网络&amp;#x3C;br/&gt;硬件与协议绑定&amp;#x3C;br/&gt;功能由厂商固件决定&quot;] --&gt;|&quot;控制面与转发面分离&quot;| B[&quot;SDN + OpenFlow&amp;#x3C;br/&gt;控制面可编程&amp;#x3C;br/&gt;数据面仍是固定黑盒&quot;]
+    B --&gt;|&quot;数据面也可编程&quot;| C[&quot;P4 可编程数据平面&amp;#x3C;br/&gt;协议无关 · 目标无关 · 可重配置&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、OpenFlow：控制面可编程，数据面仍然固定&lt;/h2&gt;
+&lt;p&gt;OpenFlow 将控制逻辑从转发设备中抽出，集中到控制器，通过流表（匹配字段 + 动作）指导交换机转发 [2]。控制器因此可以编程，但流表的匹配字段集合由规范预定义（MAC、IP、端口等），数据面本身不可修改：无法解析自定义协议，也无法改变处理流水线。&lt;/p&gt;
+&lt;p&gt;这是 P4 相关综述反复强调的论点：OpenFlow 并未完全实现 SDN 愿景，数据面可编程是下一代 SDN 的关键 [3]。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、P4：数据面可编程&lt;/h2&gt;
+&lt;p&gt;P4（Programming Protocol-independent Packet Processors）由 Bosshart 等人于 2014 年在 SIGCOMM 提出 [1]，目标是把数据面的处理逻辑定义为可编译、可部署、可重新配置的程序。其三个设计目标：&lt;/p&gt;
+&lt;p&gt;| 目标 | 含义 |
+|------|------|
+| 可重配置 | 转发逻辑可通过重新编译部署修改，无需更换硬件 |
+| 协议无关 | 匹配与处理的字段由用户定义，不受厂商限制 |
+| 目标无关 | 同一份程序可编译到软件交换机、ASIC、FPGA 等目标 |&lt;/p&gt;
+&lt;p&gt;P4 将可编程交换机抽象为 PISA（Protocol-independent Switch Architecture）流水线 [3][4]：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[&quot;报文进入&quot;] --&gt; P[&quot;Parser&amp;#x3C;br/&gt;解析报头&quot;]
+    P --&gt; M[&quot;Match-Action&amp;#x3C;br/&gt;查表与执行动作&quot;]
+    M --&gt; D[&quot;Deparser&amp;#x3C;br/&gt;重新打包&quot;]
+    D --&gt; B[&quot;报文离开&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;PISA 三段分别对应解析输入、查表处理、序列化输出。语言设计保证每个报文的处理操作次数有界，因此性能可预期 [4]。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、与 OpenFlow 的区别&lt;/h2&gt;
+&lt;p&gt;| 对比项 | OpenFlow | P4 |
+|--------|----------|-----|
+| 可编程范围 | 仅控制面 | 控制面 + 数据面 |
+| 匹配字段 | 预定义（MAC、IP 等） | 用户自定义 |
+| 协议支持 | 固定协议集合 | 任意协议，可现场重配置 |
+| 运行平台 | 支持 OpenFlow 的交换机 | BMv2 / Tofino / FPGA |
+| 南向接口 | OpenFlow 协议 | P4Runtime（gRPC） |&lt;/p&gt;
+&lt;p&gt;简言之：OpenFlow 使控制面可编程，P4 使整个数据面可编程。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、生态与运行平台&lt;/h2&gt;
+&lt;p&gt;学习阶段不需要专用硬件。常用组合为 p4c 编译器、BMv2 软件交换机、Mininet 拓扑仿真与 P4Runtime 控制平面，均可运行于普通计算机 [5][6][7]。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    SRC[&quot;P4 源码&quot;] --&gt; C[&quot;p4c 编译器&quot;]
+    C --&gt;|&quot;bmv2 后端&quot;| BM[&quot;BMv2 软件交换机&quot;]
+    C --&gt;|&quot;Tofino 后端&quot;| TF[&quot;Intel Tofino ASIC&quot;]
+    C --&gt;|&quot;DPDK 后端&quot;| DPDK[&quot;P4-DPDK&quot;]
+    BM --&gt; CTL[&quot;P4Runtime 控制平面&quot;]
+    TF --&gt; CTL
+    DPDK --&gt; CTL
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、学习路径&lt;/h2&gt;
+&lt;p&gt;建议以官方练习为主线，规范与中文资料为辅：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;完成官方 tutorials 的 hello 与 basic 练习 [6]；&lt;/li&gt;
+&lt;li&gt;语法细节查阅 P4-16 规范 [4]；&lt;/li&gt;
+&lt;li&gt;中文资料可参考张恒华《P4 中文教程》（覆盖规范、V1Model 与 P4Runtime）[8]；&lt;/li&gt;
+&lt;li&gt;确定研究方向前阅读相关综述（如 ACM Computing Surveys 2023 [3]）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[&quot;官方 tutorials&amp;#x3C;br/&gt;hello → basic → p4runtime&quot;] --&gt; B[&quot;本系列第二篇&amp;#x3C;br/&gt;P4 语言核心&quot;]
+    B --&gt; C[&quot;本系列第三篇&amp;#x3C;br/&gt;环境与 P4Runtime&quot;]
+    C --&gt; D[&quot;查阅规范与中文教程&quot;]
+    D --&gt; E[&quot;阅读综述，确定选题&quot;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考文献&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;P. Bosshart, D. Daly, G. Gibb, et al. &lt;em&gt;P4: Programming Protocol-Independent Packet Processors&lt;/em&gt;. ACM SIGCOMM 2014. https://doi.org/10.1145/2740070.2626294&lt;/li&gt;
+&lt;li&gt;N. McKeown, T. Anderson, H. Balakrishnan, et al. &lt;em&gt;OpenFlow: Enabling Innovation in Campus Networks&lt;/em&gt;. ACM SIGCOMM CCR 2008. https://doi.org/10.1145/1355734.1355746&lt;/li&gt;
+&lt;li&gt;A. Liatifis, P. Sarigiannidis, V. Argyriou, T. Lagkas. &lt;em&gt;Advancing SDN from OpenFlow to P4: A Survey&lt;/em&gt;. ACM Computing Surveys, 2023. https://doi.org/10.1145/3556973&lt;/li&gt;
+&lt;li&gt;P4 Language Consortium. &lt;em&gt;P4-16 Language Specification v1.2.5&lt;/em&gt;. https://p4.org/p4-specs/&lt;/li&gt;
+&lt;li&gt;P4.org. &lt;em&gt;P4 官网&lt;/em&gt;. https://p4.org/&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;P4 Tutorials&lt;/em&gt;. https://github.com/p4lang/tutorials&lt;/li&gt;
+&lt;li&gt;p4lang. &lt;em&gt;behavioral-model（BMv2）&lt;/em&gt;. https://github.com/p4lang/behavioral-model&lt;/li&gt;
+&lt;li&gt;张恒华. &lt;em&gt;P4 中文教程&lt;/em&gt;. https://github.com/zhh2001/p4-language-guide-zh&lt;/li&gt;
+&lt;li&gt;左青云 等. &lt;em&gt;基于 OpenFlow 的 SDN 技术研究&lt;/em&gt;. 计算机应用研究, 2013.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「P4 快速入门」系列的第 1 篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：下一篇 → &lt;a href=&quot;/blog/p4/p4-02-language-core&quot;&gt;一次看懂 P4 程序&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>P4</category></item><item><title>SDN 知识总结</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-07-knowledge-summary</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-07-knowledge-summary</guid><description>SDN 入门知识回顾、思维导图整理与 Mininet 实验巩固</description><pubDate>Tue, 30 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;把前面学到的知识串成一个完整的知识体系。这一周从 SDN 概念到 Mininet 实验，再到入侵检测和 ML 应用，建立了比较完整的入门认知。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、知识回顾&lt;/h2&gt;
+&lt;h3&gt;SDN 是什么&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;传统网络的困境：控制与转发紧耦合，各自为政&lt;/li&gt;
+&lt;li&gt;SDN 核心思想：把控制权集中，设备只负责转发&lt;/li&gt;
+&lt;li&gt;三层架构：应用层 / 控制层 / 数据层&lt;/li&gt;
+&lt;li&gt;三大接口：南向（OpenFlow）、北向（REST API（Application Programming Interface，应用程序编程接口））、东西向（控制器间通信）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;SDN 架构深入&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;控制层与数据层解耦的机制&lt;/li&gt;
+&lt;li&gt;控制器的职责：全网视图、路径计算、流表下发&lt;/li&gt;
+&lt;li&gt;常见控制器：Ryu、Floodlight、ONOS、OpenDaylight&lt;/li&gt;
+&lt;li&gt;三大接口的详细职责与协作&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;OpenFlow 协议详解&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;流表结构：匹配字段、优先级、计数器、动作集&lt;/li&gt;
+&lt;li&gt;多级流表：流水线式匹配（Goto-Table）&lt;/li&gt;
+&lt;li&gt;组表：All/Select/Indirect/Fast Failover 四种类型&lt;/li&gt;
+&lt;li&gt;计量表：限速、标记、QoS（Quality of Service，服务质量）&lt;/li&gt;
+&lt;li&gt;控制器与交换机的消息交互&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Mininet 实验&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;WSL2 + Ubuntu 24.04 环境搭建&lt;/li&gt;
+&lt;li&gt;Mininet 安装（含 pep8 兼容性修复）&lt;/li&gt;
+&lt;li&gt;基础拓扑实验：default / single-3 / linear-4&lt;/li&gt;
+&lt;li&gt;自定义 Python 拓扑（2 交换机 + 4 主机）&lt;/li&gt;
+&lt;li&gt;tcpdump 抓包观察流量&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;网络入侵检测入门&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;SDN 面临的安全威胁&lt;/li&gt;
+&lt;li&gt;DDoS（Distributed Denial of Service，分布式拒绝服务）攻击分类（按目标、按特征）&lt;/li&gt;
+&lt;li&gt;三大检测方法：统计 / 机器学习 / 深度学习&lt;/li&gt;
+&lt;li&gt;SDN + 入侵检测的结合方式&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;ML/AI + SDN 前沿&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;ML（Machine Learning，机器学习）在 SDN 的三大应用：流量分类、异常检测、路由优化&lt;/li&gt;
+&lt;li&gt;传统方法 vs ML vs DL（Deep Learning，深度学习）全面对比&lt;/li&gt;
+&lt;li&gt;Transformer 与 LLM（Large Language Model，大语言模型）在网络安全中的探索&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、思维导图&lt;/h2&gt;
+&lt;p&gt;把 SDN 入门知识整理成知识图谱，分为五个模块：&lt;/p&gt;
+&lt;h3&gt;1. 基础概念与 OpenFlow 协议&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    subgraph &quot;基础&quot;[基础概念]
+        A[传统网络的问题]
+        B[三层架构]
+        B --&gt; B1[应用层]
+        B --&gt; B2[控制层 SDN 控制器]
+        B --&gt; B3[数据层 按流表转发]
+        C[三大接口]
+        C --&gt; C1[南向 OpenFlow]
+        C --&gt; C2[北向 REST API]
+        C --&gt; C3[东西向 控制器之间]
+    end
+    subgraph &quot;of&quot;[OpenFlow 协议]
+        D[流表]
+        D --&gt; D1[匹配字段]
+        D --&gt; D2[优先级与计数器]
+        D --&gt; D3[动作集]
+        E[多级流表 Goto-Table]
+        F[组表]
+        F --&gt; F1[All 广播]
+        F --&gt; F2[Select 负载均衡]
+        F --&gt; F3[Fast Failover 故障切换]
+        G[计量表 限速与 QoS]
+        H[消息类型]
+        H --&gt; H1[控制器到交换机]
+        H --&gt; H2[交换机到控制器]
+        H --&gt; H3[对称消息]
+    end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;2. Mininet 实验与安全检测&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    subgraph &quot;mn&quot;[Mininet 实验]
+        I[环境 WSL2 + Ubuntu]
+        J[拓扑类型]
+        J --&gt; J1[default 1+2]
+        J --&gt; J2[single 1+N]
+        J --&gt; J3[linear N串联]
+        J --&gt; J4[自定义 Python]
+        K[工具]
+        K --&gt; K1[pingall 连通性]
+        K --&gt; K2[iperf 带宽]
+        K --&gt; K3[tcpdump 抓包]
+    end
+    subgraph &quot;sec&quot;[安全与入侵检测]
+        L[SDN 安全威胁]
+        L --&gt; L1[控制器攻击]
+        L --&gt; L2[流表溢出]
+        L --&gt; L3[欺骗与中间人攻击]
+        M[DDoS 攻击分类]
+        N[检测方法]
+        N --&gt; N1[统计方法]
+        N --&gt; N2[机器学习]
+        N --&gt; N3[深度学习]
+    end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3. ML + SDN 前沿&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    P[流量分类与 QoS] --&gt; Q[异常检测]
+    Q --&gt; R[路由优化]
+    R --&gt; S[前沿趋势]
+    S --&gt; S1[Transformer]
+    S --&gt; S2[LLM 大语言模型]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、Mininet 实验巩固&lt;/h2&gt;
+&lt;p&gt;再跑几个实验巩固手感：&lt;/p&gt;
+&lt;h3&gt;3.1 星型拓扑&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --topo single,4 --test pingall
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;拓扑图：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    s1(交换机 s1) --- h1(h1)
+    s1 --- h2(h2)
+    s1 --- h3(h3)
+    s1 --- h4(h4)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;4 台主机都连在同 1 台交换机上，任何两台之间只需经过 1 跳。结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*** Results: 0% dropped (12/12 received)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.2 树形拓扑&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --topo tree,depth=2,fanout=2 --test pingall
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;深度 2、分支因子 2 的树形拓扑，共 4 台主机 + 3 台交换机。拓扑结构：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    s1(交换机 s1) --- s2(交换机 s2)
+    s1 --- s3(交换机 s3)
+    s2 --- h1(h1)
+    s2 --- h2(h2)
+    s3 --- h3(h3)
+    s3 --- h4(h4)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.3 iperf 带宽对比&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --topo single,2
+mininet&gt; iperf
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;单跳（经过 1 台交换机）的 TCP 带宽通常在 90+ Gbits/sec（内存转发），多跳会略有下降但差异不大——因为 Mininet 的虚拟链路本质上走的是内核内存。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、遗留问题清单&lt;/h2&gt;
+&lt;p&gt;学习中可能还不太清楚的问题：&lt;/p&gt;
+&lt;p&gt;| 问题 | 优先级 | 计划解决时间 |
+|------|--------|------------|
+| Ryu 控制器如何编写简单的 L2 Switch | 高 | 后续 |
+| 如何在 Mininet 中运行 Ryu 控制器 | 高 | 后续 |
+| P4 环境搭建与第一个 P4 程序 | 高 | 下一篇 |
+| 深度学习模型如何部署到实际网络中 | 低 | 后续研究 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 复习 | 回顾全部内容 |
+| 整理 | 完成 SDN 入门知识体系思维导图 |
+| 实验 | 星型拓扑、树形拓扑 pingall，iperf 带宽对比 |
+| 规划 | 列出遗留问题，为 P4 学习做准备 |
+| 下一篇预告 | P4 系列：从 OpenFlow 到 P4 可编程数据面（独立系列） |&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第7篇（完结）。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → ML 与 SDN&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item><item><title>Nushell + Starship 终端环境配置指南</title><link>https://sukkk-zcy.github.io/blog/devtools/nushell-starship-guide</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/nushell-starship-guide</guid><description>Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。</description><pubDate>Sun, 28 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;简介&lt;/h2&gt;
+&lt;h3&gt;Nushell&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://www.nushell.sh/&quot;&gt;Nushell&lt;/a&gt;（简称 Nu）是一个全新的 Shell，与传统 Shell 最大的区别在于它将一切视为&lt;strong&gt;结构化数据&lt;/strong&gt;（表格、列表、记录），而不是纯文本流。这意味着你可以像操作数据库一样操作命令行输出：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;ls | where size &gt; 1mb | sort-by modified
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Nu 同时支持 Windows / macOS / Linux，当前最新稳定版为 &lt;strong&gt;0.113.1&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3&gt;Starship&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&quot;https://starship.rs/&quot;&gt;Starship&lt;/a&gt; 是一个用 Rust 编写的 Shell 提示符工具，速度极快（每次渲染约 1-5ms），使用&lt;strong&gt;单一的 TOML 配置文件&lt;/strong&gt;，可以跨 Shell（Bash、Zsh、Fish、PowerShell、Nushell）共享同一套配置。当前最新版本为 &lt;strong&gt;1.25.1&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;安装 Nushell&lt;/h2&gt;
+&lt;h3&gt;方式一：winget（推荐 / Windows）&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;winget install nushell
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式二：Scoop&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;scoop install nu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式三：cargo&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;cargo install nu --locked
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;安装完成后，在终端输入 &lt;code&gt;nu&lt;/code&gt; 即可进入 Nushell。&lt;/p&gt;
+&lt;h3&gt;设置 Nushell 为默认 Shell&lt;/h3&gt;
+&lt;p&gt;在 Windows Terminal 中，进入设置 → 配置文件 → 添加新配置文件，命令行指向 Nu 可执行文件路径：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;C:\Users\&amp;#x3C;用户名&gt;\AppData\Local\Programs\nu\bin\nu.exe
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;也可以在 PowerShell 中通过 &lt;code&gt;$PROFILE&lt;/code&gt; 添加：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;nu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;配置 Nushell&lt;/h2&gt;
+&lt;p&gt;Nushell 的配置文件位于 &lt;code&gt;%AppData%\nushell\config.nu&lt;/code&gt;，在 Nu 中可以用以下命令直接打开：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;config nu
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;以下是实际使用的配置（&lt;code&gt;C:\Users\29016\AppData\Roaming\nushell\config.nu&lt;/code&gt;）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;# Nushell Configuration
+
+use std
+
+# ─── Starship Prompt ───────────────────────────────────────────
+$env.STARSHIP_SHELL = &quot;nu&quot;
+$env.PROMPT_COMMAND = { ||
+    starship prompt --cmd-duration $env.CMD_DURATION_MS $&quot;--status=($env.LAST_EXIT_CODE)&quot;
+}
+$env.PROMPT_COMMAND_RIGHT = &quot;&quot;
+$env.PROMPT_INDICATOR = &quot;&quot;
+$env.PROMPT_INDICATOR_VI_INSERT = &quot;: &quot;
+$env.PROMPT_INDICATOR_VI_NORMAL = &quot;〉&quot;
+$env.PROMPT_MULTILINE_INDICATOR = &quot;::: &quot;
+
+# ─── Editor ───────────────────────────────────────────────────
+$env.EDITOR = &quot;notepad&quot;
+$env.VISUAL = &quot;notepad&quot;
+
+# ─── Aliases ──────────────────────────────────────────────────
+alias ll = ls -l
+alias la = ls -a
+alias lla = ls -la
+alias g = git
+alias c = clear
+alias vim = nvim
+alias python = python3
+
+# ─── PATH ─────────────────────────────────────────────────────
+$env.Path = ($env.Path | split row (char esep) | append &apos;C:\Users\29016\AppData\Local\Programs\nu\bin&apos;)
+
+# ─── Default Configurations ──────────────────────────────────
+$env.config.show_banner = false   # 隐藏启动 banner
+$env.config.history.max_size = 10000
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;配置说明&lt;/h3&gt;
+&lt;p&gt;| 配置项 | 说明 |
+|--------|------|
+| &lt;code&gt;$env.STARSHIP_SHELL = &quot;nu&quot;&lt;/code&gt; | 告诉 Starship 当前 Shell 是 Nushell |
+| &lt;code&gt;$env.PROMPT_COMMAND&lt;/code&gt; | 设置 Starship 为主提示符，传递持续时间和退出状态码 |
+| &lt;code&gt;$env.PROMPT_INDICATOR&lt;/code&gt; | 普通模式下提示符为空（由 Starship 接管） |
+| &lt;code&gt;$env.PROMPT_INDICATOR_VI_INSERT&lt;/code&gt; | VI 插入模式提示符设为 &lt;code&gt;: &lt;/code&gt; |
+| &lt;code&gt;$env.PROMPT_INDICATOR_VI_NORMAL&lt;/code&gt; | VI 普通模式提示符 |
+| &lt;code&gt;show_banner = false&lt;/code&gt; | 隐藏 Nushell 启动时的 logo 横幅 |
+| &lt;code&gt;history.max_size = 10000&lt;/code&gt; | 限制历史记录最大条数 |&lt;/p&gt;
+&lt;h3&gt;别名一览&lt;/h3&gt;
+&lt;p&gt;| 别名 | 等价命令 |
+|------|----------|
+| &lt;code&gt;ll&lt;/code&gt; | &lt;code&gt;ls -l&lt;/code&gt; |
+| &lt;code&gt;la&lt;/code&gt; | &lt;code&gt;ls -a&lt;/code&gt; |
+| &lt;code&gt;lla&lt;/code&gt; | &lt;code&gt;ls -la&lt;/code&gt; |
+| &lt;code&gt;g&lt;/code&gt; | &lt;code&gt;git&lt;/code&gt; |
+| &lt;code&gt;c&lt;/code&gt; | &lt;code&gt;clear&lt;/code&gt; |
+| &lt;code&gt;vim&lt;/code&gt; | &lt;code&gt;nvim&lt;/code&gt; |
+| &lt;code&gt;python&lt;/code&gt; | &lt;code&gt;python3&lt;/code&gt; |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;安装 Starship&lt;/h2&gt;
+&lt;h3&gt;方式一：winget（Windows）&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;winget install starship
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;方式二：官方安装脚本&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;curl -sS https://starship.rs/install.sh | sh
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;验证安装&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;starship --version
+# starship 1.25.1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;配置 Starship&lt;/h2&gt;
+&lt;p&gt;Starship 的配置文件位于 &lt;code&gt;~\.config\starship.toml&lt;/code&gt;（即 &lt;code&gt;C:\Users\&amp;#x3C;用户名&gt;\.config\starship.toml&lt;/code&gt;）。&lt;/p&gt;
+&lt;h3&gt;使用预设快速起步&lt;/h3&gt;
+&lt;p&gt;Starship 内置了 12 个官方预设，推荐使用 Gruvbox Rainbow：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;starship preset gruvbox-rainbow -o ~\.config\starship.toml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;其他热门预设：&lt;/p&gt;
+&lt;p&gt;| 预设 | 风格 |
+|------|------|
+| &lt;code&gt;gruvbox-rainbow&lt;/code&gt; | 温暖大地色 + Powerline 箭头（推荐） |
+| &lt;code&gt;tokyo-night&lt;/code&gt; | 深色蓝紫冷色调 |
+| &lt;code&gt;pastel-powerline&lt;/code&gt; | 粉彩 Powerline 风格 |
+| &lt;code&gt;catppuccin-powerline&lt;/code&gt; | Catppuccin 主题 |
+| &lt;code&gt;pure-preset&lt;/code&gt; | 极简单行提示符 |
+| &lt;code&gt;no-runtime-versions&lt;/code&gt; | 不显示运行时版本信息 |&lt;/p&gt;
+&lt;h3&gt;自定义配置&lt;/h3&gt;
+&lt;p&gt;以下是在 Gruvbox Rainbow 预设基础上实际使用的完整配置：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-toml&quot;&gt;&quot;$schema&quot; = &apos;https://starship.rs/config-schema.json&apos;
+
+scan_timeout = 500
+
+format = &quot;&quot;&quot;
+[](color_orange)\
+$os\
+$username\
+[](bg:color_yellow fg:color_orange)\
+$directory\
+[](fg:color_yellow bg:color_aqua)\
+$git_branch\
+$git_status\
+[](fg:color_aqua bg:color_blue)\
+$c\
+$cpp\
+$rust\
+$golang\
+$nodejs\
+$bun\
+$php\
+$java\
+$kotlin\
+$haskell\
+$python\
+[](fg:color_blue bg:color_bg3)\
+$docker_context\
+$conda\
+$pixi\
+[](fg:color_bg3 bg:color_bg1)\
+$time\
+[ ](fg:color_bg1)\
+$line_break$character&quot;&quot;&quot;
+
+palette = &apos;gruvbox_dark&apos;
+
+[palettes.gruvbox_dark]
+color_fg0 = &apos;#fbf1c7&apos;
+color_bg1 = &apos;#3c3836&apos;
+color_bg3 = &apos;#665c54&apos;
+color_blue = &apos;#458588&apos;
+color_aqua = &apos;#689d6a&apos;
+color_green = &apos;#98971a&apos;
+color_orange = &apos;#d65d0e&apos;
+color_purple = &apos;#b16286&apos;
+color_red = &apos;#cc241d&apos;
+color_yellow = &apos;#d79921&apos;
+
+[os]
+disabled = false
+style = &quot;bg:color_orange fg:color_fg0&quot;
+
+[os.symbols]
+Windows = &quot;&quot;
+Ubuntu = &quot;&quot;
+# ... 其他系统图标
+
+[username]
+show_always = true
+style_user = &quot;bg:color_orange fg:color_fg0&quot;
+style_root = &quot;bg:color_orange fg:color_fg0&quot;
+format = &apos;[ $user ]($style)&apos;
+
+[directory]
+style = &quot;fg:color_fg0 bg:color_yellow&quot;
+format = &quot;[ $path ]($style)&quot;
+truncation_length = 3
+truncation_symbol = &quot;…/&quot;
+
+[directory.substitutions]
+&quot;Documents&quot; = &quot; &quot;
+&quot;Downloads&quot; = &quot; &quot;
+&quot;Music&quot; = &quot; &quot;
+&quot;Pictures&quot; = &quot; &quot;
+&quot;Developer&quot; = &quot; &quot;
+
+[git_branch]
+symbol = &quot;&quot;
+style = &quot;bg:color_aqua&quot;
+format = &apos;[[ $symbol $branch ](fg:color_fg0 bg:color_aqua)]($style)&apos;
+
+[git_status]
+style = &quot;bg:color_aqua&quot;
+format = &apos;[[($all_status$ahead_behind )](fg:color_fg0 bg:color_aqua)]($style)&apos;
+
+# 语言模块（统一蓝底风格）
+[nodejs]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[bun]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[c]
+symbol = &quot; &quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[cpp]
+symbol = &quot; &quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[rust]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[golang]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[python]
+symbol = &quot;&quot;
+style = &quot;bg:color_blue&quot;
+format = &apos;[[ $symbol( $version) ](fg:color_fg0 bg:color_blue)]($style)&apos;
+
+[docker_context]
+symbol = &quot;&quot;
+style = &quot;bg:color_bg3&quot;
+format = &apos;[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)&apos;
+
+[conda]
+style = &quot;bg:color_bg3&quot;
+format = &apos;[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)&apos;
+
+[pixi]
+style = &quot;bg:color_bg3&quot;
+format = &apos;[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)&apos;
+
+[time]
+disabled = false
+time_format = &quot;%R&quot;
+style = &quot;bg:color_bg1&quot;
+format = &apos;[[ $time ](fg:color_fg0 bg:color_bg1)]($style)&apos;
+
+[line_break]
+disabled = false
+
+[character]
+disabled = false
+success_symbol = &apos;[[](bold fg:color_green)]&apos;
+error_symbol = &apos;[[](bold fg:color_red)]&apos;
+vimcmd_symbol = &apos;[](bold fg:color_green)&apos;
+vimcmd_replace_one_symbol = &apos;[](bold fg:color_purple)&apos;
+vimcmd_replace_symbol = &apos;[](bold fg:color_purple)&apos;
+vimcmd_visual_symbol = &apos;[](bold fg:color_yellow)&apos;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;配置结构解析&lt;/h3&gt;
+&lt;p&gt;整条提示符由 Powerline 风格的分段箭头连接，自左向右依次为：&lt;/p&gt;
+&lt;p&gt;| 模块 | 背景色 | 显示内容 |
+|------|--------|----------|
+| &lt;code&gt;$os&lt;/code&gt; | 橙色 | 当前操作系统图标 |
+| &lt;code&gt;$username&lt;/code&gt; | 橙色 | 用户名 |
+| &lt;code&gt;$directory&lt;/code&gt; | 黄色 | 当前目录路径（截断至 3 级） |
+| &lt;code&gt;$git_branch&lt;/code&gt; | 青色 | Git 分支名 |
+| &lt;code&gt;$git_status&lt;/code&gt; | 青色 | Git 状态（修改/暂存/冲突/ ahead/behind） |
+| 语言模块 | 蓝色 | C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本 |
+| &lt;code&gt;$docker_context&lt;/code&gt; | 灰 3 | Docker 上下文 |
+| &lt;code&gt;$conda&lt;/code&gt; | 灰 3 | Conda 环境 |
+| &lt;code&gt;$pixi&lt;/code&gt; | 灰 3 | Pixi 环境 |
+| &lt;code&gt;$time&lt;/code&gt; | 灰 1 | 当前时间（24h） |
+| &lt;code&gt;$character&lt;/code&gt; | — | 提示符箭头（绿色成功 / 红色失败） |&lt;/p&gt;
+&lt;h3&gt;检查配置&lt;/h3&gt;
+&lt;p&gt;Starship 提供了方便的调试命令：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;# 查看当前渲染的配置值
+starship config
+
+# 查看各模块渲染耗时
+starship timings
+
+# 查看预设默认配置
+starship preset gruvbox-rainbow
+
+# 检查 TOML 语法（需要 taplo）
+taplo lint ~\.config\starship.toml
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;Nushell + Starship 集成&lt;/h2&gt;
+&lt;p&gt;将 Nushell 和 Starship 结合使用的关键配置在 &lt;code&gt;config.nu&lt;/code&gt; 中：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-nu&quot;&gt;$env.STARSHIP_SHELL = &quot;nu&quot;
+$env.PROMPT_COMMAND = { ||
+    starship prompt --cmd-duration $env.CMD_DURATION_MS $&quot;--status=($env.LAST_EXIT_CODE)&quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这段配置做了三件事：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;$env.STARSHIP_SHELL = &quot;nu&quot;&lt;/code&gt;&lt;/strong&gt; — 设置环境变量，Starship 据此加载 Nushell 特有的提示符模块&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;$env.PROMPT_COMMAND&lt;/code&gt;&lt;/strong&gt; — 定义一个闭包，每次绘制提示符时调用 &lt;code&gt;starship prompt&lt;/code&gt;，并传入命令执行时间 &lt;code&gt;CMD_DURATION_MS&lt;/code&gt; 和上一条命令的退出状态码 &lt;code&gt;LAST_EXIT_CODE&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;清空其它提示符变量&lt;/strong&gt; — &lt;code&gt;PROMPT_COMMAND_RIGHT&lt;/code&gt;、&lt;code&gt;PROMPT_INDICATOR&lt;/code&gt; 等设为空，完全由 Starship 接管渲染&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;额外技巧&lt;/h2&gt;
+&lt;h3&gt;1. 目录图标替换&lt;/h3&gt;
+&lt;p&gt;Starship 支持将常见目录名替换为 Nerd Font 图标，当前配置中的替换表：&lt;/p&gt;
+&lt;p&gt;| 原目录 | 替换图标 |
+|--------|----------|
+| &lt;code&gt;Documents&lt;/code&gt; |   |
+| &lt;code&gt;Downloads&lt;/code&gt; |   |
+| &lt;code&gt;Music&lt;/code&gt; |   |
+| &lt;code&gt;Pictures&lt;/code&gt; |   |
+| &lt;code&gt;Developer&lt;/code&gt; |   |&lt;/p&gt;
+&lt;h3&gt;2. 提示符颜色随退出状态变化&lt;/h3&gt;
+&lt;p&gt;Starship 的 &lt;code&gt;$character&lt;/code&gt; 模块会根据上一条命令的退出码自动变色：成功为绿色 &lt;code&gt;, 失败为红色 &lt;/code&gt;, 无需额外配置。&lt;/p&gt;
+&lt;h3&gt;3. 调试慢提示符&lt;/h3&gt;
+&lt;p&gt;如果感觉提示符响应变慢，使用 &lt;code&gt;starship timings&lt;/code&gt; 查看各模块耗时。常见的耗时模块是 &lt;code&gt;git_status&lt;/code&gt;，可以设置 &lt;code&gt;scan_timeout = 500&lt;/code&gt;（当前已配置）来限制 Git 扫描超时。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.nushell.sh/book/&quot;&gt;Nushell 官方文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/nushell/nushell&quot;&gt;Nushell GitHub&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://starship.rs/guide/&quot;&gt;Starship 官方文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://starship.rs/presets/&quot;&gt;Starship 预设列表&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://starship.rs/presets/gruvbox-rainbow&quot;&gt;Gruvbox Rainbow 预设&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Devtools</category></item><item><title>ML 与 SDN</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-06-ml-sdn</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-06-ml-sdn</guid><description>机器学习在 SDN 中的三大应用、传统方法与深度学习的对比</description><pubDate>Sat, 27 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;上一篇从安全角度看入侵检测，这一篇把视角拉远——ML 到底能在 SDN 中做什么？读了几篇综述，把我的理解和疑问整理出来。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、ML 在 SDN 中能做什么？&lt;/h2&gt;
+&lt;p&gt;读完论文后，我发现 ML 在 SDN 中的应用可以归纳为三个方向，但它们的本质其实是同一个问题：&lt;strong&gt;怎么让网络更聪明？&lt;/strong&gt;&lt;/p&gt;
+&lt;h3&gt;方向一：流量分类——搞清楚&quot;这是什么流量&quot;&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;为什么需要&lt;/strong&gt;：不同类型的流量需要不同的处理策略。视频会议需要低延迟，文件下载需要高带宽，游戏需要稳定的小包。传统方法靠端口号判断（80 = HTTP），但现在很多流量都走 HTTPS，端口号看不出内容了。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ML 怎么做&lt;/strong&gt;：从 SDN 控制器获取流表统计（包数量、字节数、持续时间等），提取特征，训练分类器。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我的理解&lt;/strong&gt;：这像是给网络装了一个&quot;智能标签机&quot;——每条流量经过时，自动贴上&quot;视频&quot;&quot;网页&quot;&quot;文件传输&quot;的标签，然后控制器根据标签分配不同的资源。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实际效果&lt;/strong&gt;：论文里说传统 ML 方法准确率 90%+，深度学习 95%+。但我在想：真实网络里流量类型那么复杂（还有各种 P2P、IoT 设备），真的能分得这么准吗？&lt;/p&gt;
+&lt;h3&gt;方向二：异常检测——发现&quot;不正常的行为&quot;&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;为什么需要&lt;/strong&gt;：上一篇讲的入侵检测就是异常检测的一种。但异常检测更广——不只是攻击，还包括网络故障、配置错误、异常流量模式等。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ML 怎么做&lt;/strong&gt;：&lt;/p&gt;
+&lt;p&gt;| 方法 | 原理 | 适用场景 |
+|------|------|---------|
+| 监督学习 | 用标注好的正常/异常数据训练 | 有标注数据时 |
+| 无监督学习 | 不需要标注，发现偏离正常模式的数据 | 没有标注数据时 |
+| 半监督学习 | 用正常数据训练，异常自动识别 | 实用性最好 |&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我的思考&lt;/strong&gt;：半监督学习可能是最实用的——因为正常流量很容易获取，攻击样本却很少。让模型先学会&quot;什么是正常的&quot;，然后把不正常的都标记出来。&lt;/p&gt;
+&lt;p&gt;但问题是：怎么定义&quot;正常&quot;？网络流量本身就有很多合理的变化（比如晚上看视频的人多了，流量自然上升），模型怎么区分&quot;正常波动&quot;和&quot;异常&quot;？&lt;/p&gt;
+&lt;h3&gt;方向三：路由优化——让网络自己选路&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;为什么需要&lt;/strong&gt;：传统路由协议（OSPF、BGP）基于静态规则，不能适应动态变化的网络。比如一条链路突然拥堵了，传统协议可能要等几十秒才能收敛。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;ML 怎么做&lt;/strong&gt;：&lt;/p&gt;
+&lt;p&gt;| 方法 | 原理 | 我的理解 |
+|------|------|---------|
+| 强化学习 | Agent 根据网络状态选择路由，通过奖励学习最优策略 | 像打游戏一样，试错学习 |
+| 图神经网络 | 把网络拓扑建模为图，学习节点间最优路径 | 把网络当&quot;地图&quot;来导航 |
+| 监督学习 | 用最优路由数据训练模型 | 从&quot;老师&quot;那里学 |&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我的困惑&lt;/strong&gt;：路由优化的论文很多，但实际部署的很少。原因是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;安全性&lt;/strong&gt;：路由决策关系到整个网络，ML 模型出错的代价太大&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可解释性&lt;/strong&gt;：网络管理员需要知道&quot;为什么走这条路&quot;，黑盒模型给不出解释&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;收敛时间&lt;/strong&gt;：ML 推理需要时间，在网络拓扑快速变化时可能跟不上&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;我觉得路由优化可能是三个方向里最难落地的——因为它的容错空间最小。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、什么时候该用什么方法？&lt;/h2&gt;
+&lt;p&gt;读完论文，我最深的感触是：&lt;strong&gt;没有最好的方法，只有最合适的方法。&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    Q[你的场景是什么？] --&gt; COND{条件选择}
+    COND --&gt;|数据很少、预算有限| TRAD[传统方法 规则/阈值&amp;#x3C;br/&gt;够用就行，别过度设计]
+    COND --&gt;|有标注数据、需要较高准确率| ML[传统 ML SVM/随机森林&amp;#x3C;br/&gt;特征工程是关键，需要领域知识]
+    COND --&gt;|数据充足、面对未知威胁| DL[深度学习 CNN/LSTM/Autoencoder&amp;#x3C;br/&gt;但要接受黑盒的代价]
+    COND --&gt;|需要实时响应| LIGHT[轻量级模型或传统方法&amp;#x3C;br/&gt;DL 推理延迟可能太高]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;一个常见的误区是&quot;深度学习一定比传统 ML 好&quot;。论文里 DL 的准确率确实更高，但代价是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;需要更多数据（标注数据本身就很难获取）&lt;/li&gt;
+&lt;li&gt;需要 GPU（成本高）&lt;/li&gt;
+&lt;li&gt;模型黑盒（出了错不知道为什么）&lt;/li&gt;
+&lt;li&gt;推理延迟可能不适合实时场景&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;我的判断&lt;/strong&gt;：在实际部署中，&lt;strong&gt;组合方法&lt;/strong&gt;可能是最实用的——先用简单方法快速过滤，再用复杂方法精细判断。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、前沿趋势：Transformer 和大模型&lt;/h2&gt;
+&lt;p&gt;最近的研究开始把 Transformer 和 LLM 引入 SDN 领域。我读了几篇论文，说说我的理解。&lt;/p&gt;
+&lt;h3&gt;Transformer 在入侵检测中的应用&lt;/h3&gt;
+&lt;p&gt;Transformer 的自注意力机制擅长捕捉长距离依赖关系。在流量分析中，这意味着它可以同时关注&quot;当前这个包&quot;和&quot;几百个包之前的行为&quot;，比 LSTM 更擅长发现长跨度的攻击模式。&lt;/p&gt;
+&lt;p&gt;但我的疑问是：流量数据是连续的、高速的，Transformer 的注意力机制计算量很大，能跟上实际流量的速度吗？论文里的实验是在离线数据集上跑的，实时性可能是个问题。&lt;/p&gt;
+&lt;h3&gt;LLM 的可能性&lt;/h3&gt;
+&lt;p&gt;LLM 在 SDN 中的应用还处于早期探索阶段，但有几个方向我觉得很有意思：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;自然语言驱动的网络管理&lt;/strong&gt;：用自然语言描述策略（比如&quot;把视频流量的优先级调高&quot;），LLM 翻译成流表规则。这大大降低了 SDN 的使用门槛。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;安全日志分析&lt;/strong&gt;：SDN 控制器会产生大量安全告警，人工看不过来。LLM 可以自动分析这些告警，生成可读的报告。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;代码生成&lt;/strong&gt;：根据需求自动生成 SDN 控制器代码。目前还只能生成简单的片段，但方向是对的。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;我的看法&lt;/strong&gt;：LLM 在 SDN 中的应用更像是&quot;锦上添花&quot;，而不是&quot;雪中送炭&quot;。它能提高效率，但核心的转发逻辑和安全检测还是需要传统的 ML/DL 方法。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、回顾：我们学了什么？&lt;/h2&gt;
+&lt;p&gt;从第一篇到现在，6 篇文章构成了一个完整的 SDN 入门路径：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[SDN 基础] --&gt; B[SDN 架构]
+    B --&gt; C[OpenFlow 协议]
+    C --&gt; D[Mininet 实验]
+    D --&gt; E[入侵检测]
+    E --&gt; F[ML + SDN]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;我的收获&lt;/strong&gt;：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;SDN 不只是&quot;控制器+交换机&quot;&lt;/strong&gt;——它是一种网络设计哲学，核心是&quot;控制与转发分离&quot;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;OpenFlow 是 SDN 的基石&lt;/strong&gt;——理解流表机制对后续学习至关重要&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;ML 在 SDN 中有巨大潜力&lt;/strong&gt;——但实际落地还有很多挑战（数据、实时性、可解释性）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;安全是永恒的话题&lt;/strong&gt;——SDN 带来便利的同时也带来了新的攻击面&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;还没想明白的问题&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;P4 和 ML 怎么结合？比如在数据平面用 P4 做实时检测，控制平面用 ML 做全局分析？&lt;/li&gt;
+&lt;li&gt;这些方法在真实网络中的效果到底怎么样？论文里的数据集和真实流量差距有多大？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这些问题可能要在后面的 P4 学习和研究中慢慢回答。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 阅读 | 3 篇 ML+SDN 综述 |
+| 核心收获 | ML 在 SDN 的三大应用（流量分类/异常检测/路由优化） |
+| 个人思考 | 组合方法最实用、路由优化最难落地、LLM 是锦上添花 |
+| 入门总结 | 7 篇文章完成 SDN 入门，下一篇整理知识体系 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&quot;A Survey of Machine Learning Techniques Applied to Software Defined Networking: Research Issues and Challenges&quot;&lt;/li&gt;
+&lt;li&gt;&quot;A Survey of Networking Applications Applying the Software Defined Networking Concept Based on Machine Learning&quot;&lt;/li&gt;
+&lt;li&gt;&quot;Transformers and Large Language Models for Efficient Intrusion Detection&quot;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第6篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → SDN 安全与入侵检测 | 下一篇 → SDN 知识总结&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item><item><title>Blinker 开发入门指南</title><link>https://sukkk-zcy.github.io/blog/embedded/blinker-getting-started</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/blinker-getting-started</guid><description>Blinker开发规范，适合嵌入式开发者快速上手</description><pubDate>Thu, 25 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;什么是 Blinker？&lt;/h2&gt;
+&lt;p&gt;Blinker 是一套跨硬件、跨平台的物联网解决方案，提供 APP 端、设备端、服务器端支持，使用公有云服务进行数据传输存储。适用于智能家居、数据监测等场景。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;GitHub&lt;/strong&gt;: https://github.com/blinker-iot/&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;官网&lt;/strong&gt;: https://diandeng.tech/&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;APP&lt;/strong&gt;: 点灯科技 APP（iOS / Android）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;许可证&lt;/strong&gt;: MIT License&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;硬件平台支持&lt;/h2&gt;
+&lt;p&gt;Blinker 目前支持三大主流开发板：&lt;/p&gt;
+&lt;p&gt;| 平台 | WiFi | BLE | NB-IoT | GPRS |
+|------|------|-----|--------|------|
+| ESP32 | ✅ | ✅ 内置 | ✅ SIM7020/SIM7000 | ✅ Air202 |
+| ESP8266 | ✅ | ✅ 外接透传模块 | ✅ | ✅ |
+| Arduino R4 | ✅ AT固件 | ✅ | - | - |&lt;/p&gt;
+&lt;p&gt;ESP32 凭借内置蓝牙和丰富的外设接口，是目前最推荐的入门选择。&lt;/p&gt;
+&lt;h2&gt;通信模式&lt;/h2&gt;
+&lt;p&gt;WiFi 和蓝牙&lt;strong&gt;不能同时启用&lt;/strong&gt;，通过宏定义切换：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;#define WIFIMODE   // 启用WiFi模式
+//#define BLEMODE  // 启用蓝牙模式
+
+#if defined(WIFIMODE)
+    #define BLINKER_WIFI
+#endif
+#if defined(BLEMODE)
+    #define BLINKER_BLE
+#endif
+
+#include &amp;#x3C;Blinker.h&gt;  // 必须在通信模式宏定义之后
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;关键规则&lt;/strong&gt;：&lt;code&gt;#include &amp;#x3C;Blinker.h&gt;&lt;/code&gt; 必须放在通信模式宏定义之后，否则编译会出错。&lt;/p&gt;
+&lt;p&gt;WiFi 模式初始化：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;Blinker.begin(auth, ssid, pswd);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;BLE 模式初始化（ESP32 内置蓝牙）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;Blinker.begin();
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;程序结构：九大标准模块&lt;/h2&gt;
+&lt;p&gt;Blinker 标准程序按以下顺序组织：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;程序版本备注&lt;/strong&gt; — 记录日期和功能&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;通信模式宏定义&lt;/strong&gt; — WIFIMODE / BLEMODE 切换&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;包含库&lt;/strong&gt; — &lt;code&gt;#include &amp;#x3C;Blinker.h&gt;&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;全局变量声明&lt;/strong&gt; — WiFi 信息、引脚、状态变量&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;组件声明&lt;/strong&gt; — 必须放在回调函数前面&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;回调函数&lt;/strong&gt; — APP 发来数据时由 &lt;code&gt;Blinker.run()&lt;/code&gt; 调用&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;功能函数&lt;/strong&gt; — WiFi 掉线检测等&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;setup() 初始化&lt;/strong&gt; — 开机后只执行一次&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;loop() 主循环&lt;/strong&gt; — 循环执行到关机&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这个结构清晰地分离了配置、声明和逻辑，是编写 Blinker 程序的基本骨架。&lt;/p&gt;
+&lt;h2&gt;组件：APP 端的交互元素&lt;/h2&gt;
+&lt;p&gt;Blinker 提供丰富的内置组件：&lt;/p&gt;
+&lt;p&gt;| 组件 | 类名 | 用途 |
+|------|------|------|
+| 按钮 | &lt;code&gt;BlinkerButton&lt;/code&gt; | 开关、模式切换 |
+| 滑块 | &lt;code&gt;BlinkerSlider&lt;/code&gt; | 阈值、亮度、速度 |
+| 数值 | &lt;code&gt;BlinkerNumber&lt;/code&gt; | 显示传感器数据 |
+| 文本 | &lt;code&gt;BlinkerText&lt;/code&gt; | 显示字符串 |
+| RGB | &lt;code&gt;BlinkerRGB&lt;/code&gt; | 颜色控制 |
+| 摇杆 | &lt;code&gt;BlinkerJoystick&lt;/code&gt; | 方向控制 |
+| 开关 | &lt;code&gt;BlinkerSwitch&lt;/code&gt; | 内置开关 |&lt;/p&gt;
+&lt;p&gt;声明示例：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;BlinkerButton Button1(&quot;b1&quot;);      // 键名 &quot;b1&quot;，对应APP中组件名
+BlinkerSlider Slider1(&quot;s1&quot;);      // 键名 &quot;s1&quot;
+BlinkerNumber NUM1(&quot;abcd&quot;);       // 键名 &quot;abcd&quot;
+BlinkerText Text1(&quot;1234&quot;);        // 键名 &quot;1234&quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;核心规则&lt;/strong&gt;：组件声明&lt;strong&gt;必须放在回调函数前面&lt;/strong&gt;，键名必须与 APP 中的组件名完全一致。&lt;/p&gt;
+&lt;h2&gt;回调函数：设备与 APP 的数据桥梁&lt;/h2&gt;
+&lt;h3&gt;按钮回调&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void button1_callback(const String&amp;#x26; state)
+{
+  if (state == &quot;tap&quot;)      { b1_state = !b1_state; }  // 普通按键：反转
+  else if (state == &quot;on&quot;)  { b1_state = true; }       // 开关：开启
+  else if (state == &quot;off&quot;) { b1_state = false; }      // 开关：关闭
+  else if (state == &quot;press&quot;)   { b1_state = true; }   // 长按：开启
+  else if (state == &quot;pressup&quot;) { b1_state = false; }  // 松开：关闭
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);  // 立即反馈到APP
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;重要&lt;/strong&gt;：不要简化按钮的五种处理，防止 APP 设置不同出现逻辑错误。&lt;/p&gt;
+&lt;h3&gt;滑块回调&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void slider1_callback(int32_t value)
+{
+  s1_value = value;  // 赋值全局变量即可
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;注意&lt;/strong&gt;：滑块&lt;strong&gt;不可在回调函数里调用 print&lt;/strong&gt;，否则拖不动。&lt;/p&gt;
+&lt;h3&gt;注册回调&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void setup()
+{
+  Button1.attach(button1_callback);
+  Slider1.attach(slider1_callback);
+  Blinker.attachHeartbeat(heartbeat);
+  Blinker.attachDataStorage(dataStorage);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;心跳包：APP 获取设备数据的核心机制&lt;/h2&gt;
+&lt;p&gt;心跳包是 APP 获取设备数据的主要方式，&lt;strong&gt;间隔约 30 秒一次&lt;/strong&gt;。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void heartbeat()
+{
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);   // 按钮：回调+心跳包双保险
+  Slider1.print(s1_value);                   // 滑块：仅心跳包
+  NUM1.print(100);                           // 数值：仅心跳包
+  Text1.print(&quot;Hello Blinker&quot;);              // 文本：仅心跳包
+  Blinker.notify(&quot;页面数据已刷新&quot;);           // APP内弹窗推送
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;数据上报位置规则&lt;/h3&gt;
+&lt;p&gt;| 数据类型 | 上报位置 | 原因 |
+|----------|----------|------|
+| 按钮状态 | 回调函数 + 心跳包 | 即时反馈 + 兜底 |
+| 滑块值 | 仅心跳包 | 回调里 print 会拖不动 |
+| 数值/文本 | 仅心跳包 | 统一管理 |&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;关键&lt;/strong&gt;：&lt;code&gt;print&lt;/code&gt; 必须放心跳包回调或按钮回调，&lt;strong&gt;不能放 loop()&lt;/strong&gt;，否则触发 &lt;code&gt;MQTT NOT ALIVE OR MESSAGE LIMIT&lt;/code&gt; 错误。&lt;/p&gt;
+&lt;h2&gt;数据存储与图表&lt;/h2&gt;
+&lt;p&gt;生成传感器数据折线图表：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void dataStorage()
+{
+  Blinker.dataStorage(&quot;data1&quot;, random(0, 120));
+}
+
+void setup()
+{
+  Blinker.attachDataStorage(dataStorage);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;实时数据（RT_DATA）&lt;/h2&gt;
+&lt;p&gt;实时数据每秒以上一次，适用于高频刷新场景。&lt;strong&gt;不支持文本组件，只支持数值组件&lt;/strong&gt;。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void rtData()
+{
+  Blinker.sendRtData(&quot;data1&quot;, (int32_t)random(0, 120));
+  Blinker.sendRtData(&quot;data2&quot;, random(0, 120) / (float)1.5);
+  Blinker.printRtData();  // 刷新到 APP
+}
+
+void setup()
+{
+  Blinker.attachRTData(rtData);
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;WiFi 掉线检测&lt;/h2&gt;
+&lt;p&gt;WiFi 模式下必须实现掉线重启检测：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void wifiOfflineMonitor()
+{
+  if (Blinker.connect()) {
+    offline_millis = 0;
+    offline_flag = false;
+  }
+  else if (!Blinker.connect() &amp;#x26;&amp;#x26; millis() &gt; 180000) {
+    offline_flag = true;
+  }
+  
+  if (millis() &gt; 180000 &amp;#x26;&amp;#x26; offline_millis &amp;#x26;&amp;#x26; millis() - offline_millis &gt;= 180000) {
+    ESP.restart();  // 掉线超三分钟重启
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;在 &lt;code&gt;loop()&lt;/code&gt; 中调用：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void loop()
+{
+  Blinker.run();
+  wifiOfflineMonitor();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;调试与日志&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void setup()
+{
+  Serial.begin(115200);
+  BLINKER_DEBUG.stream(Serial);     // 调试信息输出到串口
+  BLINKER_DEBUG.debugAll();         // 开启所有调试信息
+  BLINKER_LOG(&quot;版本信息&quot;);           // 打印日志
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;常见错误排查&lt;/h2&gt;
+&lt;p&gt;| 错误 | 原因 | 解决 |
+|------|------|------|
+| &lt;code&gt;MQTT NOT ALIVE OR MESSAGE LIMIT&lt;/code&gt; | print 放在 loop() 中 | 移到心跳包回调或按钮回调 |
+| 按钮状态不更新 | APP 按钮类型与代码不匹配 | 保留五种状态处理 |
+| 滑块拖动不灵敏 | 回调里调用了 print | 滑块 print 只放心跳包 |
+| WiFi 连不上 | 非 2.4GHz / 密码错误 | 检查频段和密码 |
+| 授权码错误 | 引号/空格问题 | 从点灯 APP 复制 |&lt;/p&gt;
+&lt;h2&gt;ESP32 Web 配网&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;ESP32_Blinker_NET&lt;/code&gt; 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;工作流程&lt;/strong&gt;：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;开机读取 EEPROM 中的 WiFi 配置&lt;/li&gt;
+&lt;li&gt;有配置则尝试连接，无配置则进入配网模式&lt;/li&gt;
+&lt;li&gt;手机连接热点 &lt;code&gt;ESP32_Config&lt;/code&gt;，访问 &lt;code&gt;192.168.4.1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;在 Web 页面选择 WiFi、输入密码和授权码&lt;/li&gt;
+&lt;li&gt;保存后 ESP32 重启，自动连接&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;核心代码&lt;/strong&gt;：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;WIFIConnect wifiManager(&quot;ESP32_Config&quot;);
+
+void setup() {
+    Serial.begin(115200);
+    wifiManager.begin();
+    if (wifiManager.isConnected()) {
+        Blinker.begin(
+            wifiManager.getAuth().c_str(),
+            wifiManager.getSSID().c_str(), &quot;&quot;
+        );
+    }
+}
+
+void loop() {
+    wifiManager.loop();
+    if (wifiManager.isConnected()) Blinker.run();
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;完整模板代码&lt;/h2&gt;
+&lt;p&gt;以下是一个包含按钮、滑块、数值、文本、数据存储、心跳包、APP弹窗七大功能的完整模板：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;#define NOTE &quot;Blinker 完整模板&quot;
+
+#define WIFIMODE
+
+#if defined(WIFIMODE)
+    #define BLINKER_WIFI
+#endif
+
+#include &amp;#x3C;Blinker.h&gt;
+
+char ssid[] = &quot;WiFi名称&quot;;
+char pswd[] = &quot;WiFi密码&quot;;
+char auth[] = &quot;授权码&quot;;
+
+#define RELAYPIN_1 2
+bool b1_state = false;
+int s1_value = 0;
+
+BlinkerButton Button1(&quot;b1&quot;);
+BlinkerSlider Slider1(&quot;s1&quot;);
+BlinkerNumber NUM1(&quot;abcd&quot;);
+BlinkerText Text1(&quot;1234&quot;);
+
+void button1_callback(const String&amp;#x26; state)
+{
+  if (state == &quot;tap&quot;)      { b1_state = !b1_state; }
+  else if (state == &quot;on&quot;)  { b1_state = true; }
+  else if (state == &quot;off&quot;) { b1_state = false; }
+  else if (state == &quot;press&quot;)   { b1_state = true; }
+  else if (state == &quot;pressup&quot;) { b1_state = false; }
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);
+  digitalWrite(RELAYPIN_1, !b1_state);
+}
+
+void slider1_callback(int32_t value) { s1_value = value; }
+
+void heartbeat()
+{
+  Button1.print(b1_state ? &quot;on&quot; : &quot;off&quot;);
+  Slider1.print(s1_value);
+  NUM1.print(100);
+  Text1.print(&quot;Hello Blinker&quot;);
+  Blinker.notify(&quot;页面数据已刷新&quot;);
+}
+
+void dataStorage() { Blinker.dataStorage(&quot;data1&quot;, random(0, 120)); }
+
+void setup()
+{
+  Serial.begin(115200);
+  BLINKER_DEBUG.stream(Serial);
+  BLINKER_DEBUG.debugAll();
+
+  pinMode(RELAYPIN_1, OUTPUT);
+  Blinker.begin(auth, ssid, pswd);
+
+  Button1.attach(button1_callback);
+  Slider1.attach(slider1_callback);
+  Blinker.attachDataStorage(dataStorage);
+  Blinker.attachHeartbeat(heartbeat);
+}
+
+void loop() { Blinker.run(); }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;Blinker 以其简洁的 API、丰富的组件和跨平台支持，极大降低了物联网开发门槛。掌握以下核心要点即可快速上手：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;宏定义在前，头文件在后&lt;/strong&gt; — 通信模式决定编译路径&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;组件声明在回调前&lt;/strong&gt; — 否则绑定失败&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;print 不放 loop()&lt;/strong&gt; — 否则触发 MQTT 限流&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;滑块回调不 print&lt;/strong&gt; — 否则拖不动&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;按钮保留五种状态&lt;/strong&gt; — 防止 APP 模式不匹配&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;WiFi 掉线要检测&lt;/strong&gt; — 三分钟无响应自动重启&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;遵循这些规范，你就能用 Blinker 快速搭建出稳定可靠的物联网应用。&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Embedded</category></item><item><title>ESP32 Web 配网实战</title><link>https://sukkk-zcy.github.io/blog/embedded/esp32-blinker-web-config</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/esp32-blinker-web-config</guid><description>通过 Web 页面为 ESP32 配置 WiFi 和 Blinker 授权码，支持历史配置记录，开机自动重连</description><pubDate>Thu, 25 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
+&lt;p&gt;在上一篇 &lt;a href=&quot;/post/blinker-getting-started/&quot;&gt;Blinker 开发入门指南&lt;/a&gt; 中，我们了解了 Blinker 的基础用法。但在实际项目中，WiFi 名称和密码写死在代码里非常不方便——每换一个网络就要重新烧录。&lt;/p&gt;
+&lt;p&gt;本文介绍一个 ESP32 Web 配网方案，通过手机连接 ESP32 热点，在网页上配置 WiFi 和 Blinker 授权码，配置保存后开机自动重连。&lt;/p&gt;
+&lt;h2&gt;功能特性&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;开机自动连接已保存的 WiFi&lt;/li&gt;
+&lt;li&gt;连接失败时自动进入配网模式（AP 热点 + Web 服务器）&lt;/li&gt;
+&lt;li&gt;Web 页面支持 WiFi 扫描选择、密码输入、Blinker 授权码填写&lt;/li&gt;
+&lt;li&gt;历史配置记录（最多3条），点击快速填充&lt;/li&gt;
+&lt;li&gt;GPIO0 长按3秒清除配置并重启&lt;/li&gt;
+&lt;li&gt;LED 指示灯状态：常亮=已连接，闪烁=配网中，熄灭=断开&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;项目结构&lt;/h2&gt;
+&lt;pre&gt;&lt;code&gt;ESP32_Blinker_NET/
+├── src/
+│   ├── main.cpp          # 主程序：Blinker 初始化 + WiFi 管理
+│   └── WIFIConnect.cpp   # WiFi 配网模块实现
+├── include/
+│   └── WIFIConnect.h     # WiFi 配网模块头文件
+├── lib/
+│   └── blinker-library-master/  # 本地 Blinker 库
+└── platformio.ini        # PlatformIO 配置
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;工作流程&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    A[开机] --&gt; B{有已保存配置?}
+    B --&gt;|是| C[尝试连接WiFi]
+    B --&gt;|否| D[进入配网模式]
+    C --&gt;|成功| E[初始化Blinker]
+    C --&gt;|失败 20秒超时| D
+    D --&gt; F[ESP32_Config热点]
+    F --&gt; G[手机连接热点]
+    G --&gt; H[访问192.168.4.1]
+    H --&gt; I[Web页面配置]
+    I --&gt; J[保存配置]
+    J --&gt; K[ESP32重启]
+    K --&gt; C
+    E --&gt; L[正常运行]
+    L --&gt; M{WiFi断开?}
+    M --&gt;|是| N[自动重连]
+    M --&gt;|否| L
+    N --&gt;|重连失败3分钟| O[重启ESP32]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;核心代码解析&lt;/h2&gt;
+&lt;h3&gt;主程序 main.cpp&lt;/h3&gt;
+&lt;p&gt;主程序非常简洁，核心逻辑就三步：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;#define BLINKER_PRINT Serial
+#define BLINKER_WIFI
+
+#include &amp;#x3C;Blinker.h&gt;
+#include &quot;WIFIConnect.h&quot;
+
+WIFIConnect wifiManager(&quot;ESP32_Config&quot;);
+
+void setup() {
+    Serial.begin(115200);
+    wifiManager.begin();
+
+    if (wifiManager.isConnected()) {
+        Blinker.begin(
+            wifiManager.getAuth().c_str(),
+            wifiManager.getSSID().c_str(),
+            &quot;&quot;
+        );
+        Blinker.attachData(dataRead);
+    }
+}
+
+void loop() {
+    wifiManager.loop();
+    if (wifiManager.isConnected()) {
+        Blinker.run();
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;关键点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;wifiManager.begin()&lt;/code&gt; 内部处理了所有 WiFi 连接逻辑&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Blinker.begin()&lt;/code&gt; 的密码参数传空字符串，因为 WiFi 已经通过 &lt;code&gt;WiFi.begin()&lt;/code&gt; 连接&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;loop()&lt;/code&gt; 中先处理 WiFi 状态，再运行 Blinker&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;WIFIConnect 类&lt;/h3&gt;
+&lt;p&gt;这是配网的核心模块，封装了 AP 热点、Web 服务器、DNS 重定向、EEPROM 存储等功能。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;初始化流程：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::begin() {
+    pinMode(_ledPin, OUTPUT);
+    pinMode(_resetPin, INPUT_PULLUP);
+
+    if (restoreConfig()) {
+        // 有保存的配置 → 尝试连接
+        WiFi.begin(savedSSID, savedPassword);
+        // 等待20秒...
+        if (WiFi.status() == WL_CONNECTED) {
+            // 连接成功
+        } else {
+            setupMode();  // 进入配网模式
+        }
+    } else {
+        setupMode();  // 无配置，直接配网
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;配网模式启动：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::setupMode() {
+    WiFi.mode(WIFI_AP);
+    WiFi.softAP(_apName);  // 创建热点 &quot;ESP32_Config&quot;
+    dnsServer.start(53, &quot;*&quot;, IPAddress(192, 168, 4, 1));  // DNS重定向
+    server.on(&quot;/&quot;, HTTP_GET, handleRootCallback);
+    server.on(&quot;/save&quot;, HTTP_POST, handleSaveCallback);
+    server.begin();
+    scanWiFi();  // 扫描可用WiFi
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;配置保存：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::handleSave() {
+    String ssid = server.arg(&quot;ssid&quot;);
+    String password = server.arg(&quot;password&quot;);
+    String auth = server.arg(&quot;auth&quot;);
+
+    preferences.putString(&quot;ssid&quot;, ssid);
+    preferences.putString(&quot;password&quot;, password);
+    preferences.putString(&quot;auth&quot;, auth);
+    saveWiFiHistory(ssid, password, auth);
+
+    delay(1000);
+    ESP.restart();  // 保存后重启
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;Web 配网页面&lt;/h3&gt;
+&lt;p&gt;配网页面包含：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;WiFi 网络下拉选择（自动扫描）&lt;/li&gt;
+&lt;li&gt;WiFi 密码输入（支持显示/隐藏切换）&lt;/li&gt;
+&lt;li&gt;Blinker 授权码输入&lt;/li&gt;
+&lt;li&gt;历史配置列表（点击快速填充）&lt;/li&gt;
+&lt;li&gt;保存并连接按钮&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;页面使用渐变背景和圆角卡片设计，手机端体验友好。&lt;/p&gt;
+&lt;h3&gt;WiFi 掉线检测&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-cpp&quot;&gt;void WIFIConnect::loop() {
+    // 每5秒检查WiFi状态
+    if (millis() - lastWifiCheck &gt; 5000) {
+        if (WiFi.status() != WL_CONNECTED &amp;#x26;&amp;#x26; !_isSettingMode) {
+            WiFi.begin(savedSSID, savedPassword);  // 尝试重连
+        }
+        lastWifiCheck = millis();
+    }
+
+    // 长按GPIO0超过3秒 → 清除配置重启
+    if (digitalRead(_resetPin) == LOW) {
+        if (millis() - _buttonPressStartTime &gt; 3000) {
+            reset();
+        }
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;硬件连接&lt;/h2&gt;
+&lt;p&gt;| 引脚 | 功能 | 说明 |
+|------|------|------|
+| GPIO2 | LED 指示灯 | 连接=常亮，配网=闪烁，断开=熄灭 |
+| GPIO0 | 重置按键 | 长按3秒清除配置并重启 |&lt;/p&gt;
+&lt;h2&gt;使用步骤&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;烧录固件到 ESP32&lt;/li&gt;
+&lt;li&gt;手机连接热点 &lt;code&gt;ESP32_Config&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;浏览器访问 &lt;code&gt;192.168.4.1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;选择 WiFi、输入密码和 Blinker 授权码&lt;/li&gt;
+&lt;li&gt;点击保存，ESP32 自动重启并连接&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;这个 Web 配网方案解决了 Blinker 项目中 WiFi 配置固化的问题，通过 Web 页面和历史记录功能，让用户无需重新烧录即可切换网络。配合 Blinker 的心跳包和回调机制，可以快速搭建物联网应用。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本项目完整代码见 &lt;code&gt;E:\Embedded\库\Blinker开发规范\ESP32_Blinker_NET&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Embedded</category></item><item><title>SDN 安全与入侵检测</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-05-intrusion-detection</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-05-intrusion-detection</guid><description>SDN 环境下的 DDoS 攻击分类、检测方法体系与深度学习应用</description><pubDate>Tue, 23 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;前几篇我们一直在学&quot;怎么让网络更灵活&quot;，今天换个角度——灵活的网络也更容易被攻击。读了几篇 DDoS 检测的综述，把我的理解和疑问整理出来。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、SDN 的安全悖论&lt;/h2&gt;
+&lt;p&gt;SDN 把控制权集中到控制器，这本身就是一个&quot;双刃剑&quot;：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;好处&lt;/strong&gt;：控制器能看到全网流量，发现异常后几毫秒就能阻断。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;坏处&lt;/strong&gt;：攻击者只要搞定控制器，就等于控制了整个网络。&lt;/p&gt;
+&lt;p&gt;这让我想到一个比喻：传统网络像一堆各自为战的士兵，SDN 像一个中央指挥部。指挥部效率高，但一旦指挥部被端了，整支军队就瘫痪了。&lt;/p&gt;
+&lt;p&gt;所以 SDN 安全的核心问题就是：&lt;strong&gt;怎么保护这个&quot;中央指挥部&quot;？&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、SDN 面临的攻击类型&lt;/h2&gt;
+&lt;p&gt;读了几篇综述后，我发现 SDN 的攻击可以按&quot;攻击谁&quot;来分类，这样更好理解：&lt;/p&gt;
+&lt;h3&gt;攻击控制器&lt;/h3&gt;
+&lt;p&gt;这是最致命的。攻击者发送大量伪造的 Packet-In 消息，把控制器的 CPU 和内存耗尽。控制器一旦宕机，所有交换机都变成&quot;无头苍蝇&quot;——流表没有新的规则，新流量无法转发。&lt;/p&gt;
+&lt;p&gt;我在想：这和传统网络的 DDoS 攻击本质一样，都是&quot;打满资源&quot;。但 SDN 的控制器是单点，传统网络里每台路由器都有独立的控制面，攻击面更分散。&lt;/p&gt;
+&lt;h3&gt;攻击流表&lt;/h3&gt;
+&lt;p&gt;交换机的流表容量有限（硬件交换机通常只有几千到几万条）。攻击者发送大量五元组随机变化的流量，每条都需要新的流表项，很快就能把流表撑爆。合法流量来了找不到匹配规则，只能丢弃或上送控制器——反过来又加重了控制器的负担。&lt;/p&gt;
+&lt;p&gt;这像是一个连锁反应：流表满了 → 更多包上送控制器 → 控制器更忙 → 更多流表项被删除 → 恶性循环。&lt;/p&gt;
+&lt;h3&gt;攻击带宽&lt;/h3&gt;
+&lt;p&gt;最直接的洪泛攻击。和传统 DDoS 一样，用大量数据包把链路带宽打满。SDN 对这类攻击没有特别好的防御手段，因为问题出在物理层。&lt;/p&gt;
+&lt;h3&gt;我的思考&lt;/h3&gt;
+&lt;p&gt;读完这些分类，我觉得最值得研究的是&lt;strong&gt;针对控制器的攻击&lt;/strong&gt;和&lt;strong&gt;流表溢出攻击&lt;/strong&gt;——因为这是 SDN 特有的问题，传统网络不存在。带宽洪泛虽然是最常见的，但解决方案也比较成熟（流量清洗、CDN 等）。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、检测方法：三种思路&lt;/h2&gt;
+&lt;p&gt;综述里提到的检测方法主要分三类，我用更直觉的方式理解它们：&lt;/p&gt;
+&lt;h3&gt;思路一：设定规则（统计方法）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;核心想法&lt;/strong&gt;：正常流量有&quot;正常的样子&quot;——包大小分布稳定、流速率在一定范围内、端口分布符合规律。一旦偏离这些规律，就报警。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;优点&lt;/strong&gt;：简单、快速，用几行代码就能实现。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;缺点&lt;/strong&gt;：只能抓&quot;已知模式&quot;的攻击。新型攻击如果伪装得像正常流量，就抓不到。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我的理解&lt;/strong&gt;：这像是给网络装了一个&quot;体温计&quot;——体温超过 37.5 就报警。简单有效，但如果敌人学会了把体温控制在 37.4，就漏过去了。&lt;/p&gt;
+&lt;h3&gt;思路二：训练分类器（机器学习）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;核心想法&lt;/strong&gt;：收集大量&quot;正常流量&quot;和&quot;攻击流量&quot;的样本，训练一个分类器来区分它们。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;常用算法&lt;/strong&gt;：SVM（Support Vector Machine，支持向量机）、随机森林、决策树。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;优点&lt;/strong&gt;：能识别一些统计方法抓不到的复杂模式。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;缺点&lt;/strong&gt;：需要标注好的训练数据（这本身就很贵）；特征工程依赖专家经验；对新型攻击的泛化能力有限。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我的理解&lt;/strong&gt;：这像是培养一个&quot;老警察&quot;——见过的案子多了，能凭经验判断。但如果遇到全新的犯罪手法，还是会犹豫。&lt;/p&gt;
+&lt;h3&gt;思路三：让机器自己学（深度学习）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;核心想法&lt;/strong&gt;：用神经网络自动从原始流量数据中学习特征，不需要人工设计特征。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;常用模型&lt;/strong&gt;：CNN（把流量当&quot;图像&quot;处理）、LSTM（处理时序数据）、Autoencoder（无监督异常检测）。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;优点&lt;/strong&gt;：不需要专家设计特征；对新型攻击有更好的泛化能力。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;缺点&lt;/strong&gt;：需要大量数据；模型是&quot;黑盒&quot;，出了错不知道为什么；计算资源需求高。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我的理解&lt;/strong&gt;：这像是让机器自己当侦探——看的案例多了，自然能发现规律。但问题是，它判断错了你也不知道为什么，不像老警察能说出&quot;我注意到这个细节不对&quot;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、三种方法怎么选？&lt;/h2&gt;
+&lt;p&gt;读完综述，我画了一个决策树：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    Q[需要检测 DDoS？] --&gt; S{数据与预算情况}
+    S --&gt;|数据很少、预算有限| STAT[统计方法 先用着，够用就行]
+    S --&gt;|有标注数据、需要较高准确率| ML[机器学习 特征工程是关键]
+    S --&gt;|数据充足、面对未知威胁| DL[深度学习 但要接受黑盒代价]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;实际上，很多研究是&lt;strong&gt;组合使用&lt;/strong&gt;的：先用统计方法做粗筛（快速过滤掉明显正常的流量），再用 ML/DL 做精细判断。这样既保证了实时性，又提高了准确率。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、SDN 给入侵检测带来了什么？&lt;/h2&gt;
+&lt;p&gt;SDN 不只是&quot;被攻击的对象&quot;，它同时也给安全防御提供了新武器：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;全局视图&lt;/strong&gt;：传统网络里每台路由器只看到自己周围的流量，SDN 控制器能看到全网。这就像从&quot;看门卫视角&quot;升级到&quot;监控中心视角&quot;。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;快速响应&lt;/strong&gt;：发现攻击后，控制器可以在毫秒级下发流表规则阻断攻击流量。传统网络改配置可能要逐台设备登录。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;灵活部署&lt;/strong&gt;：检测算法以软件形式运行在控制器上，可以随时更新。传统网络的 IDS（Intrusion Detection System，入侵检测系统）是硬件设备，换算法要换硬件。&lt;/p&gt;
+&lt;p&gt;但也有局限：如果攻击者先瘫痪了控制器，这些优势就全没了。所以&lt;strong&gt;控制器本身的保护&lt;/strong&gt;是第一优先级。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、读论文的感受&lt;/h2&gt;
+&lt;p&gt;读了这几篇综述：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&quot;DDoS attack detection in SDN&quot; — 这篇最全面，把检测方法按&quot;统计/ML/DL&quot;三类分得很清楚&lt;/li&gt;
+&lt;li&gt;&quot;Anomaly and intrusion detection using DL for SDN&quot; — 这篇侧重深度学习，介绍了 Autoencoder 在异常检测中的应用&lt;/li&gt;
+&lt;li&gt;&quot;A Comprehensive Survey of DDoS Detection and Mitigation Technologies in SDN&quot; — 这篇把防御手段也讲了，不只是检测&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;我的困惑&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;这些方法在论文里准确率都很高（95%+），但真实网络环境远比实验数据集复杂。怎么保证在实际部署时不&quot;翻车&quot;？&lt;/li&gt;
+&lt;li&gt;标注数据从哪来？DDoS 攻击样本本来就少，正常流量又那么多，数据不平衡问题怎么解决？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这些问题可能要在后面的 ML 学习中慢慢回答。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;七、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 阅读 | 3 篇 DDoS 检测综述 |
+| 核心收获 | SDN 攻击分类（控制器/流表/带宽）、三种检测思路（规则/分类器/自动学习） |
+| 个人思考 | SDN 的安全悖论、控制器保护是第一优先级、组合方法最实用 |
+| 待深入 | ML 在 SDN 中的具体应用场景（下一篇） |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&quot;DDoS attack detection in SDN: Method of attacks, detection techniques, challenges and research gaps&quot;&lt;/li&gt;
+&lt;li&gt;&quot;Anomaly and intrusion detection using deep learning for software-defined networks: A survey&quot;&lt;/li&gt;
+&lt;li&gt;&quot;A Comprehensive Survey of Distributed Denial of Service Detection and Mitigation Technologies in Software-Defined Network&quot;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第5篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → Mininet 网络实验 | 下一篇 → ML 与 SDN&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item><item><title>CC AIR MONITOR 固件烧录指南</title><link>https://sukkk-zcy.github.io/blog/embedded/cc-air-monitor</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/cc-air-monitor</guid><description>基于CCAirDetector修改的CC AIR MONITOR固件烧录与配置教程</description><pubDate>Mon, 22 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;说明&lt;/h2&gt;
+&lt;p&gt;本固件基于 @大聪明的二手脑袋 开源的 CCAirDetector 进行修改，改动如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;修改默认上电界面为 page3&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;调换了 page2 和 page3 的部分显示组件&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;web 配网界面新增和风天气认证参数填写，无需配置 Arduino 环境，直接烧录固件即可&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520432087_CC_AIR_MONITOR_Page2.JPEG&quot; alt=&quot;CC AIR MONITOR Page2&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520433016_CC_AIR_MONITOR_Page3.JPEG&quot; alt=&quot;CC AIR MONITOR Page3&quot;&gt;&lt;/p&gt;
+&lt;h2&gt;下载工具和 bin 文件&lt;/h2&gt;
+&lt;p&gt;下载并解压以下文件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/ccair-firmware/flash_download_tool.zip&quot;&gt;flash_download_tool.zip&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/ccair-firmware/CCAIR.bin&quot;&gt;CCAIR.bin&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;固件烧录&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;选择你的芯片型号&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;选择 bin 文件路径，左侧复选框需要打勾，地址为 &lt;code&gt;0&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;选择 COM 端口，点击 START，等待显示 FINISH 即烧录成功&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;单击 PCB 上的 RST 以重启系统&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Embedded</category></item><item><title>PlatformIO首次安装使用注意事项</title><link>https://sukkk-zcy.github.io/blog/devtools/platformio-notes</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/platformio-notes</guid><description>PlatformIO首次安装使用时遇到的问题及解决方案</description><pubDate>Sun, 21 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;引言&lt;/h2&gt;
+&lt;p&gt;因网络原因，PlatformIO首次创建项目时容易出些一些问题，目前网络教程大多是切换网络、镜像源、配置Python环境等，此类教程大都比较繁琐，且不一定能解决问题。&lt;/p&gt;
+&lt;p&gt;本文以VS Code为例，提供首次安装和创建项目时无法加载的解决方案，其它IDE也可自行尝试。&lt;/p&gt;
+&lt;h2&gt;扩展启动失败&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;切换网络，使用热点/代理。&lt;/li&gt;
+&lt;li&gt;使用离线安装包。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520413232_%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85.png&quot; alt=&quot;离线安装&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/platformio-offline/platformio.platformio-ide-3.1.1@win32-x64.vsix&quot;&gt;点击下载PlatformIO离线安装包&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;首次创建项目无法加载&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;打开任务管理器将关于vscode/platformIO/python的进程全部关掉，不会关可以直接关机重启。&lt;/li&gt;
+&lt;li&gt;根据你的电脑路径，找到.platfromio文件夹将其删除。&lt;/li&gt;
+&lt;li&gt;下载中的.platformio解压在原文件夹路径，重新打开vscode，可能还有其他依赖加载，一般几十秒就可以正常启动了。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&quot;https://sukk-imgbed.pages.dev/file/1784520426575_platformio%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84.png&quot; alt=&quot;PlatformIO文件路径&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://pan.baidu.com/s/1wgq2J7eosyw5shmHPX-7SA?pwd=v1t3&quot;&gt;点击下载.platformio文件&lt;/a&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Devtools</category></item><item><title>Mininet 网络实验</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-04-mininet-experiment</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-04-mininet-experiment</guid><description>WSL2 环境搭建、Mininet 安装与基础拓扑实验</description><pubDate>Sat, 20 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;import { Steps, Aside } from &apos;astro-pure/user&apos;&lt;/p&gt;
+&lt;p&gt;在前面的文章中我们一直在看理论，今天终于要动手了。Mininet 是 SDN 领域最常用的网络仿真工具，它能在一台电脑上模拟出由多台交换机和主机组成的网络拓扑，用来做各种网络实验。&lt;/p&gt;
+&lt;p&gt;这篇文章会带你从零搭建 Mininet 环境，并完成一系列基础实验。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、什么是 Mininet&lt;/h2&gt;
+&lt;p&gt;Mininet 是一个轻量级的网络仿真工具，由斯坦福大学开发。它的核心能力是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在一台普通电脑上创建虚拟的交换机、主机和链路&lt;/li&gt;
+&lt;li&gt;这些虚拟设备运行的是真实的 Linux 网络栈，不是模拟器&lt;/li&gt;
+&lt;li&gt;支持 OpenFlow 协议，可以连接真实的 SDN 控制器&lt;/li&gt;
+&lt;li&gt;用 Python 脚本就能定义任意网络拓扑&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;简单说，Mininet 就是一个&quot;网络沙箱&quot;，你可以在里面随意搭建、测试网络，不用担心影响真实网络。&lt;/p&gt;
+&lt;h3&gt;1.1 Mininet 能做什么&lt;/h3&gt;
+&lt;p&gt;| 用途 | 说明 |
+|------|------|
+| 快速原型 | 几分钟搭建一个复杂的网络拓扑进行测试 |
+| SDN 实验 | 配合 Ryu/ONOS 等控制器验证 OpenFlow 功能 |
+| 网络调试 | 用 Wireshark 抓包分析数据包在虚拟网络中的流转 |
+| 教学演示 | 课堂上现场演示网络协议的行为 |&lt;/p&gt;
+&lt;h3&gt;1.2 安装环境&lt;/h3&gt;
+&lt;p&gt;我们选择在 &lt;strong&gt;WSL2 + Ubuntu 24.04&lt;/strong&gt; 上安装 Mininet，这也是目前最推荐的方式。原因：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;WSL2（Windows Subsystem for Linux，Windows Linux 子系统）内核支持网络命名空间，Mininet 需要这个功能&lt;/li&gt;
+&lt;li&gt;Ubuntu 软件源丰富，依赖安装方便&lt;/li&gt;
+&lt;li&gt;不需要虚拟机，启动快、资源占用小&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、安装 WSL2&lt;/h2&gt;
+&lt;p&gt;在安装 Mininet 之前，需要先搭建 Linux 环境。WSL2（Windows Subsystem for Linux 2）是 Windows 内置的 Linux 子系统，不需要装虚拟机就能直接用。&lt;/p&gt;
+&lt;h3&gt;2.1 什么是 WSL&lt;/h3&gt;
+&lt;p&gt;WSL 是 Windows 系统内嵌的 Linux 环境。通过 WSL 可以：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;直接在 Windows 上运行 Ubuntu、Debian 等 Linux 发行版&lt;/li&gt;
+&lt;li&gt;运行 Linux 命令、开发代码&lt;/li&gt;
+&lt;li&gt;直接访问 Windows 电脑的文件系统&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;2.2 WSL2 vs 虚拟机&lt;/h3&gt;
+&lt;p&gt;| 方案 | 安装复杂度 | 启动速度 | 资源占用 |
+|------|-----------|---------|---------|
+| 虚拟机 | 步骤较多 | 较慢 | 高 |
+| WSL2 | 简单 | 秒级启动 | 极低 |&lt;/p&gt;
+&lt;h3&gt;2.3 系统要求&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Windows 11：默认就是 WSL2&lt;/li&gt;
+&lt;li&gt;Windows 10 2004 及以后版本：默认是 WSL2&lt;/li&gt;
+&lt;li&gt;Windows 10 2004 以前的版本：默认是 WSL1，需要升级系统&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;2.4 安装步骤&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;第一步：打开管理员终端&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;右键点击&quot;开始菜单&quot;，选择&quot;终端（管理员）&quot;。一定要选带&quot;管理员&quot;的版本。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;第二步：查看可安装的发行版&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;wsl --list --online
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;第三步：安装 Ubuntu 24.04&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;wsl --install -d Ubuntu-24.04
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;等待安装完成。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;第四步：配置用户与密码&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;安装完成后需要创建默认用户：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;回车创建用户&lt;/li&gt;
+&lt;li&gt;输入用户名&lt;/li&gt;
+&lt;li&gt;输入两次密码（输入密码时不显示，输入完按回车即可）&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;配置完成后命令行会切换成刚创建的用户名，此时已进入 Ubuntu 系统。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;第五步：验证安装&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;lsb_release -a
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;输出应显示 Ubuntu 24.04。&lt;/p&gt;
+&lt;h3&gt;2.5 日常使用&lt;/h3&gt;
+&lt;p&gt;| 命令 | 功能 |
+|------|------|
+| &lt;code&gt;wsl&lt;/code&gt; | 启动 Linux 系统 |
+| &lt;code&gt;wsl --shutdown&lt;/code&gt; | 关闭 WSL，节省内存 |
+| &lt;code&gt;wsl --unregister Ubuntu-24.04&lt;/code&gt; | 卸载 Ubuntu |&lt;/p&gt;
+&lt;p&gt;在 Ubuntu 系统中可以直接访问 Windows 的 C 盘、D 盘、E 盘，文件互通。比如在 WSL 中输入 &lt;code&gt;ls /mnt/d/&lt;/code&gt; 就能看到 D 盘的文件。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、安装 Mininet&lt;/h2&gt;
+&lt;p&gt;在 WSL2 的 Ubuntu 终端中执行以下步骤。&lt;/p&gt;
+&lt;h3&gt;3.0 基础环境配置&lt;/h3&gt;
+&lt;p&gt;刚装好的 WSL2 Ubuntu 几乎是空的，需要先做几件基础事情。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;更新软件源&lt;/strong&gt;&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo apt update &amp;#x26;&amp;#x26; sudo apt upgrade -y
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这一步会更新系统自带的软件包列表，可能需要几分钟，取决于网速。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;安装 Git&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Git 是从 GitHub 下载源码的必备工具，Ubuntu 默认没有预装：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo apt install -y git
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;安装 Python&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Ubuntu 24.04 自带 Python 3，但 Mininet 的 Makefile 里用的是 &lt;code&gt;python&lt;/code&gt; 命令（不是 &lt;code&gt;python3&lt;/code&gt;），需要创建软链接：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo ln -s /usr/bin/python3 /usr/bin/python
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;安装编译工具&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Mininet 的一些组件（如 mnexec）需要用 C 编译器构建：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo apt install -y gcc make
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;strong&gt;安装 tcpdump&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;后续抓包实验需要，顺便装上：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo apt install -y tcpdump
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.1 从源码安装&lt;/h3&gt;
+&lt;p&gt;Mininet 官方推荐从 GitHub 源码安装，这样可以获取最新版本：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;# 克隆源码
+git clone https://github.com/mininet/mininet.git
+cd mininet
+
+# Ubuntu 24.04 兼容性修复
+# 1. 安装 pycodestyle（替代旧版 pep8）
+sudo apt install -y pycodestyle
+
+# 2. 修改安装脚本中的包名
+sudo sed -i &apos;s/pep8/pycodestyle/g&apos; util/install.sh
+
+# 3. 安装 Mininet 及所有依赖
+sudo ./util/install.sh -a
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.2 安装过程中的常见问题&lt;/h3&gt;
+&lt;p&gt;| 问题 | 原因 | 解决方法 |
+|------|------|---------|
+| &lt;code&gt;Unable to locate package mininet&lt;/code&gt; | Ubuntu 默认源没有 Mininet | 从源码安装 |
+| &lt;code&gt;Package pep8 has no installation candidate&lt;/code&gt; | Ubuntu 24.04 中 pep8 已改名 | &lt;code&gt;apt install pycodestyle&lt;/code&gt; |
+| &lt;code&gt;externally-managed-environment&lt;/code&gt; | Ubuntu 24.04 禁止全局 pip 安装 | 安装 &lt;code&gt;python3-pip-whl&lt;/code&gt; |
+| &lt;code&gt;Cannot find required executable mnexec&lt;/code&gt; | mnexec 未编译 | &lt;code&gt;cd mininet &amp;#x26;&amp;#x26; sudo make install&lt;/code&gt; |
+| &lt;code&gt;Cannot find required executable ovs-vsctl&lt;/code&gt; | Open vSwitch 未安装 | &lt;code&gt;apt install openvswitch-switch&lt;/code&gt; |&lt;/p&gt;
+&lt;h3&gt;3.3 修复 mnexec&lt;/h3&gt;
+&lt;p&gt;mnexec 是 Mininet 的核心执行工具，有时安装脚本不会自动编译它，需要手动处理：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;cd ~/mininet   # Mininet 源码目录
+sudo make
+sudo make install
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;然后安装 Open vSwitch（Mininet 需要它作为虚拟交换机）：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo apt install -y openvswitch-switch openvswitch-common
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.4 验证安装&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --version
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;如果输出版本号（如 &lt;code&gt;2.3.1b4&lt;/code&gt;），说明安装成功。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、第一个实验：默认拓扑 pingall&lt;/h2&gt;
+&lt;p&gt;Mininet 自带一个默认拓扑：1 台交换机 + 2 台主机。用 &lt;code&gt;--test pingall&lt;/code&gt; 可以一键创建拓扑、启动、测试连通性，然后自动退出。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --test pingall
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;执行结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*** Creating network
+*** Adding hosts: h1 h2
+*** Adding switches: s1
+*** Adding links: (h1, s1) (h2, s1)
+*** Configuring hosts h1 h2
+*** Starting controller
+*** Starting 1 switches: s1 ...
+*** Ping: testing ping reachability
+h1 -&gt; h2
+h2 -&gt; h1
+*** Results: 0% dropped (2/2 received)
+*** Done
+completed in 0.247 seconds
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;4.1 解读输出&lt;/h3&gt;
+&lt;p&gt;逐步拆解这个过程：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;创建网络&lt;/strong&gt; — Mininet 创建了虚拟的网络命名空间&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;添加主机&lt;/strong&gt; — 创建了 h1 和 h2 两台虚拟主机，各自有独立的 IP 地址&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;添加交换机&lt;/strong&gt; — 创建了 s1（默认使用 OVS（Open vSwitch，开源虚拟交换机） Bridge 模式）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;添加链路&lt;/strong&gt; — h1 连到 s1，h2 连到 s1&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;配置主机&lt;/strong&gt; — 给 h1（10.0.0.1）和 h2（10.0.0.2）分配 IP&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ping 测试&lt;/strong&gt; — h1 ping h2，h2 ping h1，全部成功&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;0% dropped&lt;/strong&gt; — 没有丢包，网络连通性正常&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;4.2 网络拓扑图&lt;/h3&gt;
+&lt;p&gt;这个实验的拓扑非常简单：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    h1((h1)) --- s1(交换机 s1)
+    h2((h2)) --- s1
+    subgraph net[10.0.0.0/24]
+        h1
+        h2
+        s1
+    end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;两台主机通过同一台交换机互联，相当于两台电脑连在同一个交换机上。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、指定拓扑实验&lt;/h2&gt;
+&lt;p&gt;Mininet 内置了几种常见拓扑，通过 &lt;code&gt;--topo&lt;/code&gt; 参数指定。&lt;/p&gt;
+&lt;h3&gt;5.1 Single 拓扑：1 台交换机 + N 台主机&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --topo single,3 --test pingall
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*** Adding hosts: h1 h2 h3
+*** Adding switches: s1
+*** Ping: testing ping reachability
+h1 -&gt; h2 h3
+h2 -&gt; h1 h3
+h3 -&gt; h1 h2
+*** Results: 0% dropped (6/6 received)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;拓扑图：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    h1((h1)) --- s1(交换机 s1)
+    h2((h2)) --- s1
+    h3((h3)) --- s1
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;3 台主机两两互通，总共 6 次 ping（h1→h2、h1→h3、h2→h1、h2→h3、h3→h1、h3→h2），全部成功。&lt;/p&gt;
+&lt;h3&gt;5.2 Linear 拓扑：N 台交换机串联&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --topo linear,4 --test pingall
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*** Adding hosts: h1 h2 h3 h4
+*** Adding switches: s1 s2 s3 s4
+*** Adding links: (h1,s1) (h2,s2) (h3,s3) (h4,s4) (s2,s1) (s3,s2) (s4,s3)
+*** Ping: testing ping reachability
+h1 -&gt; h2 h3 h4
+h2 -&gt; h1 h3 h4
+h3 -&gt; h1 h2 h4
+h4 -&gt; h1 h2 h3
+*** Results: 0% dropped (12/12 received)
+completed in 0.615 seconds
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;拓扑图：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    h1((h1)) --- s1(交换机 s1)
+    h2((h2)) --- s2(交换机 s2)
+    h3((h3)) --- s3(交换机 s3)
+    h4((h4)) --- s4(交换机 s4)
+    s1 --- s2
+    s2 --- s3
+    s3 --- s4
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;4 台交换机串联成一条线，每台交换机下挂一台主机。注意完成时间从 0.247 秒增加到了 0.615 秒，因为交换机之间的转发路径变长了。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、交互式操作&lt;/h2&gt;
+&lt;p&gt;除了命令行一键测试，Mininet 还提供了一个交互式 CLI，可以手动操作每个节点。&lt;/p&gt;
+&lt;h3&gt;6.1 启动 Mininet&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;启动后进入 Mininet 命令行：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;6.2 查看节点和拓扑&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt; nodes
+available nodes are:
+h1 h2 s1
+
+mininet&gt; net
+h1 h1-eth0:s1-eth1
+h2 h2-eth0:s1-eth2
+s1 lo:  s1-eth1:h1-eth0 s1-eth2:h2-eth0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;nodes&lt;/code&gt; 列出所有节点，&lt;code&gt;net&lt;/code&gt; 显示每个节点的接口和连接关系。&lt;/p&gt;
+&lt;h3&gt;6.3 手动 Ping 测试&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt; h1 ping h2
+PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
+64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=1.52 ms
+64 bytes from 10.0.0.2: icmp_seq=2 ttl=64 time=0.114 ms
+64 bytes from 10.0.0.2: icmp_seq=3 ttl=64 time=0.121 ms
+...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;h1 ping h2&lt;/code&gt; 表示在 h1 上执行 ping 命令。按 &lt;code&gt;Ctrl + C&lt;/code&gt; 停止。&lt;/p&gt;
+&lt;p&gt;可以看到第一个包的延迟是 1.52ms（因为要查 ARP 表），后面稳定在 0.1ms 左右，说明虚拟网络的延迟非常低。&lt;/p&gt;
+&lt;h3&gt;6.4 带宽测试&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt; iperf
+*** Iperf: testing TCP bandwidth between h1 and h2
+*** Results: [&apos;91.8 Gbits/sec&apos;, &apos;91.6 Gbits/sec&apos;]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;iperf 测试 h1 到 h2 的 TCP 带宽。结果显示 91.8 Gbits/sec，这是因为虚拟网络走的是内存，带宽远超物理网络。&lt;/p&gt;
+&lt;h3&gt;6.5 自定义拓扑实验&lt;/h3&gt;
+&lt;p&gt;Mininet 内置的拓扑有限，我们可以用 Python 脚本定义任意拓扑。下面是一个 2 交换机 + 4 主机的例子。&lt;/p&gt;
+&lt;p&gt;创建文件 &lt;code&gt;topo.py&lt;/code&gt;：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-python&quot;&gt;from mininet.net import Mininet
+from mininet.topo import Topo
+
+class MyTopo(Topo):
+    def build(self):
+        h1 = self.addHost(&apos;h1&apos;)
+        h2 = self.addHost(&apos;h2&apos;)
+        h3 = self.addHost(&apos;h3&apos;)
+        h4 = self.addHost(&apos;h4&apos;)
+        s1 = self.addSwitch(&apos;s1&apos;)
+        s2 = self.addSwitch(&apos;s2&apos;)
+
+        self.addLink(h1, s1)
+        self.addLink(h2, s1)
+        self.addLink(h3, s2)
+        self.addLink(h4, s2)
+        self.addLink(s1, s2)
+
+topos = { &apos;mytopo&apos;: ( lambda: MyTopo() ) }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;拓扑图：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    h1((h1)) --- s1(交换机 s1)
+    h2((h2)) --- s1
+    h3((h3)) --- s2(交换机 s2)
+    h4((h4)) --- s2
+    s1 --- s2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;运行：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --custom topo.py --topo mytopo --test pingall
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;*** Ping: testing ping reachability
+h1 -&gt; h2 h3 h4
+h2 -&gt; h1 h3 h4
+h3 -&gt; h1 h2 h4
+h4 -&gt; h1 h2 h3
+*** Results: 0% dropped (12/12 received)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;两台交换机之间有链路连接，h1/h2 通过 s1 通信，h3/h4 通过 s2 通信，跨交换机的流量经过 s1-s2 链路转发。&lt;/p&gt;
+&lt;h3&gt;6.6 tcpdump 抓包&lt;/h3&gt;
+&lt;p&gt;Mininet 的主机可以运行 &lt;code&gt;tcpdump&lt;/code&gt; 来抓取经过网卡的数据包（前面基础环境已安装）。启动自定义拓扑进入交互模式：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-bash&quot;&gt;sudo mn --custom topo.py --topo mytopo
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;在 h1 上启动抓包（后台运行），然后让 h1 ping h2：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt; h1 tcpdump -i h1-eth0 -c 5 &amp;#x26;
+mininet&gt; h1 ping -c 3 h2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;输出：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;tcpdump: listening on h1-eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+11:33:59.283728 IP6 fe80::b838:87ff:fee5:35ad &gt; ip6-allrouters: ICMP6, router solicitation, length 16
+PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
+64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=2.07 ms
+64 bytes from 10.0.0.2: icmp_seq=2 ttl=64 time=0.121 ms
+64 bytes from 10.0.0.2: icmp_seq=3 ttl=64 time=0.111 ms
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;tcpdump 抓到了 IPv6 路由请求包（ICMP6 router solicitation），这是主机启动时自动发送的。如果想只抓 IPv4 的 ICMP 包，可以用过滤器：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt; h1 tcpdump -i h1-eth0 -c 5 icmp &amp;#x26;
+mininet&gt; h1 ping -c 3 h2
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;code&gt;-c 5&lt;/code&gt; 表示抓够 5 个包后自动停止，&lt;code&gt;&amp;#x26;&lt;/code&gt; 让它在后台运行。&lt;/p&gt;
+&lt;h3&gt;6.7 退出&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;mininet&gt; quit
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;七、常用命令速查&lt;/h2&gt;
+&lt;p&gt;| 命令 | 作用 |
+|------|------|
+| &lt;code&gt;sudo mn&lt;/code&gt; | 启动默认拓扑并进入交互模式 |
+| &lt;code&gt;sudo mn --test pingall&lt;/code&gt; | 一键测试连通性 |
+| &lt;code&gt;sudo mn --topo single,3&lt;/code&gt; | 指定 1 交换机 + 3 主机 |
+| &lt;code&gt;sudo mn --topo linear,4&lt;/code&gt; | 指定 4 交换机线性拓扑 |
+| &lt;code&gt;sudo mn --custom topo.py --topo mytopo&lt;/code&gt; | 使用自定义拓扑 |
+| &lt;code&gt;nodes&lt;/code&gt; | 查看所有节点 |
+| &lt;code&gt;net&lt;/code&gt; | 查看网络连接 |
+| &lt;code&gt;h1 ping h2&lt;/code&gt; | 在 h1 上 ping h2 |
+| &lt;code&gt;iperf&lt;/code&gt; | TCP 带宽测试 |
+| &lt;code&gt;h1 tcpdump -i h1-eth0 -c 5 &amp;#x26;&lt;/code&gt; | 在 h1 上后台抓包 |
+| &lt;code&gt;exit&lt;/code&gt; / &lt;code&gt;quit&lt;/code&gt; | 退出 Mininet |
+| &lt;code&gt;sudo mn -c&lt;/code&gt; | 清理残留的 Mininet 进程 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;八、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 环境搭建 | WSL2 + Ubuntu 24.04 + Mininet 2.3.1 + OVS |
+| 基础实验 | default pingall、single-3 pingall、linear-4 pingall |
+| 交互操作 | nodes、net、h1 ping h2、iperf |
+| 核心收获 | 理解 Mininet 的工作原理，能够独立搭建虚拟网络并进行测试 |
+| 遇到的问题 | Ubuntu 24.04 的 pep8 包改名、python 软链接缺失、OVS 未安装 |
+| 待深入 | 明天安装 Ryu 控制器，实现第一个 SDN 实验（L2 Switch） |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&quot;https://yeasy.gitbook.io/mininet_book/&quot;&gt;Mininet Book&lt;/a&gt; — Mininet 官方中文教程&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://github.com/mininet/mininet&quot;&gt;Mininet GitHub&lt;/a&gt; — 源码与安装指南&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.sdnlab.com/sdn-guide/&quot;&gt;SDNLAB Mininet 教程&lt;/a&gt; — SDN 实验入门&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://mininet.org/&quot;&gt;Mininet 官方文档&lt;/a&gt; — API 参考与示例&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第4篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → OpenFlow 协议详解 | 下一篇 → SDN 安全与入侵检测&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item><item><title>乐鑫 Flash Download Tool 完全指南：烧录、提取、合并固件</title><link>https://sukkk-zcy.github.io/blog/embedded/esp32-flash-download-tool</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/embedded/esp32-flash-download-tool</guid><description>乐鑫官方 Flash Download Tools 使用教程，覆盖固件烧录、Flash 内容提取备份、多固件合并三大核心功能</description><pubDate>Thu, 18 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
+&lt;p&gt;日常开发中，我们习惯用 Arduino IDE 或 PlatformIO 一键编译烧录。但在很多场景下，我们需要一种更&quot;底层&quot;、更通用的方式操作 ESP32 的 Flash：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;手头只有别人编译好的 &lt;strong&gt;bin 固件包&lt;/strong&gt;，需要手动烧录；&lt;/li&gt;
+&lt;li&gt;想&lt;strong&gt;备份原厂固件&lt;/strong&gt;，或者分析设备里到底刷了什么；&lt;/li&gt;
+&lt;li&gt;批量生产时需要把多个固件&lt;strong&gt;合并成一个文件&lt;/strong&gt;，一次烧录完成。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这时候，乐鑫官方出品的 &lt;strong&gt;Flash Download Tools&lt;/strong&gt;（图形化烧录工具）就是最趁手的工具。它是 Windows 下的绿色软件，解压即用，支持 ESP32 全系列芯片，无需安装任何开发环境。&lt;/p&gt;
+&lt;p&gt;本文从实战出发，完整介绍它的三大功能：&lt;strong&gt;烧录固件（Write）&lt;/strong&gt;、&lt;strong&gt;提取固件（Read）&lt;/strong&gt;、&lt;strong&gt;合并固件（CombineBin）&lt;/strong&gt;。&lt;/p&gt;
+&lt;h2&gt;工具简介与下载&lt;/h2&gt;
+&lt;p&gt;Flash Download Tools 是乐鑫官方提供的图形化固件烧录软件，支持以下芯片：&lt;/p&gt;
+&lt;p&gt;| 系列 | 芯片 |
+|------|------|
+| 经典 | ESP32、ESP32-S2、ESP32-S3 |
+| RISC-V | ESP32-C2、ESP32-C3、ESP32-C5、ESP32-C6、ESP32-H2、ESP32-P4 |&lt;/p&gt;
+&lt;p&gt;下载地址（乐鑫官网 → 工具）：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;https://www.espressif.com/zh-hans/support/download/other-tools
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;下载后是一个压缩包（例如 &lt;code&gt;flash_download_tool_3.9.7.zip&lt;/code&gt;），解压即可使用，&lt;strong&gt;无需安装&lt;/strong&gt;。目录结构大致如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;flash_download_tool_3.9.7/
+├── flash_download_tool_3.9.7.exe   # 32 位版本
+├── flash_download_tool_3.9.7_64.exe # 64 位版本
+├── doc/                            # 使用文档（含 PDF）
+└── ...
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;建议直接运行 &lt;code&gt;*_64.exe&lt;/code&gt;（64 位系统）。&lt;/p&gt;
+&lt;h2&gt;第一步：进入下载模式&lt;/h2&gt;
+&lt;p&gt;烧录和读取都要求芯片处于 &lt;strong&gt;下载模式（Download Mode）&lt;/strong&gt;，此时芯片不执行用户程序，而是通过 UART 与电脑通信。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;大部分开发板（NodeMCU、ESP32-DevKitC、ESP32-S3-DevKitC 等）自带 USB 转串口芯片（CP2102/CH340 等），插上 USB 线即可；如果是裸模组，需要外接 USB-TTL 转换器。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;进入下载模式的经典方法：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;将模块通过 USB 线（或 USB-TTL）连接电脑；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;按住 BOOT 按键（GPIO0 拉低）不放&lt;/strong&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;点按一下 RST 按键&lt;/strong&gt;（复位）；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;松开 BOOT 按键&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;此时芯片就停留在下载模式。如果开发板没有按键，也可以在复位瞬间把 GPIO0 接地。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如果烧录过程中提示 &quot;Failed to connect to ESP32&quot;，多半是没进入下载模式，或者 COM 口选错了。部分开发板支持 USB 一键进入下载模式（如 ESP32-S3 原生 USB），也可以直接在工具里选择对应的端口后点 START 试试。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;二、烧录固件（Write）&lt;/h2&gt;
+&lt;h3&gt;2.1 启动工具&lt;/h3&gt;
+&lt;p&gt;双击运行 &lt;code&gt;flash_download_tool_3.9.7_64.exe&lt;/code&gt;，弹出启动对话框：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ChipType:    ESP32        ← 选择芯片型号
+WorkMode:    Develop      ← 开发模式
+LoadMode:    UART         ← 通过串口下载
+&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;ChipType&lt;/strong&gt;：按实际芯片选择，ESP32 / ESP32-S3 / ESP32-C3 等；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;WorkMode&lt;/strong&gt;：一般选 &lt;strong&gt;Develop&lt;/strong&gt;（开发模式），生产批量可选手动配置；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;LoadMode&lt;/strong&gt;：日常串口烧录选 &lt;strong&gt;UART&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;点击 &lt;strong&gt;OK&lt;/strong&gt; 进入主界面。&lt;/p&gt;
+&lt;h3&gt;2.2 选择固件与地址&lt;/h3&gt;
+&lt;p&gt;烧录的核心就是：&lt;strong&gt;把 bin 文件放到对应的 Flash 地址&lt;/strong&gt;。地址不对，芯片可能无法启动。&lt;/p&gt;
+&lt;p&gt;以经典 &lt;strong&gt;ESP32（Arduino 框架，4MB Flash）&lt;/strong&gt; 为例，典型地址映射：&lt;/p&gt;
+&lt;p&gt;| Flash 地址 | 内容 | 说明 |
+|-----------|------|------|
+| &lt;code&gt;0x1000&lt;/code&gt; | &lt;code&gt;bootloader.bin&lt;/code&gt; | 二级引导程序 |
+| &lt;code&gt;0x8000&lt;/code&gt; | &lt;code&gt;partitions.bin&lt;/code&gt; | 分区表 |
+| &lt;code&gt;0xe000&lt;/code&gt; | &lt;code&gt;boot_app0.bin&lt;/code&gt; | OTA 启动辅助程序 |
+| &lt;code&gt;0x10000&lt;/code&gt; | &lt;code&gt;firmware.bin&lt;/code&gt; | 用户应用程序 |&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如果是 ESP-IDF 编译的工程，&lt;code&gt;build&lt;/code&gt; 目录下会生成 &lt;code&gt;bootloader.bin&lt;/code&gt;、&lt;code&gt;partition-table.bin&lt;/code&gt;、&lt;code&gt;xxx.bin&lt;/code&gt;；PlatformIO 在 &lt;code&gt;.pio/build/&amp;#x3C;env&gt;/&lt;/code&gt; 下也有这些文件。Arduino IDE 导出二进制时同样会列出地址。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;ESP32-S3 / C3 等新芯片地址略有不同&lt;/strong&gt;（bootloader 在 &lt;code&gt;0x0&lt;/code&gt;，分区表在 &lt;code&gt;0x8000&lt;/code&gt;，应用在 &lt;code&gt;0x10000&lt;/code&gt;），请以官方文档或编译输出为准。&lt;/p&gt;
+&lt;h3&gt;2.3 配置 SPI 参数并烧录&lt;/h3&gt;
+&lt;p&gt;在 &lt;code&gt;Download Path Config&lt;/code&gt; 表格中，每一行填写：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;固件路径&lt;/strong&gt;：点击右侧 &lt;code&gt;...&lt;/code&gt; 选择 bin 文件；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Flash 地址&lt;/strong&gt;：填写对应地址（如 &lt;code&gt;0x1000&lt;/code&gt;）；&lt;/li&gt;
+&lt;li&gt;勾选该行左侧的复选框，使其生效。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;然后设置：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;SPI SPEED&lt;/strong&gt;：一般选 &lt;code&gt;40MHz&lt;/code&gt;（ESP32-S3/C3 常用 80MHz，按模块标注选择）；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SPI MODE&lt;/strong&gt;：常用 &lt;code&gt;DIO&lt;/code&gt; / &lt;code&gt;QIO&lt;/code&gt;（按固件编译参数选择）；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;DoNotChgBin&lt;/strong&gt;：勾选后&lt;strong&gt;按 bin 文件原始内容烧录&lt;/strong&gt;，不做任何修改；不勾选则工具会按界面的 SPI SPEED / SPI MODE 重新改写 bin 头部再烧录。建议勾选，保持固件原样。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;确认 COM 口和波特率（默认 460800 即可，不稳定可降到 230400 / 115200），点击 &lt;strong&gt;START&lt;/strong&gt;，开始烧录：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;等待上电同步... 
+正在擦除/写入...
+FINISH  ✔
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;出现 &lt;strong&gt;FINISH&lt;/strong&gt; 即烧录成功。之后按一下开发板 RST 复位，设备即可运行新固件。&lt;/p&gt;
+&lt;h3&gt;2.4 先擦除再烧录（重要）&lt;/h3&gt;
+&lt;p&gt;从旧固件升级、或设备之前刷过其他系统（如 AT 固件、MicroPython、陌生固件）时，建议&lt;strong&gt;先整体擦除 Flash&lt;/strong&gt; 再烧录，避免旧数据残留导致启动异常：&lt;/p&gt;
+&lt;p&gt;在工具栏切换到 &lt;strong&gt;Erase&lt;/strong&gt; 标签 → 选择 COM 口 → 点击 &lt;strong&gt;ERASE&lt;/strong&gt;，等待擦除完成，再回到烧录界面烧录固件。&lt;/p&gt;
+&lt;h2&gt;三、提取固件（Read）&lt;/h2&gt;
+&lt;p&gt;提取固件的典型场景：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;备份&lt;strong&gt;原厂固件&lt;/strong&gt;，防止刷坏后无法恢复；&lt;/li&gt;
+&lt;li&gt;分析设备当前运行的固件内容；&lt;/li&gt;
+&lt;li&gt;从&quot;半砖&quot;设备里抢救分区数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;操作步骤：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;进入下载模式（同上）；&lt;/li&gt;
+&lt;li&gt;在主界面切换到 &lt;strong&gt;ReadFlash&lt;/strong&gt; 标签；&lt;/li&gt;
+&lt;li&gt;填写以下参数：
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;起始地址（Start Address）&lt;/strong&gt;：如 &lt;code&gt;0x0000&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;长度（Size）&lt;/strong&gt;：要读取的字节数，单位可以是字节、KB、MB。经典 4MB Flash 全量读取填 &lt;code&gt;0x400000&lt;/code&gt;（即 4MB）；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;保存文件&lt;/strong&gt;：点击 &lt;code&gt;...&lt;/code&gt; 选择输出 bin 文件的路径和文件名；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;选择 COM 口，点击 &lt;strong&gt;START&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;工具会把指定地址区间的内容逐段读出来，写入本地 bin 文件：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ReadFlash 完成 → 生成 backup_4m.bin
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;提取出的 bin 如何用？&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;全量提取的 bin（从 &lt;code&gt;0x0&lt;/code&gt; 开始）可以直接&lt;strong&gt;整体烧录回去&lt;/strong&gt;（起始地址填 &lt;code&gt;0x0&lt;/code&gt;，且确保 Flash 大小一致），相当于完整还原；&lt;/li&gt;
+&lt;li&gt;提取的固件可以交给&lt;strong&gt;合并工具&lt;/strong&gt;重新打包，或交给反汇编/分析工具（如 &lt;code&gt;binwalk&lt;/code&gt;）查看内容；&lt;/li&gt;
+&lt;li&gt;结合偏移地址，也可以只提取某个分区（比如只读 &lt;code&gt;0x10000&lt;/code&gt; 起 1MB 的 app 分区）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;注意：读取的 bin 体积等于&quot;长度&quot;指定的字节数，Flash 中未写入的区域读出来是 &lt;code&gt;0xFF&lt;/code&gt;。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;四、合并固件（CombineBin）&lt;/h2&gt;
+&lt;p&gt;多文件固件（bootloader + 分区表 + 应用）逐个烧录比较麻烦，尤其是&lt;strong&gt;批量生产&lt;/strong&gt;或&lt;strong&gt;发给别人烧录&lt;/strong&gt;时。Flash Download Tool 提供了 &lt;strong&gt;CombineBin&lt;/strong&gt; 功能，把多个固件合并成&lt;strong&gt;一个 bin&lt;/strong&gt;，之后只需烧录一次。&lt;/p&gt;
+&lt;p&gt;操作步骤：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在 &lt;code&gt;Download Path Config&lt;/code&gt; 中&lt;strong&gt;按地址&lt;/strong&gt;添加所有固件（bootloader、分区表、应用等），并勾选；&lt;/li&gt;
+&lt;li&gt;设置 &lt;strong&gt;SPI SPEED / SPI MODE&lt;/strong&gt;（建议勾选 &lt;strong&gt;DoNotChgBin&lt;/strong&gt; 保持固件原始内容）；&lt;/li&gt;
+&lt;li&gt;点击右下角 &lt;strong&gt;CombineBin&lt;/strong&gt; 按钮；&lt;/li&gt;
+&lt;li&gt;工具自动生成合并文件：&lt;strong&gt;&lt;code&gt;./combine/target.bin&lt;/code&gt;&lt;/strong&gt;（相对工具所在目录）。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;合并规则：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;固件按各自的 Flash 地址放到合并文件中的对应位置；&lt;/li&gt;
+&lt;li&gt;固件之间&lt;strong&gt;空白的区域自动用 &lt;code&gt;0xFF&lt;/code&gt; 填充&lt;/strong&gt;；&lt;/li&gt;
+&lt;li&gt;合并文件大小 ≈ 最后一个固件的结束地址；&lt;/li&gt;
+&lt;li&gt;每次点击 CombineBin 都会&lt;strong&gt;覆盖&lt;/strong&gt;上一次的 &lt;code&gt;target.bin&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;合并完成后，把 &lt;code&gt;target.bin&lt;/code&gt; 发给任何有 Flash Download Tool 的人，对方只需：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;地址填 0x0 → 选择 target.bin → START
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;一次烧录完成，全流程无脑可靠。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;也可以顺手用 &lt;code&gt;esptool.py&lt;/code&gt; 验证合并结果：&lt;code&gt;esptool.py --chip esp32 merge_bin -o merged.bin 0x1000 bootloader.bin 0x8000 partitions.bin 0xe000 boot_app0.bin 0x10000 firmware.bin&lt;/code&gt;，效果等价。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;五、常见问题&lt;/h2&gt;
+&lt;h3&gt;Q1：一直提示 &quot;Failed to connect to ESP32&quot;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;确认芯片已进入下载模式（按住 BOOT + 点按 RST）；&lt;/li&gt;
+&lt;li&gt;确认 COM 口选择正确（可在设备管理器中查看）；&lt;/li&gt;
+&lt;li&gt;换个 USB 线 / USB 口（部分线材只有充电线没有数据线）；&lt;/li&gt;
+&lt;li&gt;降低波特率（115200）重试。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Q2：烧录成功但设备没反应 / 一直重启&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;确认各 bin 的 Flash 地址是否正确（最常见错误：bootloader 没放 &lt;code&gt;0x1000&lt;/code&gt;，或 app 没放 &lt;code&gt;0x10000&lt;/code&gt;）；&lt;/li&gt;
+&lt;li&gt;确认 Flash 大小与固件匹配（如 4MB 芯片刷了 16MB 的分区表）；&lt;/li&gt;
+&lt;li&gt;烧录前先 &lt;strong&gt;Erase&lt;/strong&gt; 全片再写入。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Q3：合并后的 target.bin 无法启动&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;合并前务必确认所有固件都按正确地址添加、且都已勾选；&lt;/li&gt;
+&lt;li&gt;检查 SPI SPEED / SPI MODE 与固件编译参数一致；&lt;/li&gt;
+&lt;li&gt;合并后烧录时起始地址一定要填 &lt;code&gt;0x0&lt;/code&gt;（不是 &lt;code&gt;0x1000&lt;/code&gt;）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;Q4：读取的 bin 比预期小/大&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;读取长度以字节为单位，注意单位换算（&lt;code&gt;0x400000&lt;/code&gt; = 4MB）；&lt;/li&gt;
+&lt;li&gt;未写入区域读出为 &lt;code&gt;0xFF&lt;/code&gt; 属正常现象。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;小结&lt;/h2&gt;
+&lt;p&gt;Flash Download Tools 是乐鑫官方、无需安装、覆盖全系芯片的万能烧录工具，三个核心功能各有用武之地：&lt;/p&gt;
+&lt;p&gt;| 功能 | 用途 |
+|------|------|
+| &lt;strong&gt;Write 烧录&lt;/strong&gt; | 手动烧录任意 bin，支持地址映射、SPI 参数配置 |
+| &lt;strong&gt;Read 提取&lt;/strong&gt; | 备份原厂固件、分析设备内容、救援恢复 |
+| &lt;strong&gt;CombineBin 合并&lt;/strong&gt; | 多固件打包成一个 bin，批量生产 / 分发一步到位 |&lt;/p&gt;
+&lt;p&gt;配合官方命令行工具 &lt;code&gt;esptool.py&lt;/code&gt;，基本可以覆盖 ESP32 开发中所有&quot;和 Flash 打交道&quot;的需求。收藏本文，下次刷机不慌。&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>Embedded</category></item><item><title>OpenFlow 协议</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-03-openflow-protocol</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-03-openflow-protocol</guid><description>OpenFlow 流表结构、匹配流程、组表与计量表</description><pubDate>Wed, 17 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;import { Aside } from &apos;astro-pure/user&apos;&lt;/p&gt;
+&lt;p&gt;在上一篇中我们了解了 OpenFlow 作为南向接口协议的角色。今天我们深入 OpenFlow 的内部机制，搞清楚三个核心问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;流表的内部结构是什么样的？&lt;/li&gt;
+&lt;li&gt;数据包进入交换机后，匹配流程到底是怎么走的？&lt;/li&gt;
+&lt;li&gt;除了流表，OpenFlow 还有哪些表类型？&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、OpenFlow 版本概览&lt;/h2&gt;
+&lt;p&gt;在上篇（SDN 三层架构）中我们已经介绍了 OpenFlow 的版本演进，这里直接进入核心机制。目前学术界和工业界主要使用 &lt;strong&gt;OpenFlow 1.3&lt;/strong&gt;，这也是我们学习的重点。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、流表（Flow Table）&lt;/h2&gt;
+&lt;p&gt;流表是 OpenFlow 交换机的核心。每条流表项定义了一条转发规则，告诉交换机&quot;遇到什么样的包，怎么处理&quot;。&lt;/p&gt;
+&lt;h3&gt;2.1 流表项的结构&lt;/h3&gt;
+&lt;p&gt;一条流表项由四个部分组成：&lt;/p&gt;
+&lt;p&gt;| 组成部分 | 作用 |
+|----------|------|
+| 匹配字段（Match Fields） | 定义匹配条件：源/目的 MAC、IP、端口号等 |
+| 优先级（Priority） | 多条规则都能匹配时，优先级高的赢 |
+| 计数器（Counters） | 记录匹配到的包数量和字节数 |
+| 动作集（Instructions/Actions） | 匹配后执行的操作 |&lt;/p&gt;
+&lt;h3&gt;2.2 匹配字段详解&lt;/h3&gt;
+&lt;p&gt;OpenFlow 1.0 支持 12 个匹配字段，OpenFlow 1.3 扩展到了 40 多个。常用的包括：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;入端口 (Ingress Port)
+─────────────────────
+源 MAC 地址 (Eth Src)
+目的 MAC 地址 (Eth Dst)
+以太网类型 (Eth Type)
+VLAN ID
+VLAN 优先级
+─────────────────────
+源 IP 地址 (IP Src)
+目的 IP 地址 (IP Dst)
+IP 协议号 (IP Proto)
+IP DSCP
+IP ECN
+─────────────────────
+TCP/UDP 源端口 (Transport Src)
+TCP/UDP 目的端口 (Transport Dst)
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这些字段可以任意组合使用。比如你可以只匹配&quot;目的 IP + TCP 端口&quot;，也可以匹配&quot;入端口 + 源 MAC + VLAN ID&quot;，灵活度很高。&lt;/p&gt;
+&lt;h3&gt;2.3 通配符&lt;/h3&gt;
+&lt;p&gt;不是所有字段都需要精确匹配。OpenFlow 支持通配符：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;精确匹配&lt;/strong&gt;：&lt;code&gt;192.168.1.1&lt;/code&gt; — 只匹配这一个 IP&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;前缀匹配&lt;/strong&gt;：&lt;code&gt;192.168.1.0/24&lt;/code&gt; — 匹配整个网段&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;全匹配&lt;/strong&gt;：&lt;code&gt;*&lt;/code&gt; — 任何值都匹配&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、流表匹配流程&lt;/h2&gt;
+&lt;p&gt;这是 OpenFlow 最核心的机制。当一个数据包进入交换机时，处理流程如下：&lt;/p&gt;
+&lt;h3&gt;3.1 完整流程图&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    START([数据包进入交换机]) --&gt; T0[查找第 0 级流表&amp;#x3C;br/&gt;从最低编号开始]
+    T0 --&gt; MATCH{匹配?}
+    MATCH --&gt;|匹配成功| ACT[执行动作]
+    MATCH --&gt;|未匹配| PI[Packet-In&amp;#x3C;br/&gt;发送给控制器]
+    PI --&gt; CD[控制器决策
+下发 Flow-Mod]
+    ACT --&gt; CHECK{检查是否有
+Goto-Table 指令?}
+    CD --&gt; CHECK
+    CHECK --&gt;|有| GT[跳转到下一级
+流表继续匹配]
+    CHECK --&gt;|无| END([数据包
+离开交换机])
+    GT --&gt; T0
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.2 关键概念：多级流表&lt;/h3&gt;
+&lt;p&gt;OpenFlow 1.3 引入了&lt;strong&gt;多级流表&lt;/strong&gt;，允许多张流表串联工作。数据包可以像过流水线一样，依次经过流表 0、流表 1、流表 2...&lt;/p&gt;
+&lt;p&gt;每一张流表执行特定功能：&lt;/p&gt;
+&lt;p&gt;| 流表 | 典型用途 |
+|------|---------|
+| 流表 0 | 首次分类：区分 ARP、ICMP、TCP/UDP |
+| 流表 1 | 按 IP 网段做进一步路由决策 |
+| 流表 2 | 按端口号做访问控制 |&lt;/p&gt;
+&lt;p&gt;通过 &lt;code&gt;Goto-Table&lt;/code&gt; 指令，数据包可以在多级流表之间跳转。这种设计让复杂的转发逻辑可以拆分成多个简单步骤，每张表负责一部分。&lt;/p&gt;
+&lt;h3&gt;3.3 匹配优先级&lt;/h3&gt;
+&lt;p&gt;当一张流表中有多条规则都能匹配时：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;按 priority 值排序&lt;/strong&gt;：每条流表项有一个 priority 值，数值越大越优先&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;相同 priority&lt;/strong&gt;：由交换机实现决定，OpenFlow 规范不保证具体顺序&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;注意：OpenFlow &lt;strong&gt;不&lt;/strong&gt;按&quot;匹配精确度&quot;排序，只看 priority 数值。所以如果你想让更精确的规则先匹配，需要手动给它设更高的 priority。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、动作集（Actions）&lt;/h2&gt;
+&lt;p&gt;匹配成功后，交换机执行的动作。主要动作类型：&lt;/p&gt;
+&lt;p&gt;| 动作 | 说明 | 例子 |
+|------|------|------|
+| output | 从指定端口转发 | output:3 → 从端口 3 发出 |
+| drop | 丢弃数据包 | 不指定 output 即为丢弃 |
+| set-field | 修改包头字段 | 修改 VLAN ID、目的 MAC |
+| push/pop-tag | 添加/移除标签 | 添加 VLAN 标签 |
+| group | 转发到组表 | 用于广播、多播 |&lt;/p&gt;
+&lt;p&gt;一个流表项可以同时包含多个动作，按顺序依次执行。比如：先修改 VLAN 标签，再从指定端口转发。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、组表（Group Table）&lt;/h2&gt;
+&lt;p&gt;组表是 OpenFlow 1.3 引入的高级转发机制。当多个流表项需要执行相同的复杂动作时，可以把动作封装到组表中，流表项只需引用组 ID。&lt;/p&gt;
+&lt;h3&gt;5.1 组表的四种类型&lt;/h3&gt;
+&lt;p&gt;| 类型 | 用途 | 场景 |
+|------|------|------|
+| All | 所有端口都执行动作 | 广播、泛洪 |
+| Select | 选择一个端口执行 | 负载均衡 |
+| Indirect | 只有一个端口执行 | 高效复用 |
+| Fast Failover | 优先执行活跃端口 | 链路冗余、故障切换 |&lt;/p&gt;
+&lt;h3&gt;5.2 举个例子：广播&lt;/h3&gt;
+&lt;p&gt;假设交换机要将一个 ARP 请求广播到所有端口。没有组表时，需要为每个端口写一条流表项。有了组表：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    SUB1[流表项：match=*] -- group:1 --&gt; G[组表 Group ID=1&amp;#x3C;br/&gt;Type=All]
+    G --&gt; B1[动作 1: output:1]
+    G --&gt; B2[动作 2: output:2]
+    G --&gt; B3[动作 3: output:3]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;只需一条流表项就能实现广播，大大简化了配置。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、计量表（Meter Table）&lt;/h2&gt;
+&lt;p&gt;计量表用于流量控制和 QoS（服务质量）。它可以对匹配的流量进行限速、优先级调度等操作。&lt;/p&gt;
+&lt;h3&gt;6.1 工作原理&lt;/h3&gt;
+&lt;p&gt;计量表不是独立的处理阶段，而是通过流表项的 &lt;code&gt;Meter&lt;/code&gt; 指令引用的。当数据包匹配到某条流表项后，如果该流表项包含 Meter 指令，就会先经过计量表处理，再执行后续动作：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[流表项匹配] --&gt; M[Meter 指令]
+    M --&gt; MT[计量表处理&amp;#x3C;br/&gt;限速 / 标记 / 统计]
+    MT --&gt; B[执行动作]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;计量表可以：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;限速&lt;/strong&gt;：超过阈值的包被丢弃或降级&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;标记&lt;/strong&gt;：修改 DSCP 字段，标记不同服务等级&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;统计&lt;/strong&gt;：统计各流量级别的包数量和字节数&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;6.2 典型场景&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;保证视频会议的带宽优先于文件下载&lt;/li&gt;
+&lt;li&gt;限制 P2P 下载的最高带宽&lt;/li&gt;
+&lt;li&gt;对不同租户的流量做差异化服务&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2&gt;七、控制器与交换机的通信&lt;/h2&gt;
+&lt;p&gt;控制器和交换机之间通过 OpenFlow 消息通信，主要有三类消息：&lt;/p&gt;
+&lt;h3&gt;7.1 控制器 → 交换机&lt;/h3&gt;
+&lt;p&gt;| 消息 | 作用 |
+|------|------|
+| Features | 查询交换机能力（支持多少流表、端口数等） |
+| Configuration | 设置交换机参数 |
+| Modify-State | 增删改流表项（Flow-Mod） |
+| Read-State | 读取流表、端口统计信息 |
+| Packet-Out | 控制器通过交换机发送数据包 |&lt;/p&gt;
+&lt;h3&gt;7.2 交换机 → 控制器&lt;/h3&gt;
+&lt;p&gt;| 消息 | 作用 |
+|------|------|
+| Packet-In | 交换机遇到未知包，上送给控制器决策 |
+| Flow-Removed | 流表项被删除时通知控制器 |
+| Port-Status | 端口状态变化时通知控制器 |
+| Error | 报告错误 |&lt;/p&gt;
+&lt;h3&gt;7.3 对称消息&lt;/h3&gt;
+&lt;p&gt;| 消息 | 作用 |
+|------|------|
+| Hello | 建立连接时互相打招呼 |
+| Echo | 心跳检测，确认连接存活 |
+| Experimenter | 厂商自定义扩展 |&lt;/p&gt;
+&lt;h3&gt;7.4 一次完整的交互流程&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;sequenceDiagram
+    participant SW as 交换机
+    participant CT as 控制器
+    
+    SW-&gt;&gt;CT: Hello（建立连接）
+    CT-&gt;&gt;SW: Hello（协商版本）
+    CT-&gt;&gt;SW: Features-Request
+    SW-&gt;&gt;CT: Features-Reply（能力报告）
+    CT-&gt;&gt;SW: Modify-State（下发流表）
+    Note over SW: 数据包到达，按流表转发
+    SW-&gt;&gt;CT: Packet-In（遇到未知包）
+    CT-&gt;&gt;SW: Packet-Out / Flow-Mod
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;八、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 阅读 | 《深度解析SDN》第4章 — OpenFlow 协议详解 |
+| 阅读 | 《重构网络 SDN架构实现》第2~3章 — 流表、组表、计量表 |
+| 精读 | 基于 OpenFlow 的 SDN 技术研究（左青云） |
+| 快读 | Network Innovation using OpenFlow: A Survey |
+| 核心收获 | 流表结构、多级流表匹配流程、组表四种类型、计量表与 QoS |
+| 待深入 | 明天搭建 Mininet 实验环境，动手验证流表转发 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;《深度解析SDN：利益、战略、技术、实践》—— 第4章&lt;/li&gt;
+&lt;li&gt;《重构网络：SDN架构实现》—— 第2~3章&lt;/li&gt;
+&lt;li&gt;左青云. 基于OpenFlow的SDN技术研究.&lt;/li&gt;
+&lt;li&gt;Lara, E. et al. &quot;Network Innovation using OpenFlow: A Survey.&quot; &lt;em&gt;IEEE Communications Surveys &amp;#x26; Tutorials&lt;/em&gt;, 2013.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://opennetworking.org/of-spec/&quot;&gt;OpenFlow 1.3 Specification&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第3篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → SDN 三层架构 | 下一篇 → Mininet 网络实验&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item><item><title>SDN 三层架构</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-02-architecture-deep-dive</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-02-architecture-deep-dive</guid><description>控制层与数据层解耦、南向/北向/东西向接口、OpenFlow 协议入门</description><pubDate>Sat, 13 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;在上一篇中我们从宏观上了解了 SDN 是什么、三层架构长什么样。今天我们主要搞清楚三个关键问题：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;控制层和数据层到底是怎么解耦的？&lt;/li&gt;
+&lt;li&gt;南向接口、北向接口、东西向接口分别干了什么？&lt;/li&gt;
+&lt;li&gt;OpenFlow 作为最主流的南向协议，它的基本工作原理是什么？&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、控制层与数据层解耦&lt;/h2&gt;
+&lt;h3&gt;1.1 回顾：传统网络的&quot;紧耦合&quot;&lt;/h3&gt;
+&lt;p&gt;在前面的文章中我们从宏观上了解了，传统网络中每台设备同时承担控制和转发两个角色。这种设计带来了一个根本问题：&lt;strong&gt;你改不了&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;想换一种路由算法？得等厂商出新固件。想加一条安全策略？得逐台设备配置。设备的&quot;大脑&quot;和&quot;身体&quot;绑死在一起，改不了也换不了。&lt;/p&gt;
+&lt;h3&gt;1.2 解耦之后变成什么样&lt;/h3&gt;
+&lt;p&gt;SDN 把控制逻辑从每台设备中抽出来，集中到一个叫&lt;strong&gt;控制器（Controller）&lt;/strong&gt; 的软件里。数据层的设备（交换机、路由器）只保留转发能力，变成&quot;听话的执行者&quot;。&lt;/p&gt;
+&lt;p&gt;打个比方：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;解耦前：每个士兵既要想战术又要打仗，各打各的&lt;/li&gt;
+&lt;li&gt;解耦后：将军（控制器）统一指挥，士兵（交换机）只管执行命令&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这种分离带来了三个直接好处：&lt;/p&gt;
+&lt;p&gt;| 好处 | 说明 |
+|------|------|
+| 灵活性 | 控制器是软件，想改就改，不用动硬件 |
+| 集中管理 | 一个控制器管一片网络，配置一次全网生效 |
+| 开放创新 | 控制器向上暴露 API（Application Programming Interface，应用程序编程接口），任何人都能开发网络应用 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、控制器：SDN 的大脑&lt;/h2&gt;
+&lt;p&gt;控制器是整个 SDN 的核心，它承担了传统网络中分散在每台设备上的所有控制功能。&lt;/p&gt;
+&lt;h3&gt;2.1 控制器的主要职责&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;全网拓扑发现&lt;/strong&gt;：自动探测网络中有哪些设备、链路怎么连接&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;路径计算&lt;/strong&gt;：根据全局视图计算最优转发路径&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;流表下发&lt;/strong&gt;：把计算好的转发规则通过南向接口写入交换机&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;状态监控&lt;/strong&gt;：实时掌握链路状态、流量情况、设备健康度&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;北向 API&lt;/strong&gt;：向上层应用提供调用接口&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;2.2 常见的 SDN 控制器&lt;/h3&gt;
+&lt;p&gt;| 控制器 | 语言 | 特点 | 适用场景 |
+|--------|------|------|---------|
+| Ryu | Python | 轻量、易上手 | 学习和原型开发 |
+| Floodlight | Java | 功能完善、社区活跃 | 企业级实验 |
+| ONOS | Java | 分布式、运营商级 | 大规模网络部署 |
+| OpenDaylight | Java | 模块化、企业级 | 企业网络和 NFV（Network Function Virtualization，网络功能虚拟化，如虚拟防火墙、虚拟负载均衡） |&lt;/p&gt;
+&lt;p&gt;对于初学者，&lt;strong&gt;Ryu&lt;/strong&gt; 是最推荐的入门选择。它基于 Python，代码简洁，官方教程也很完善，后面搭建 Mininet 实验环境时会用到。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、三大接口&lt;/h2&gt;
+&lt;p&gt;SDN 架构中有三个方向的接口，它们构成了控制器与外部世界交互的通道。&lt;/p&gt;
+&lt;h3&gt;3.1 南向接口（Southbound API）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;方向：控制器 -&gt; 数据层&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;南向接口是控制器和交换机之间的通信通道。控制器通过南向接口向交换机下发流表规则，告诉交换机&quot;遇到什么样的数据包，执行什么样的动作&quot;。&lt;/p&gt;
+&lt;p&gt;目前最主流的南向接口协议是 &lt;strong&gt;OpenFlow&lt;/strong&gt;（后面会详细讲）。除了 OpenFlow，还有 NETCONF、gRPC、P4Runtime 等协议。&lt;/p&gt;
+&lt;h3&gt;3.2 北向接口（Northbound API）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;方向：应用层 -&gt; 控制器&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;北向接口是控制器向上层应用暴露的能力。网络应用通过调用北向 API 来获取网络状态、下发策略。&lt;/p&gt;
+&lt;p&gt;北向接口通常以 &lt;strong&gt;REST API&lt;/strong&gt; 的形式提供。比如你可以写一个 Python 脚本，调用控制器的 REST API 来：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;查询网络拓扑&lt;/li&gt;
+&lt;li&gt;下发流表规则&lt;/li&gt;
+&lt;li&gt;获取流量统计&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这就让网络变成了&quot;可编程&quot;的——想实现什么网络功能，写个应用调 API 就行。&lt;/p&gt;
+&lt;h3&gt;3.3 东西向接口（East-West API）&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;方向：控制器 ↔ 控制器&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;当网络规模很大时，一个控制器可能管不过来，需要部署多个控制器。东西向接口就是控制器之间用来协同的通道。&lt;/p&gt;
+&lt;p&gt;比如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;主控制器挂了，备用控制器接管（高可用）&lt;/li&gt;
+&lt;li&gt;不同区域的控制器共享拓扑信息（分布式协调）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;东西向接口目前没有统一的标准协议，各控制器通常自定义实现。&lt;/p&gt;
+&lt;h3&gt;3.4 三大接口一览&lt;/h3&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;graph TB
+    subgraph &quot;应用层&quot;[应用层]
+        APP1[流量工程]
+        APP2[安全防护]
+    end
+    subgraph &quot;控制层&quot;[控制层]
+        C[控制器 Controller]
+        OTHER[其他控制器]
+    end
+    subgraph &quot;数据层&quot;[数据层]
+        SW1[交换机]
+        SW2[交换机]
+        SW3[交换机]
+        SW4[交换机]
+    end
+    APP1 --- N[北向接口 REST API]
+    APP2 --- N
+    N --- C
+    C --- E[东西向接口]
+    E --- OTHER
+    C --- S[南向接口 OpenFlow]
+    S --- SW1 &amp;#x26; SW2 &amp;#x26; SW3 &amp;#x26; SW4
+&lt;/code&gt;&lt;/pre&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、OpenFlow 协议入门&lt;/h2&gt;
+&lt;p&gt;OpenFlow 是目前最主流的 SDN 南向接口协议，由斯坦福大学于 2008 年提出。理解 OpenFlow 是理解 SDN 工作原理的关键。&lt;/p&gt;
+&lt;h3&gt;4.1 核心概念：流表&lt;/h3&gt;
+&lt;p&gt;OpenFlow 交换机的核心是&lt;strong&gt;流表（Flow Table）&lt;/strong&gt;。流表可以理解为一张&quot;规则表&quot;，每条规则定义了：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;匹配字段&lt;/strong&gt;：什么样的数据包匹配这条规则（源IP、目的IP、端口号等）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;优先级&lt;/strong&gt;：多条规则都能匹配时，优先级高的赢&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;动作&lt;/strong&gt;：匹配后做什么（转发、丢弃、修改、发给控制器）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;计数器&lt;/strong&gt;：这条规则被命中了多少次&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;4.2 数据包的处理流程&lt;/h3&gt;
+&lt;p&gt;当一个数据包进入 OpenFlow 交换机时：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart TD
+    A[数据包进入] --&gt; B{查找流表&amp;#x3C;br/&gt;按优先级从高到低匹配}
+    B --&gt;|匹配成功| C[执行动作&amp;#x3C;br/&gt;转发 / 丢弃 / 修改]
+    B --&gt;|没有匹配| D[Packet-In&amp;#x3C;br/&gt;发给控制器决策]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这个流程就是 SDN 的核心工作机制：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;默认情况下&lt;/strong&gt;，交换机按流表规则自动转发&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;遇到没见过的数据包&lt;/strong&gt;，交给控制器决策&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;控制器计算好路径&lt;/strong&gt;，通过 OpenFlow 把新规则写入交换机&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3&gt;4.3 OpenFlow 的版本演进&lt;/h3&gt;
+&lt;p&gt;| 版本 | 时间 | 主要变化 |
+|------|------|---------|
+| 1.0 | 2009 | 第一个正式版本，单流表 |
+| 1.3 | 2012 | 多级流表、组表、计量表，目前最广泛使用 |
+| 1.5 | 2015 | 增强 egress 流表，当前最新版本 |&lt;/p&gt;
+&lt;p&gt;初学阶段重点关注 OpenFlow 1.0 和 1.3 的区别即可。&lt;/p&gt;
+&lt;h3&gt;4.4 举个例子&lt;/h3&gt;
+&lt;p&gt;假设你要让交换机把来自 192.168.1.0/24 网段的 HTTP 流量（端口 80）从端口 3 转发出去，控制器下发的流表规则大致是：&lt;/p&gt;
+&lt;p&gt;| 匹配字段 | 动作 | 优先级 |
+|----------|------|--------|
+| src_ip=192.168.1.0/24, tcp_dst=80 | output:3 | 100 |&lt;/p&gt;
+&lt;p&gt;交换机收到这条规则后，所有匹配的 HTTP 数据包都会从端口 3 转发，不再需要问控制器。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、SDN 工作的完整流程&lt;/h2&gt;
+&lt;p&gt;把以上知识串起来，SDN 的完整工作流程是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;控制器启动&lt;/strong&gt;，通过南向接口发现网络拓扑&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;控制器构建全网视图&lt;/strong&gt;，知道有哪些交换机、主机、链路&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;主机 A 想给主机 B 发数据&lt;/strong&gt;，数据包进入交换机&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;交换机查流表&lt;/strong&gt;，没找到匹配规则（第一次通信）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;交换机发 Packet-In 给控制器&lt;/strong&gt;，报告&quot;有个新数据包不知道怎么处理&quot;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;控制器计算路径&lt;/strong&gt;，决定从哪个端口转发&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;控制器发 Flow-Mod 给交换机&lt;/strong&gt;，下发新的流表规则&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;交换机按新规则转发&lt;/strong&gt;后续同类数据包，不再问控制器&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;前几个数据包会慢一些（需要控制器介入），但之后的通信都是交换机自主高速转发。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 阅读 | 《深度解析SDN》第3章 — 控制层与数据层解耦 |
+| 阅读 | 《重构网络 SDN架构实现》第1章 — SDN 架构总览 |
+| 精读 | OpenFlow: From Concept to Implementation — 前半部分 |
+| 核心收获 | 理解控制层/数据层解耦的意义，三大接口的职责，OpenFlow 流表机制 |
+| 待深入 | 下一篇继续学习 OpenFlow 协议的细节（流表、组表、计量表） |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;《深度解析SDN：利益、战略、技术、实践》—— 第3章&lt;/li&gt;
+&lt;li&gt;《重构网络：SDN架构实现》—— 第1章&lt;/li&gt;
+&lt;li&gt;Lara, E. et al. &quot;OpenFlow: From Concept to Implementation.&quot; &lt;em&gt;IEEE Communications Surveys &amp;#x26; Tutorials&lt;/em&gt;, 2013.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.sdnlab.com/sdn-guide/&quot;&gt;SDNLAB SDN 指南&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第2篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：上一篇 → SDN 是什么 | 下一篇 → OpenFlow 协议详解&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item><item><title>SDN 是什么</title><link>https://sukkk-zcy.github.io/blog/sdn/sdn-01-sdn-introduction</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/sdn/sdn-01-sdn-introduction</guid><description>理解 SDN 的诞生背景、三层架构与核心概念</description><pubDate>Wed, 10 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;import { Aside } from &apos;astro-pure/user&apos;&lt;/p&gt;
+&lt;p&gt;如果你学过计算机网络，那你一定听过 &lt;strong&gt;SDN（Software-Defined Networking，软件定义网络）&lt;/strong&gt; 这个词。SDN 到底是什么？它解决了什么问题？它和传统网络有什么不同？&lt;/p&gt;
+&lt;p&gt;这是一个 SDN 新手入门笔记，我将从初学者的角度，尽量用通俗的方式把这些问题讲清楚。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;一、为什么需要 SDN&lt;/h2&gt;
+&lt;p&gt;要理解 SDN，首先要理解传统网络遇到了什么问题。&lt;/p&gt;
+&lt;h3&gt;1.1 传统网络：控制与转发紧耦合&lt;/h3&gt;
+&lt;p&gt;在传统网络中，每台网络设备（路由器、交换机）都是一个独立的黑盒，同时负责两件事：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;控制平面&lt;/strong&gt;：运行路由协议（如 OSPF、BGP），计算转发路径，维护路由表&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据平面&lt;/strong&gt;：根据路由表，实际转发数据包&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这两个平面紧密耦合在一台设备内部。每台设备各自为政，各自运行路由协议，各自做转发决策。&lt;/p&gt;
+&lt;h3&gt;1.2 这种设计带来了什么问题&lt;/h3&gt;
+&lt;p&gt;| 问题 | 具体表现 |
+|------|---------|
+| 配置复杂 | 每台设备要逐台手动配置 CLI 命令，无法批量管理 |
+| 扩展困难 | 新增功能需要更换硬件，无法快速迭代 |
+| 缺乏全局视角 | 每台设备只看到局部拓扑，无法做全局最优路由 |
+| 厂商锁定 | 不同厂商的设备命令不通用，迁移成本极高 |
+| 响应缓慢 | 网络策略变更需要逐个设备修改，耗时数周甚至数月 |&lt;/p&gt;
+&lt;p&gt;一句话总结：&lt;strong&gt;传统网络就像一个没有指挥的乐队，每个乐手各吹各的调。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3&gt;1.3 业务需求在倒逼变革&lt;/h3&gt;
+&lt;p&gt;随着云计算、大数据、移动互联网的爆发，网络面临前所未有的压力：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;数据中心需要动态调整流量路径&lt;/li&gt;
+&lt;li&gt;租户需要按需获取网络资源&lt;/li&gt;
+&lt;li&gt;安全策略需要快速部署和更新&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;传统网络的僵化架构已经无法满足这些需求。正是在这样的背景下，&lt;strong&gt;SDN 应运而生&lt;/strong&gt;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;二、SDN 的核心思想&lt;/h2&gt;
+&lt;p&gt;SDN 的核心思想就一句话：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;把网络设备的控制权抽出来，集中到一个地方统一管理，数据设备只负责埋头转发。&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;打个比方：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;传统网络 = 每个路口都有一个独立的交警，各自指挥交通&lt;/li&gt;
+&lt;li&gt;SDN = 一个中央交通指挥中心 + 遍布路口的信号灯&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;中央指挥中心掌握全局路况，可以动态调整信号灯，实现全局最优的流量调度。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;三、SDN 的三层架构&lt;/h2&gt;
+&lt;p&gt;SDN 采用了清晰的三层架构，这是理解 SDN 最关键的知识点：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    subgraph 应用层[应用层 Application Layer]
+        A1[流量工程] --- A2[安全防护] --- A3[负载均衡] --- A4[...]
+    end
+    应用层 ---|北向接口 API| C[SDN 控制器&amp;#x3C;br/&gt;OpenDaylight / ONOS / Ryu...]
+    C ---|南向接口 API| 数据层
+    subgraph 数据层[数据层 Data Layer]
+        D1[交换机] --- D2[路由器] --- D3[防火墙] --- D4[中间盒]
+    end
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h3&gt;3.1 数据层&lt;/h3&gt;
+&lt;p&gt;也叫基础设施层，由各种网络设备组成。这些设备不再需要运行复杂的路由协议，只需根据控制器下发的**流表（Flow Table）**来转发数据包。可以说是&quot;无脑转发&quot;，但效率极高。&lt;/p&gt;
+&lt;h3&gt;3.2 控制层&lt;/h3&gt;
+&lt;p&gt;这是 SDN 的大脑。SDN 控制器是整个网络的核心，它：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;拥有网络的全局视图（全网拓扑、链路状态、流量情况）&lt;/li&gt;
+&lt;li&gt;负责计算转发路径、下发流表到数据层设备&lt;/li&gt;
+&lt;li&gt;通过南向接口与数据层通信&lt;/li&gt;
+&lt;li&gt;通过北向接口向上层应用开放能力&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;常见的 SDN 控制器有：OpenDaylight、ONOS、Ryu、Floodlight 等。&lt;/p&gt;
+&lt;h3&gt;3.3 应用层&lt;/h3&gt;
+&lt;p&gt;各种网络应用运行在这一层，通过北向接口调用控制器的能力，实现：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;流量工程&lt;/strong&gt;：动态调整流量路径，避免拥塞&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;网络安全&lt;/strong&gt;：快速部署访问控制策略，检测异常流量&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;负载均衡&lt;/strong&gt;：根据实时流量分发请求&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;网络虚拟化&lt;/strong&gt;：为多租户创建隔离的虚拟网络&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;应用层让网络变得像软件一样可编程——想加什么功能，写个应用就行了。&lt;/p&gt;
+&lt;h3&gt;3.4 两个关键接口&lt;/h3&gt;
+&lt;p&gt;| 接口 | 方向 | 作用 | 代表协议 |
+|------|------|------|---------|
+| 南向接口 | 控制层 → 数据层 | 控制器向交换机下发流表 | OpenFlow（最主流） |
+| 北向接口 | 应用层 → 控制层 | 应用调用控制器能力 | REST API（常见） |
+| 东西向接口 | 控制器之间 | 多控制器协同 | 自定义协议 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;四、SDN 的三个核心特征&lt;/h2&gt;
+&lt;h3&gt;控制与转发分离&lt;/h3&gt;
+&lt;p&gt;这是 SDN 最根本的特征。传统网络中，每台交换机/路由器同时承担&quot;决策&quot;和&quot;执行&quot;两个角色。SDN 把&quot;决策&quot;抽出来集中到控制器，设备只负责&quot;执行&quot;（按流表转发）。&lt;/p&gt;
+&lt;p&gt;好处：网络设备变得简单、廉价、标准化；网络策略的调整不需要逐台登录设备。&lt;/p&gt;
+&lt;h3&gt;集中控制&lt;/h3&gt;
+&lt;p&gt;控制器拥有全网视角，可以做出全局最优的决策。相比于传统网络每台设备各自为政，集中控制可以：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;避免路由环路（因为控制器知道全网拓扑）&lt;/li&gt;
+&lt;li&gt;实现全局负载均衡（根据实时流量调整路径）&lt;/li&gt;
+&lt;li&gt;快速响应网络变化（一条链路断了，控制器秒级切换路径）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;可编程性&lt;/h3&gt;
+&lt;p&gt;网络行为可以通过软件编程来定义和修改。想调整路由策略？写一行代码调用控制器 API 就行，不用再逐台登录设备敲命令。这让网络运维从&quot;手工活&quot;变成了&quot;写代码&quot;。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;五、SDN 的发展脉络&lt;/h2&gt;
+&lt;p&gt;| 时代 | 特点 |
+|------|------|
+| 传统网络 | 控制与转发紧耦合，每台设备独立决策，手动配置 |
+| SDN (OpenFlow) | 控制与转发分离，集中控制，OpenFlow 南向协议 |
+| P4 可编程数据面 | 不仅控制面可编程，数据面也可编程，协议无关 |&lt;/p&gt;
+&lt;p&gt;SDN 是从传统网络到可编程网络的关键一步。而下一代技术 P4 则更进一步，让数据平面本身也变得可编程（这将是后续学习的内容）。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;六、用三句话概括 SDN&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;传统网络&lt;/strong&gt;：每个路口各有一个交警各自指挥，互不通气，容易堵车。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SDN&lt;/strong&gt;：撤掉所有路口的交警，换成一个中央交通指挥中心 + 信号灯。指挥中心看到全局路况，统一调度。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;好处&lt;/strong&gt;：堵车时能快速调整信号灯配时，想改交通规则不用换信号灯硬件，写个软件就行。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2&gt;七、本章小结&lt;/h2&gt;
+&lt;p&gt;| 项目 | 内容 |
+|------|------|
+| 阅读 | 《深度解析SDN》第1~2章 |
+| 精读综述 | A Survey of SDN: Past, Present, and Future（Abstract + Section 1-2） |
+| 快读综述 | A Survey on Software-Defined Networking（Abstract + Conclusion） |
+| 核心收获 | 理解 SDN 诞生的背景、三层架构、控制与转发分离的思想 |
+| 待深入 | SDN 各层职责的细节和南向/北向接口 |&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;《深度解析SDN：利益、战略、技术、实践》—— 第1~2章&lt;/li&gt;
+&lt;li&gt;Kreutz, D. et al. &quot;A Survey of Software-Defined Networking: Past, Present, and Future of Programmable Networks.&quot; &lt;em&gt;IEEE Communications Surveys &amp;#x26; Tutorials&lt;/em&gt;, 2015.&lt;/li&gt;
+&lt;li&gt;Akyildiz, I. F. et al. &quot;A Survey on Software-Defined Networking.&quot; &lt;em&gt;IEEE Network&lt;/em&gt;, 2014.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;http://www.sdnlab.com/sdn-guide/&quot;&gt;SDNLAB SDN 指南&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;本文是「SDN 学习指南」系列的第1篇。&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;系列导航：下一篇 → SDN 架构深入&lt;/em&gt;&lt;/p&gt;</content:encoded><h:img src="undefined"/><enclosure url="undefined"/><category>SDN</category></item></channel></rss>

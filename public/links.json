@@ -1,0 +1,39 @@
+{"friends": [
+    {
+      "id_name": "all-links",
+      "desc": "友情链接",
+      "link_list": [
+        {
+          "name": "旧梦与花",
+          "intro": "春风若有怜花意，可否许我再少年",
+          "link": "https://zhh2001.github.io/",
+          "avatar": "https://zhh2001.github.io/avatar.jpg"
+        },
+        {
+          "name": "Meteor",
+          "intro": "好风凭借力，送我上青云！",
+          "link": "https://meteor-echo.github.io/",
+          "avatar": "https://github.com/METEOR-ECHO.png"
+        },
+        {
+          "name": "iMaeGoo's Blog",
+          "intro": "虹墨空间站",
+          "link": "https://www.imaegoo.com",
+          "avatar": "https://cdn.jsdelivr.net/npm/imaegoo/avatar.jpg"
+        },
+        {
+          "name": "灵的梦境",
+          "intro": "愿美梦成真 — Astro Theme Iris 作者",
+          "link": "https://lemonadorable.github.io/links/",
+          "avatar": "https://lemonadorable.github.io/favicon/favicon.gif"
+        },
+        {
+          "name": "Astro",
+          "intro": "The web framework for content-driven websites",
+          "link": "https://astro.build/",
+          "avatar": "https://avatars.githubusercontent.com/u/44914786?s=200&v=4"
+        }
+      ]
+    }
+  ]
+}

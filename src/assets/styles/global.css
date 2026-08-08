@@ -93,12 +93,11 @@ span.katex-display {
 }
 
 .mermaid svg {
-  /* 保持 mermaid 渲染出的原生宽度（astro.config 已设 useMaxWidth:false），
-     窄图居中、宽图在容器内横向滚动，避免大图被压缩导致文字过小 */
+  /* 默认保持原生宽度；超出内容区时等比缩放到容器宽度，避免拖动横向滚动条 */
   flex-shrink: 0;
   margin: 0 auto;
   /* 覆盖 astro-mermaid 注入的 pre.mermaid svg { max-width:100% } */
-  max-width: none !important;
+  max-width: 100% !important;
   height: auto;
   background-color: transparent !important;
 }

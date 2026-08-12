@@ -71,7 +71,7 @@ export const integ: IntegrationUserConfig = {
       { name: 'Name', val: theme.title },
       { name: 'Desc', val: '晓看天色暮看云' },
       { name: 'Link', val: 'https://sukkk-zcy.github.io/' },
-      { name: 'Avatar', val: 'https://sukkk-zcy.github.io/favicon.ico' }
+      { name: 'Avatar', val: 'https://sukkk-zcy.github.io/images/avatar.jpg' }
     ],
     cacheAvatar: false
   },

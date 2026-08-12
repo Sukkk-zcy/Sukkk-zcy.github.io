@@ -17,7 +17,15 @@ function normalizePath(value: string): string {
 export function getPostSlug(post: BlogPost): string {
   if (post.data.slug) return normalizePath(post.data.slug)
 
-  return normalizePath(post.id).replace(/\.(md|mdx)$/, '').replace(/\/index$/, '')
+  // `.toLowerCase()` keeps URLs identical across platforms: on Windows the
+  // glob loader already returns lowercase ids, but on Linux (e.g. CI builds)
+  // it preserves the on-disk case (SDN/sdn-01...). All link generators
+  // (backlinks.ts, ArticleBottom.astro, hand-written /blog/... links) use
+  // lowercase, so the canonical slug must be lowercase too.
+  return normalizePath(post.id)
+    .replace(/\.(md|mdx)$/, '')
+    .replace(/\/index$/, '')
+    .toLowerCase()
 }
 
 export function getPostPath(post: BlogPost): string {

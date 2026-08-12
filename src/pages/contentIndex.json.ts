@@ -18,7 +18,7 @@ interface ContentDetails {
   tags: string[]
   categories: string[]
   links: string[]
-  collection: 'blog' | 'docs'
+  collection: 'blog'
   publishDate?: string
 }
 
@@ -42,11 +42,8 @@ function extractText(node: Root): string {
 }
 
 // Get slug from collection entry
-function getSlug(entry: CollectionEntry<'blog' | 'docs'>): string {
-  if (entry.collection === 'blog') {
-    return `blog/${getPostSlug(entry)}`
-  }
-  return `docs/${entry.id}`
+function getSlug(entry: CollectionEntry<'blog'>): string {
+  return `blog/${getPostSlug(entry)}`
 }
 
 // Regex to match wikilinks [[link]] or [[link|display text]]
@@ -62,12 +59,9 @@ function normalizeSlug(slug: string): string {
 }
 
 // Get links from markdown content (including wikilinks)
-function extractLinks(
-  node: Root,
-  rawContent: string,
-  currentCollection: 'blog' | 'docs'
-): string[] {
+function extractLinks(node: Root, rawContent: string): string[] {
   const links: string[] = []
+  const currentCollection = 'blog' as const
 
   // Extract wikilinks from raw content
   const wikiMatches = rawContent.matchAll(WIKILINK_REGEX)
@@ -142,11 +136,7 @@ const GET = async (_context: AstroGlobal) => {
     return import.meta.env.PROD ? !data.draft : true
   })
 
-  const docs = await getCollection('docs', ({ data }) => {
-    return import.meta.env.PROD ? !data.draft : true
-  })
-
-  const allEntries: CollectionEntry<'blog' | 'docs'>[] = [...blogPosts, ...docs]
+  const allEntries: CollectionEntry<'blog'>[] = blogPosts
   const blogEntryById = new Map(blogPosts.map((entry) => [entry.id, entry]))
   const blogIds = [...blogEntryById.keys()]
 
@@ -160,7 +150,7 @@ const GET = async (_context: AstroGlobal) => {
     const ast = unified().use(remarkParse).parse(entry.body)
     const textContent = extractText(ast as Root)
     // Pass raw content and collection to extract wikilinks
-    const links = extractLinks(ast as Root, entry.body, entry.collection).map((link) => {
+    const links = extractLinks(ast as Root, entry.body).map((link) => {
       if (entry.collection !== 'blog' || !link.startsWith('/blog/')) return link
 
       const resolvedId = resolveContentId(link.slice('/blog/'.length), entry.id, blogIds)
@@ -184,10 +174,7 @@ const GET = async (_context: AstroGlobal) => {
       description: entry.data.description,
       content: textContent,
       tags: entry.data.tags || [],
-      categories:
-        entry.collection === 'blog'
-          ? getPostCategorySegments(entry).map((category) => category.path)
-          : [],
+      categories: getPostCategorySegments(entry).map((category) => category.path),
       links,
       collection: entry.collection,
       publishDate: entry.data.publishDate ? entry.data.publishDate.toISOString() : undefined

@@ -1,10 +1,10 @@
 ---
-title: "P4 快速入门（一）：可编程数据平面，从黑盒到白盒"
+title: 'P4 快速入门（一）：可编程数据平面，从黑盒到白盒'
 publishDate: 2026-07-01 00:00:00
-description: "P4 解决了什么问题、PISA 架构、生态与学习路径——一篇建立整体认知的入门文"
-tags: ["P4", "SDN", "可编程网络", "入门"]
-categories: ["P4"]
-language: "中文"
+description: 'P4 解决了什么问题、PISA 架构、生态与学习路径——一篇建立整体认知的入门文'
+tags: ['P4', 'SDN', '可编程网络', '入门']
+categories: ['P4']
+language: '中文'
 draft: false
 comment: true
 ---
@@ -37,10 +37,10 @@ OpenFlow 将控制逻辑从转发设备中抽出，集中到控制器，通过�
 
 P4（Programming Protocol-independent Packet Processors）由 Bosshart 等人于 2014 年在 SIGCOMM 提出 [1]，目标是把数据面的处理逻辑定义为可编译、可部署、可重新配置的程序。其三个设计目标：
 
-| 目标 | 含义 |
-|------|------|
-| 可重配置 | 转发逻辑可通过重新编译部署修改，无需更换硬件 |
-| 协议无关 | 匹配与处理的字段由用户定义，不受厂商限制 |
+| 目标     | 含义                                            |
+| -------- | ----------------------------------------------- |
+| 可重配置 | 转发逻辑可通过重新编译部署修改，无需更换硬件    |
+| 协议无关 | 匹配与处理的字段由用户定义，不受厂商限制        |
 | 目标无关 | 同一份程序可编译到软件交换机、ASIC、FPGA 等目标 |
 
 P4 将可编程交换机抽象为 PISA（Protocol-independent Switch Architecture）流水线 [3][4]：
@@ -59,13 +59,13 @@ PISA 三段分别对应解析输入、查表处理、序列化输出。语言设
 
 ## 四、与 OpenFlow 的区别
 
-| 对比项 | OpenFlow | P4 |
-|--------|----------|-----|
-| 可编程范围 | 仅控制面 | 控制面 + 数据面 |
-| 匹配字段 | 预定义（MAC、IP 等） | 用户自定义 |
-| 协议支持 | 固定协议集合 | 任意协议，可现场重配置 |
-| 运行平台 | 支持 OpenFlow 的交换机 | BMv2 / Tofino / FPGA |
-| 南向接口 | OpenFlow 协议 | P4Runtime（gRPC） |
+| 对比项     | OpenFlow               | P4                     |
+| ---------- | ---------------------- | ---------------------- |
+| 可编程范围 | 仅控制面               | 控制面 + 数据面        |
+| 匹配字段   | 预定义（MAC、IP 等）   | 用户自定义             |
+| 协议支持   | 固定协议集合           | 任意协议，可现场重配置 |
+| 运行平台   | 支持 OpenFlow 的交换机 | BMv2 / Tofino / FPGA   |
+| 南向接口   | OpenFlow 协议          | P4Runtime（gRPC）      |
 
 简言之：OpenFlow 使控制面可编程，P4 使整个数据面可编程。
 
@@ -109,18 +109,18 @@ flowchart LR
 
 ## 参考文献
 
-1. P. Bosshart, D. Daly, G. Gibb, et al. *P4: Programming Protocol-Independent Packet Processors*. ACM SIGCOMM 2014. https://doi.org/10.1145/2740070.2626294
-2. N. McKeown, T. Anderson, H. Balakrishnan, et al. *OpenFlow: Enabling Innovation in Campus Networks*. ACM SIGCOMM CCR 2008. https://doi.org/10.1145/1355734.1355746
-3. A. Liatifis, P. Sarigiannidis, V. Argyriou, T. Lagkas. *Advancing SDN from OpenFlow to P4: A Survey*. ACM Computing Surveys, 2023. https://doi.org/10.1145/3556973
-4. P4 Language Consortium. *P4-16 Language Specification v1.2.5*. https://p4.org/p4-specs/
-5. P4.org. *P4 官网*. https://p4.org/
-6. p4lang. *P4 Tutorials*. https://github.com/p4lang/tutorials
-7. p4lang. *behavioral-model（BMv2）*. https://github.com/p4lang/behavioral-model
-8. 张恒华. *P4 中文教程*. https://github.com/zhh2001/p4-language-guide-zh
-9. 左青云 等. *基于 OpenFlow 的 SDN 技术研究*. 计算机应用研究, 2013.
+1. P. Bosshart, D. Daly, G. Gibb, et al. _P4: Programming Protocol-Independent Packet Processors_. ACM SIGCOMM 2014. https://doi.org/10.1145/2740070.2626294
+2. N. McKeown, T. Anderson, H. Balakrishnan, et al. _OpenFlow: Enabling Innovation in Campus Networks_. ACM SIGCOMM CCR 2008. https://doi.org/10.1145/1355734.1355746
+3. A. Liatifis, P. Sarigiannidis, V. Argyriou, T. Lagkas. _Advancing SDN from OpenFlow to P4: A Survey_. ACM Computing Surveys, 2023. https://doi.org/10.1145/3556973
+4. P4 Language Consortium. _P4-16 Language Specification v1.2.5_. https://p4.org/p4-specs/
+5. P4.org. _P4 官网_. https://p4.org/
+6. p4lang. _P4 Tutorials_. https://github.com/p4lang/tutorials
+7. p4lang. _behavioral-model（BMv2）_. https://github.com/p4lang/behavioral-model
+8. 张恒华. _P4 中文教程_. https://github.com/zhh2001/p4-language-guide-zh
+9. 左青云 等. _基于 OpenFlow 的 SDN 技术研究_. 计算机应用研究, 2013.
 
 ---
 
-*本文是「P4 快速入门」系列的第 1 篇。*
+_本文是「P4 快速入门」系列的第 1 篇。_
 
-*系列导航：下一篇 → [一次看懂 P4 程序](/blog/p4/p4-02-language-core)*
+_系列导航：下一篇 → [一次看懂 P4 程序](/blog/p4/p4-02-language-core)_

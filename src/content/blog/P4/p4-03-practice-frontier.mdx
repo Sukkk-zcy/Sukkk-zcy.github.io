@@ -1,10 +1,10 @@
 ---
-title: "P4 快速入门（三）：环境、控制平面与研究前沿"
+title: 'P4 快速入门（三）：环境、控制平面与研究前沿'
 publishDate: 2026-07-19 00:00:00
-description: "实验环境搭建、P4Runtime 控制平面，以及 P4 方向的当前研究热点"
-tags: ["P4", "P4Runtime", "BMv2", "INT", "研究"]
-categories: ["P4"]
-language: "中文"
+description: '实验环境搭建、P4Runtime 控制平面，以及 P4 方向的当前研究热点'
+tags: ['P4', 'P4Runtime', 'BMv2', 'INT', '研究']
+categories: ['P4']
+language: '中文'
 draft: false
 comment: true
 ---
@@ -17,11 +17,11 @@ comment: true
 
 常用环境方案对比如下：
 
-| 方案 | 优点 | 缺点 | 适用场景 |
-|------|------|------|----------|
-| 官方教程 VM / Docker | 即开即用，版本匹配 | 镜像较大 | 学习与常规实验 |
-| 源码编译（p4c + BMv2） | 可修改工具链 | 编译耗时长，依赖多 | 工具链开发 |
-| P4-DPDK（PNA） | 普通服务器接近线速 | 生态较新 | 性能实验 |
+| 方案                   | 优点               | 缺点               | 适用场景       |
+| ---------------------- | ------------------ | ------------------ | -------------- |
+| 官方教程 VM / Docker   | 即开即用，版本匹配 | 镜像较大           | 学习与常规实验 |
+| 源码编译（p4c + BMv2） | 可修改工具链       | 编译耗时长，依赖多 | 工具链开发     |
+| P4-DPDK（PNA）         | 普通服务器接近线速 | 生态较新           | 性能实验       |
 
 一般建议直接使用官方 tutorials 提供的 VM / Docker 环境 [1]；如需修改编译器或运行时再源码编译。
 
@@ -115,11 +115,11 @@ Packet-in / Packet-out 与 L2 学习交换机的完整实现见官方练习 [1]�
 
 ## 四、架构对比
 
-| 架构 | 全称 | 目标平台 | 特点 |
-|------|------|----------|------|
-| V1Model | — | BMv2 | 学习友好，六块流水线 |
-| PSA | Portable Switch Architecture | 多厂商交换机 | 面向生产，可移植性高 |
-| TNA | Tofino Native Architecture | Intel Tofino | 硬件专用，性能上限高 |
+| 架构    | 全称                         | 目标平台     | 特点                 |
+| ------- | ---------------------------- | ------------ | -------------------- |
+| V1Model | —                            | BMv2         | 学习友好，六块流水线 |
+| PSA     | Portable Switch Architecture | 多厂商交换机 | 面向生产，可移植性高 |
+| TNA     | Tofino Native Architecture   | Intel Tofino | 硬件专用，性能上限高 |
 
 学习阶段使用 V1Model；性能实验可考虑 P4-DPDK；TNA 需要 Tofino 硬件，成本较高。
 
@@ -141,9 +141,9 @@ flowchart TD
 
 推荐入口：
 
-- *Programmable Data Planes for Network Security*（arXiv 2025）：可编程交换机安全应用的系统综述，涵盖 heavy-hitter 检测与 DDoS 缓解 [4]；
-- *Leveraging programmable data plane for network intrusion detection: A survey*（Computer Networks, 2026）：面向入侵检测的可编程数据平面综述 [5]；
-- *Advancing SDN from OpenFlow to P4: A Survey*（ACM Computing Surveys, 2023）：第 3 节为应用分类，第 6 节为未来方向 [6]。
+- _Programmable Data Planes for Network Security_（arXiv 2025）：可编程交换机安全应用的系统综述，涵盖 heavy-hitter 检测与 DDoS 缓解 [4]；
+- _Leveraging programmable data plane for network intrusion detection: A survey_（Computer Networks, 2026）：面向入侵检测的可编程数据平面综述 [5]；
+- _Advancing SDN from OpenFlow to P4: A Survey_（ACM Computing Surveys, 2023）：第 3 节为应用分类，第 6 节为未来方向 [6]。
 
 P4 数据平面特征提取与深度学习检测的协同架构是当前活跃的交叉方向 [4][5]。
 
@@ -160,17 +160,17 @@ P4 数据平面特征提取与深度学习检测的协同架构是当前活跃�
 
 ## 参考文献
 
-1. p4lang. *P4 Tutorials*. https://github.com/p4lang/tutorials
-2. p4lang. *p4runtime_lib*. https://github.com/p4lang/tutorials/tree/master/utils
-3. P4 Language Consortium. *P4Runtime Specification*. https://p4.org/p4-specs/p4runtime/
-4. *Programmable Data Planes for Network Security*. arXiv:2507.22165, 2025. https://arxiv.org/abs/2507.22165
-5. *Leveraging programmable data plane for network intrusion detection: A survey*. Computer Networks, 2026. https://www.sciencedirect.com/science/article/pii/S1389128626002148
-6. A. Liatifis et al. *Advancing SDN from OpenFlow to P4: A Survey*. ACM Computing Surveys, 2023. https://doi.org/10.1145/3556973
-7. P4 Language Consortium. *P4-16 Language Specification v1.2.5*. https://p4.org/p4-specs/
-8. p4lang. *behavioral-model（BMv2）*. https://github.com/p4lang/behavioral-model
+1. p4lang. _P4 Tutorials_. https://github.com/p4lang/tutorials
+2. p4lang. _p4runtime_lib_. https://github.com/p4lang/tutorials/tree/master/utils
+3. P4 Language Consortium. _P4Runtime Specification_. https://p4.org/p4-specs/p4runtime/
+4. _Programmable Data Planes for Network Security_. arXiv:2507.22165, 2025. https://arxiv.org/abs/2507.22165
+5. _Leveraging programmable data plane for network intrusion detection: A survey_. Computer Networks, 2026. https://www.sciencedirect.com/science/article/pii/S1389128626002148
+6. A. Liatifis et al. _Advancing SDN from OpenFlow to P4: A Survey_. ACM Computing Surveys, 2023. https://doi.org/10.1145/3556973
+7. P4 Language Consortium. _P4-16 Language Specification v1.2.5_. https://p4.org/p4-specs/
+8. p4lang. _behavioral-model（BMv2）_. https://github.com/p4lang/behavioral-model
 
 ---
 
-*本文是「P4 快速入门」系列的第 3 篇。*
+_本文是「P4 快速入门」系列的第 3 篇。_
 
-*系列导航：上一篇 → [一次看懂 P4 程序](/blog/p4/p4-02-language-core)*
+_系列导航：上一篇 → [一次看懂 P4 程序](/blog/p4/p4-02-language-core)_

@@ -1,9 +1,9 @@
-﻿---
-title: "Blinker 开发入门指南"
+---
+title: 'Blinker 开发入门指南'
 publishDate: 2026-06-25 00:00:00
-description: "Blinker开发规范，适合嵌入式开发者快速上手"
-tags: ["ESP32", "Blinker", "物联网"]
-categories: ["Embedded"]
+description: 'Blinker开发规范，适合嵌入式开发者快速上手'
+tags: ['ESP32', 'Blinker', '物联网']
+categories: ['Embedded']
 language: '中文'
 draft: false
 comment: true
@@ -22,11 +22,11 @@ Blinker 是一套跨硬件、跨平台的物联网解决方案，提供 APP 端�
 
 Blinker 目前支持三大主流开发板：
 
-| 平台 | WiFi | BLE | NB-IoT | GPRS |
-|------|------|-----|--------|------|
-| ESP32 | ✅ | ✅ 内置 | ✅ SIM7020/SIM7000 | ✅ Air202 |
-| ESP8266 | ✅ | ✅ 外接透传模块 | ✅ | ✅ |
-| Arduino R4 | ✅ AT固件 | ✅ | - | - |
+| 平台       | WiFi      | BLE             | NB-IoT             | GPRS      |
+| ---------- | --------- | --------------- | ------------------ | --------- |
+| ESP32      | ✅        | ✅ 内置         | ✅ SIM7020/SIM7000 | ✅ Air202 |
+| ESP8266    | ✅        | ✅ 外接透传模块 | ✅                 | ✅        |
+| Arduino R4 | ✅ AT固件 | ✅              | -                  | -         |
 
 ESP32 凭借内置蓝牙和丰富的外设接口，是目前最推荐的入门选择。
 
@@ -82,15 +82,15 @@ Blinker 标准程序按以下顺序组织：
 
 Blinker 提供丰富的内置组件：
 
-| 组件 | 类名 | 用途 |
-|------|------|------|
-| 按钮 | `BlinkerButton` | 开关、模式切换 |
-| 滑块 | `BlinkerSlider` | 阈值、亮度、速度 |
-| 数值 | `BlinkerNumber` | 显示传感器数据 |
-| 文本 | `BlinkerText` | 显示字符串 |
-| RGB | `BlinkerRGB` | 颜色控制 |
-| 摇杆 | `BlinkerJoystick` | 方向控制 |
-| 开关 | `BlinkerSwitch` | 内置开关 |
+| 组件 | 类名              | 用途             |
+| ---- | ----------------- | ---------------- |
+| 按钮 | `BlinkerButton`   | 开关、模式切换   |
+| 滑块 | `BlinkerSlider`   | 阈值、亮度、速度 |
+| 数值 | `BlinkerNumber`   | 显示传感器数据   |
+| 文本 | `BlinkerText`     | 显示字符串       |
+| RGB  | `BlinkerRGB`      | 颜色控制         |
+| 摇杆 | `BlinkerJoystick` | 方向控制         |
+| 开关 | `BlinkerSwitch`   | 内置开关         |
 
 声明示例：
 
@@ -161,11 +161,11 @@ void heartbeat()
 
 ### 数据上报位置规则
 
-| 数据类型 | 上报位置 | 原因 |
-|----------|----------|------|
-| 按钮状态 | 回调函数 + 心跳包 | 即时反馈 + 兜底 |
-| 滑块值 | 仅心跳包 | 回调里 print 会拖不动 |
-| 数值/文本 | 仅心跳包 | 统一管理 |
+| 数据类型  | 上报位置          | 原因                  |
+| --------- | ----------------- | --------------------- |
+| 按钮状态  | 回调函数 + 心跳包 | 即时反馈 + 兜底       |
+| 滑块值    | 仅心跳包          | 回调里 print 会拖不动 |
+| 数值/文本 | 仅心跳包          | 统一管理              |
 
 **关键**：`print` 必须放心跳包回调或按钮回调，**不能放 loop()**，否则触发 `MQTT NOT ALIVE OR MESSAGE LIMIT` 错误。
 
@@ -217,7 +217,7 @@ void wifiOfflineMonitor()
   else if (!Blinker.connect() && millis() > 180000) {
     offline_flag = true;
   }
-  
+
   if (millis() > 180000 && offline_millis && millis() - offline_millis >= 180000) {
     ESP.restart();  // 掉线超三分钟重启
   }
@@ -248,19 +248,20 @@ void setup()
 
 ## 常见错误排查
 
-| 错误 | 原因 | 解决 |
-|------|------|------|
-| `MQTT NOT ALIVE OR MESSAGE LIMIT` | print 放在 loop() 中 | 移到心跳包回调或按钮回调 |
-| 按钮状态不更新 | APP 按钮类型与代码不匹配 | 保留五种状态处理 |
-| 滑块拖动不灵敏 | 回调里调用了 print | 滑块 print 只放心跳包 |
-| WiFi 连不上 | 非 2.4GHz / 密码错误 | 检查频段和密码 |
-| 授权码错误 | 引号/空格问题 | 从点灯 APP 复制 |
+| 错误                              | 原因                     | 解决                     |
+| --------------------------------- | ------------------------ | ------------------------ |
+| `MQTT NOT ALIVE OR MESSAGE LIMIT` | print 放在 loop() 中     | 移到心跳包回调或按钮回调 |
+| 按钮状态不更新                    | APP 按钮类型与代码不匹配 | 保留五种状态处理         |
+| 滑块拖动不灵敏                    | 回调里调用了 print       | 滑块 print 只放心跳包    |
+| WiFi 连不上                       | 非 2.4GHz / 密码错误     | 检查频段和密码           |
+| 授权码错误                        | 引号/空格问题            | 从点灯 APP 复制          |
 
 ## ESP32 Web 配网
 
 `ESP32_Blinker_NET` 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。
 
 **工作流程**：
+
 1. 开机读取 EEPROM 中的 WiFi 配置
 2. 有配置则尝试连接，无配置则进入配网模式
 3. 手机连接热点 `ESP32_Config`，访问 `192.168.4.1`

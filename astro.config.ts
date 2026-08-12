@@ -1,4 +1,5 @@
 import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+import sitemap from '@astrojs/sitemap'
 //import vercel from '@astrojs/vercel'
 import AstroPureIntegration from 'astro-pure'
 import { defineConfig } from 'astro/config'
@@ -115,8 +116,20 @@ export default defineConfig({
 
   // [Integrations]
   integrations: [
-    // astro-pure will automatically add sitemap, mdx & unocss
-    // sitemap(),
+    // Sitemap is normally added automatically by astro-pure. We configure it
+    // explicitly so the filter keeps the canonical nested URLs
+    // (/blog/<category>/<slug>) and drops the bare-filename redirect pages
+    // (/blog/<slug>) that [...]id.astro generates.
+    sitemap({
+      filter: (page) => {
+        const parts = new URL(page).pathname.split('/').filter(Boolean)
+        if (parts[0] !== 'blog') return true
+        if (parts.length === 1) return true // /blog (list page)
+        if (parts.length === 2) return /^\d+$/.test(parts[1]) // pagination /blog/2
+        return true // /blog/<category>/<slug> canonical article URLs
+      }
+    }),
+    // astro-pure will automatically add mdx & unocss
     // mdx(),
     // https://github.com/astro-community/astro-mermaid
     mermaid({

@@ -1,9 +1,9 @@
-﻿---
-title: "Nushell + Starship 终端环境配置指南"
+---
+title: 'Nushell + Starship 终端环境配置指南'
 publishDate: 2026-06-28 00:00:00
-description: "Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。"
-tags: ["Nushell", "Starship", "终端"]
-categories: ["Devtools"]
+description: 'Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。'
+tags: ['Nushell', 'Starship', '终端']
+categories: ['Devtools']
 language: '中文'
 draft: false
 comment: true
@@ -114,26 +114,26 @@ $env.config.history.max_size = 10000
 
 ### 配置说明
 
-| 配置项 | 说明 |
-|--------|------|
-| `$env.STARSHIP_SHELL = "nu"` | 告诉 Starship 当前 Shell 是 Nushell |
-| `$env.PROMPT_COMMAND` | 设置 Starship 为主提示符，传递持续时间和退出状态码 |
-| `$env.PROMPT_INDICATOR` | 普通模式下提示符为空（由 Starship 接管） |
-| `$env.PROMPT_INDICATOR_VI_INSERT` | VI 插入模式提示符设为 `: ` |
-| `$env.PROMPT_INDICATOR_VI_NORMAL` | VI 普通模式提示符 |
-| `show_banner = false` | 隐藏 Nushell 启动时的 logo 横幅 |
-| `history.max_size = 10000` | 限制历史记录最大条数 |
+| 配置项                            | 说明                                               |
+| --------------------------------- | -------------------------------------------------- |
+| `$env.STARSHIP_SHELL = "nu"`      | 告诉 Starship 当前 Shell 是 Nushell                |
+| `$env.PROMPT_COMMAND`             | 设置 Starship 为主提示符，传递持续时间和退出状态码 |
+| `$env.PROMPT_INDICATOR`           | 普通模式下提示符为空（由 Starship 接管）           |
+| `$env.PROMPT_INDICATOR_VI_INSERT` | VI 插入模式提示符设为 `: `                         |
+| `$env.PROMPT_INDICATOR_VI_NORMAL` | VI 普通模式提示符                                  |
+| `show_banner = false`             | 隐藏 Nushell 启动时的 logo 横幅                    |
+| `history.max_size = 10000`        | 限制历史记录最大条数                               |
 
 ### 别名一览
 
-| 别名 | 等价命令 |
-|------|----------|
-| `ll` | `ls -l` |
-| `la` | `ls -a` |
-| `lla` | `ls -la` |
-| `g` | `git` |
-| `c` | `clear` |
-| `vim` | `nvim` |
+| 别名     | 等价命令  |
+| -------- | --------- |
+| `ll`     | `ls -l`   |
+| `la`     | `ls -a`   |
+| `lla`    | `ls -la`  |
+| `g`      | `git`     |
+| `c`      | `clear`   |
+| `vim`    | `nvim`    |
 | `python` | `python3` |
 
 ---
@@ -175,14 +175,14 @@ starship preset gruvbox-rainbow -o ~\.config\starship.toml
 
 其他热门预设：
 
-| 预设 | 风格 |
-|------|------|
-| `gruvbox-rainbow` | 温暖大地色 + Powerline 箭头（推荐） |
-| `tokyo-night` | 深色蓝紫冷色调 |
-| `pastel-powerline` | 粉彩 Powerline 风格 |
-| `catppuccin-powerline` | Catppuccin 主题 |
-| `pure-preset` | 极简单行提示符 |
-| `no-runtime-versions` | 不显示运行时版本信息 |
+| 预设                   | 风格                                |
+| ---------------------- | ----------------------------------- |
+| `gruvbox-rainbow`      | 温暖大地色 + Powerline 箭头（推荐） |
+| `tokyo-night`          | 深色蓝紫冷色调                      |
+| `pastel-powerline`     | 粉彩 Powerline 风格                 |
+| `catppuccin-powerline` | Catppuccin 主题                     |
+| `pure-preset`          | 极简单行提示符                      |
+| `no-runtime-versions`  | 不显示运行时版本信息                |
 
 ### 自定义配置
 
@@ -346,19 +346,19 @@ vimcmd_visual_symbol = '[](bold fg:color_yellow)'
 
 整条提示符由 Powerline 风格的分段箭头连接，自左向右依次为：
 
-| 模块 | 背景色 | 显示内容 |
-|------|--------|----------|
-| `$os` | 橙色 | 当前操作系统图标 |
-| `$username` | 橙色 | 用户名 |
-| `$directory` | 黄色 | 当前目录路径（截断至 3 级） |
-| `$git_branch` | 青色 | Git 分支名 |
-| `$git_status` | 青色 | Git 状态（修改/暂存/冲突/ ahead/behind） |
-| 语言模块 | 蓝色 | C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本 |
-| `$docker_context` | 灰 3 | Docker 上下文 |
-| `$conda` | 灰 3 | Conda 环境 |
-| `$pixi` | 灰 3 | Pixi 环境 |
-| `$time` | 灰 1 | 当前时间（24h） |
-| `$character` | — | 提示符箭头（绿色成功 / 红色失败） |
+| 模块              | 背景色 | 显示内容                                                      |
+| ----------------- | ------ | ------------------------------------------------------------- |
+| `$os`             | 橙色   | 当前操作系统图标                                              |
+| `$username`       | 橙色   | 用户名                                                        |
+| `$directory`      | 黄色   | 当前目录路径（截断至 3 级）                                   |
+| `$git_branch`     | 青色   | Git 分支名                                                    |
+| `$git_status`     | 青色   | Git 状态（修改/暂存/冲突/ ahead/behind）                      |
+| 语言模块          | 蓝色   | C/C++/Rust/Go/Node.js/Bun/PHP/Java/Kotlin/Haskell/Python 版本 |
+| `$docker_context` | 灰 3   | Docker 上下文                                                 |
+| `$conda`          | 灰 3   | Conda 环境                                                    |
+| `$pixi`           | 灰 3   | Pixi 环境                                                     |
+| `$time`           | 灰 1   | 当前时间（24h）                                               |
+| `$character`      | —      | 提示符箭头（绿色成功 / 红色失败）                             |
 
 ### 检查配置
 
@@ -405,17 +405,17 @@ $env.PROMPT_COMMAND = { ||
 
 Starship 支持将常见目录名替换为 Nerd Font 图标，当前配置中的替换表：
 
-| 原目录 | 替换图标 |
-|--------|----------|
-| `Documents` |   |
-| `Downloads` |   |
-| `Music` |   |
-| `Pictures` |   |
-| `Developer` |   |
+| 原目录      | 替换图标 |
+| ----------- | -------- |
+| `Documents` |          |
+| `Downloads` |          |
+| `Music`     |          |
+| `Pictures`  |          |
+| `Developer` |          |
 
 ### 2. 提示符颜色随退出状态变化
 
-Starship 的 `$character` 模块会根据上一条命令的退出码自动变色：成功为绿色 ``, 失败为红色 ``, 无需额外配置。
+Starship 的 `$character` 模块会根据上一条命令的退出码自动变色：成功为绿色 `, 失败为红色 `, 无需额外配置。
 
 ### 3. 调试慢提示符
 

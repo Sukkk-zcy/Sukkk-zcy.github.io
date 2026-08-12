@@ -1,10 +1,10 @@
 ---
-title: "P4 快速入门（二）：一次看懂一个 P4 程序"
+title: 'P4 快速入门（二）：一次看懂一个 P4 程序'
 publishDate: 2026-07-08 00:00:00
-description: "通过一个最小可运行示例讲解 header、parser、match-action 与 V1Model 流水线"
-tags: ["P4", "Parser", "Match-Action", "V1Model", "入门"]
-categories: ["P4"]
-language: "中文"
+description: '通过一个最小可运行示例讲解 header、parser、match-action 与 V1Model 流水线'
+tags: ['P4', 'Parser', 'Match-Action', 'V1Model', '入门']
+categories: ['P4']
+language: '中文'
 draft: false
 comment: true
 ---
@@ -166,11 +166,11 @@ bit<16> t = lookahead(bit<16>);               // 预览但不消费字节
 
 `table` 声明匹配字段（key）与可选动作（actions），命中后执行对应 action。三种匹配类型：
 
-| 匹配类型 | 语义 | 典型用途 |
-|----------|------|----------|
-| `exact` | 全比特精确匹配 | MAC 表、VLAN 表 |
-| `lpm` | 最长前缀匹配 | IP 路由表 |
-| `ternary` | 值 + 掩码 | ACL、流量分类 |
+| 匹配类型  | 语义           | 典型用途        |
+| --------- | -------------- | --------------- |
+| `exact`   | 全比特精确匹配 | MAC 表、VLAN 表 |
+| `lpm`     | 最长前缀匹配   | IP 路由表       |
+| `ternary` | 值 + 掩码      | ACL、流量分类   |
 
 ```mermaid
 flowchart LR
@@ -235,14 +235,14 @@ flowchart LR
     D --> OUT["报文离开"]
 ```
 
-| 块 | 作用 |
-|----|------|
-| `Parser` | 字节流解析为报头 |
-| `VerifyChecksum` | 校验和验证（可选） |
-| `MyIngress` | 入口处理：查表、修改报头、决定出端口 |
-| `MyEgress` | 出口处理 |
-| `ComputeChecksum` | 计算校验和（可选） |
-| `MyDeparser` | 报头重新打包 |
+| 块                | 作用                                 |
+| ----------------- | ------------------------------------ |
+| `Parser`          | 字节流解析为报头                     |
+| `VerifyChecksum`  | 校验和验证（可选）                   |
+| `MyIngress`       | 入口处理：查表、修改报头、决定出端口 |
+| `MyEgress`        | 出口处理                             |
+| `ComputeChecksum` | 计算校验和（可选）                   |
+| `MyDeparser`      | 报头重新打包                         |
 
 ---
 
@@ -271,16 +271,16 @@ table_add MyIngress.l2_forward forward 00:00:00:00:00:02 => 1
 
 ## 参考文献
 
-1. P4 Language Consortium. *P4-16 Language Specification v1.2.5*（类型 §7、语句 §11、架构 §12、Parser §13）. https://p4.org/p4-specs/
-2. p4lang. *v1model.p4*. https://github.com/p4lang/p4c/blob/main/p4include/v1model.p4
-3. p4lang. *p4c*. https://github.com/p4lang/p4c
-4. p4lang. *P4 Tutorials*. https://github.com/p4lang/tutorials
-5. 张恒华. *P4 中文教程*. https://github.com/zhh2001/p4-language-guide-zh
+1. P4 Language Consortium. _P4-16 Language Specification v1.2.5_（类型 §7、语句 §11、架构 §12、Parser §13）. https://p4.org/p4-specs/
+2. p4lang. _v1model.p4_. https://github.com/p4lang/p4c/blob/main/p4include/v1model.p4
+3. p4lang. _p4c_. https://github.com/p4lang/p4c
+4. p4lang. _P4 Tutorials_. https://github.com/p4lang/tutorials
+5. 张恒华. _P4 中文教程_. https://github.com/zhh2001/p4-language-guide-zh
 
 > 说明：示例结构参考官方 tutorials 的 basic 练习，完整练习与答案见 [4]。
 
 ---
 
-*本文是「P4 快速入门」系列的第 2 篇。*
+_本文是「P4 快速入门」系列的第 2 篇。_
 
-*系列导航：上一篇 → [可编程数据平面，从黑盒到白盒](/blog/p4/p4-01-quickstart-overview) | 下一篇 → [环境、控制平面与研究前沿](/blog/p4/p4-03-practice-frontier)*
+_系列导航：上一篇 → [可编程数据平面，从黑盒到白盒](/blog/p4/p4-01-quickstart-overview) | 下一篇 → [环境、控制平面与研究前沿](/blog/p4/p4-03-practice-frontier)_

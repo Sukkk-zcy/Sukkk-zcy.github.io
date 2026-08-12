@@ -1,9 +1,9 @@
-﻿---
-title: "SDN 是什么"
+---
+title: 'SDN 是什么'
 publishDate: 2026-06-10 00:00:00
-description: "理解 SDN 的诞生背景、三层架构与核心概念"
-tags: ["SDN", "入门"]
-categories: ["SDN"]
+description: '理解 SDN 的诞生背景、三层架构与核心概念'
+tags: ['SDN', '入门']
+categories: ['SDN']
 language: '中文'
 draft: false
 comment: true
@@ -32,13 +32,13 @@ import { Aside } from 'astro-pure/user'
 
 ### 1.2 这种设计带来了什么问题
 
-| 问题 | 具体表现 |
-|------|---------|
-| 配置复杂 | 每台设备要逐台手动配置 CLI 命令，无法批量管理 |
-| 扩展困难 | 新增功能需要更换硬件，无法快速迭代 |
-| 缺乏全局视角 | 每台设备只看到局部拓扑，无法做全局最优路由 |
-| 厂商锁定 | 不同厂商的设备命令不通用，迁移成本极高 |
-| 响应缓慢 | 网络策略变更需要逐个设备修改，耗时数周甚至数月 |
+| 问题         | 具体表现                                       |
+| ------------ | ---------------------------------------------- |
+| 配置复杂     | 每台设备要逐台手动配置 CLI 命令，无法批量管理  |
+| 扩展困难     | 新增功能需要更换硬件，无法快速迭代             |
+| 缺乏全局视角 | 每台设备只看到局部拓扑，无法做全局最优路由     |
+| 厂商锁定     | 不同厂商的设备命令不通用，迁移成本极高         |
+| 响应缓慢     | 网络策略变更需要逐个设备修改，耗时数周甚至数月 |
 
 一句话总结：**传统网络就像一个没有指挥的乐队，每个乐手各吹各的调。**
 
@@ -67,8 +67,9 @@ SDN 的核心思想就一句话：
 
 中央指挥中心掌握全局路况，可以动态调整信号灯，实现全局最优的流量调度。
 
-<Aside type='tip' title='记住这个'>SDN 的核心只有三个字：**分、控、转**。控制面与数据面分离，控制器集中管理，交换机只负责转发。</Aside>
-
+<Aside type='tip' title='记住这个'>
+  SDN 的核心只有三个字：**分、控、转**。控制面与数据面分离，控制器集中管理，交换机只负责转发。
+</Aside>
 
 ---
 
@@ -116,11 +117,11 @@ flowchart LR
 
 ### 3.4 两个关键接口
 
-| 接口 | 方向 | 作用 | 代表协议 |
-|------|------|------|---------|
-| 南向接口 | 控制层 → 数据层 | 控制器向交换机下发流表 | OpenFlow（最主流） |
-| 北向接口 | 应用层 → 控制层 | 应用调用控制器能力 | REST API（常见） |
-| 东西向接口 | 控制器之间 | 多控制器协同 | 自定义协议 |
+| 接口       | 方向            | 作用                   | 代表协议           |
+| ---------- | --------------- | ---------------------- | ------------------ |
+| 南向接口   | 控制层 → 数据层 | 控制器向交换机下发流表 | OpenFlow（最主流） |
+| 北向接口   | 应用层 → 控制层 | 应用调用控制器能力     | REST API（常见）   |
+| 东西向接口 | 控制器之间      | 多控制器协同           | 自定义协议         |
 
 ---
 
@@ -148,11 +149,11 @@ flowchart LR
 
 ## 五、SDN 的发展脉络
 
-| 时代 | 特点 |
-|------|------|
-| 传统网络 | 控制与转发紧耦合，每台设备独立决策，手动配置 |
-| SDN (OpenFlow) | 控制与转发分离，集中控制，OpenFlow 南向协议 |
-| P4 可编程数据面 | 不仅控制面可编程，数据面也可编程，协议无关 |
+| 时代            | 特点                                         |
+| --------------- | -------------------------------------------- |
+| 传统网络        | 控制与转发紧耦合，每台设备独立决策，手动配置 |
+| SDN (OpenFlow)  | 控制与转发分离，集中控制，OpenFlow 南向协议  |
+| P4 可编程数据面 | 不仅控制面可编程，数据面也可编程，协议无关   |
 
 SDN 是从传统网络到可编程网络的关键一步。而下一代技术 P4 则更进一步，让数据平面本身也变得可编程（这将是后续学习的内容）。
 
@@ -168,25 +169,25 @@ SDN 是从传统网络到可编程网络的关键一步。而下一代技术 P4 
 
 ## 七、本章小结
 
-| 项目 | 内容 |
-|------|------|
-| 阅读 | 《深度解析SDN》第1~2章 |
+| 项目     | 内容                                                                 |
+| -------- | -------------------------------------------------------------------- |
+| 阅读     | 《深度解析SDN》第1~2章                                               |
 | 精读综述 | A Survey of SDN: Past, Present, and Future（Abstract + Section 1-2） |
-| 快读综述 | A Survey on Software-Defined Networking（Abstract + Conclusion） |
-| 核心收获 | 理解 SDN 诞生的背景、三层架构、控制与转发分离的思想 |
-| 待深入 | SDN 各层职责的细节和南向/北向接口 |
+| 快读综述 | A Survey on Software-Defined Networking（Abstract + Conclusion）     |
+| 核心收获 | 理解 SDN 诞生的背景、三层架构、控制与转发分离的思想                  |
+| 待深入   | SDN 各层职责的细节和南向/北向接口                                    |
 
 ---
 
 ## 参考资料
 
 1. 《深度解析SDN：利益、战略、技术、实践》—— 第1~2章
-2. Kreutz, D. et al. "A Survey of Software-Defined Networking: Past, Present, and Future of Programmable Networks." *IEEE Communications Surveys & Tutorials*, 2015.
-3. Akyildiz, I. F. et al. "A Survey on Software-Defined Networking." *IEEE Network*, 2014.
+2. Kreutz, D. et al. "A Survey of Software-Defined Networking: Past, Present, and Future of Programmable Networks." _IEEE Communications Surveys & Tutorials_, 2015.
+3. Akyildiz, I. F. et al. "A Survey on Software-Defined Networking." _IEEE Network_, 2014.
 4. [SDNLAB SDN 指南](http://www.sdnlab.com/sdn-guide/)
 
 ---
 
-*本文是「SDN 学习指南」系列的第1篇。*
+_本文是「SDN 学习指南」系列的第1篇。_
 
-*系列导航：下一篇 → SDN 架构深入*
+_系列导航：下一篇 → SDN 架构深入_

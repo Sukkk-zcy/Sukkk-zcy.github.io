@@ -1,9 +1,9 @@
-﻿---
-title: "OpenFlow 协议"
+---
+title: 'OpenFlow 协议'
 publishDate: 2026-06-17 00:00:00
-description: "OpenFlow 流表结构、匹配流程、组表与计量表"
-tags: ["SDN", "OpenFlow"]
-categories: ["SDN"]
+description: 'OpenFlow 流表结构、匹配流程、组表与计量表'
+tags: ['SDN', 'OpenFlow']
+categories: ['SDN']
 language: '中文'
 draft: false
 comment: true
@@ -33,12 +33,12 @@ import { Aside } from 'astro-pure/user'
 
 一条流表项由四个部分组成：
 
-| 组成部分 | 作用 |
-|----------|------|
-| 匹配字段（Match Fields） | 定义匹配条件：源/目的 MAC、IP、端口号等 |
-| 优先级（Priority） | 多条规则都能匹配时，优先级高的赢 |
-| 计数器（Counters） | 记录匹配到的包数量和字节数 |
-| 动作集（Instructions/Actions） | 匹配后执行的操作 |
+| 组成部分                       | 作用                                    |
+| ------------------------------ | --------------------------------------- |
+| 匹配字段（Match Fields）       | 定义匹配条件：源/目的 MAC、IP、端口号等 |
+| 优先级（Priority）             | 多条规则都能匹配时，优先级高的赢        |
+| 计数器（Counters）             | 记录匹配到的包数量和字节数              |
+| 动作集（Instructions/Actions） | 匹配后执行的操作                        |
 
 ### 2.2 匹配字段详解
 
@@ -105,11 +105,11 @@ OpenFlow 1.3 引入了**多级流表**，允许多张流表串联工作。数据
 
 每一张流表执行特定功能：
 
-| 流表 | 典型用途 |
-|------|---------|
+| 流表   | 典型用途                          |
+| ------ | --------------------------------- |
 | 流表 0 | 首次分类：区分 ARP、ICMP、TCP/UDP |
-| 流表 1 | 按 IP 网段做进一步路由决策 |
-| 流表 2 | 按端口号做访问控制 |
+| 流表 1 | 按 IP 网段做进一步路由决策        |
+| 流表 2 | 按端口号做访问控制                |
 
 通过 `Goto-Table` 指令，数据包可以在多级流表之间跳转。这种设计让复杂的转发逻辑可以拆分成多个简单步骤，每张表负责一部分。
 
@@ -121,9 +121,11 @@ OpenFlow 1.3 引入了**多级流表**，允许多张流表串联工作。数据
 2. **相同 priority**：由交换机实现决定，OpenFlow 规范不保证具体顺序
 
 注意：OpenFlow **不**按"匹配精确度"排序，只看 priority 数值。所以如果你想让更精确的规则先匹配，需要手动给它设更高的 priority。
-<Aside type='caution' title='易错点'>OpenFlow **不按匹配精度排序**，而是按优先级（priority）排序。高优先级的通配符规则会覆盖低优先级的精确匹配，可能导致安全问题。</Aside>
 
-
+<Aside type='caution' title='易错点'>
+  OpenFlow
+  **不按匹配精度排序**，而是按优先级（priority）排序。高优先级的通配符规则会覆盖低优先级的精确匹配，可能导致安全问题。
+</Aside>
 
 ---
 
@@ -131,13 +133,13 @@ OpenFlow 1.3 引入了**多级流表**，允许多张流表串联工作。数据
 
 匹配成功后，交换机执行的动作。主要动作类型：
 
-| 动作 | 说明 | 例子 |
-|------|------|------|
-| output | 从指定端口转发 | output:3 → 从端口 3 发出 |
-| drop | 丢弃数据包 | 不指定 output 即为丢弃 |
-| set-field | 修改包头字段 | 修改 VLAN ID、目的 MAC |
-| push/pop-tag | 添加/移除标签 | 添加 VLAN 标签 |
-| group | 转发到组表 | 用于广播、多播 |
+| 动作         | 说明           | 例子                     |
+| ------------ | -------------- | ------------------------ |
+| output       | 从指定端口转发 | output:3 → 从端口 3 发出 |
+| drop         | 丢弃数据包     | 不指定 output 即为丢弃   |
+| set-field    | 修改包头字段   | 修改 VLAN ID、目的 MAC   |
+| push/pop-tag | 添加/移除标签  | 添加 VLAN 标签           |
+| group        | 转发到组表     | 用于广播、多播           |
 
 一个流表项可以同时包含多个动作，按顺序依次执行。比如：先修改 VLAN 标签，再从指定端口转发。
 
@@ -149,12 +151,12 @@ OpenFlow 1.3 引入了**多级流表**，允许多张流表串联工作。数据
 
 ### 5.1 组表的四种类型
 
-| 类型 | 用途 | 场景 |
-|------|------|------|
-| All | 所有端口都执行动作 | 广播、泛洪 |
-| Select | 选择一个端口执行 | 负载均衡 |
-| Indirect | 只有一个端口执行 | 高效复用 |
-| Fast Failover | 优先执行活跃端口 | 链路冗余、故障切换 |
+| 类型          | 用途               | 场景               |
+| ------------- | ------------------ | ------------------ |
+| All           | 所有端口都执行动作 | 广播、泛洪         |
+| Select        | 选择一个端口执行   | 负载均衡           |
+| Indirect      | 只有一个端口执行   | 高效复用           |
+| Fast Failover | 优先执行活跃端口   | 链路冗余、故障切换 |
 
 ### 5.2 举个例子：广播
 
@@ -188,6 +190,7 @@ flowchart LR
 ```
 
 计量表可以：
+
 - **限速**：超过阈值的包被丢弃或降级
 - **标记**：修改 DSCP 字段，标记不同服务等级
 - **统计**：统计各流量级别的包数量和字节数
@@ -206,30 +209,30 @@ flowchart LR
 
 ### 7.1 控制器 → 交换机
 
-| 消息 | 作用 |
-|------|------|
-| Features | 查询交换机能力（支持多少流表、端口数等） |
-| Configuration | 设置交换机参数 |
-| Modify-State | 增删改流表项（Flow-Mod） |
-| Read-State | 读取流表、端口统计信息 |
-| Packet-Out | 控制器通过交换机发送数据包 |
+| 消息          | 作用                                     |
+| ------------- | ---------------------------------------- |
+| Features      | 查询交换机能力（支持多少流表、端口数等） |
+| Configuration | 设置交换机参数                           |
+| Modify-State  | 增删改流表项（Flow-Mod）                 |
+| Read-State    | 读取流表、端口统计信息                   |
+| Packet-Out    | 控制器通过交换机发送数据包               |
 
 ### 7.2 交换机 → 控制器
 
-| 消息 | 作用 |
-|------|------|
-| Packet-In | 交换机遇到未知包，上送给控制器决策 |
-| Flow-Removed | 流表项被删除时通知控制器 |
-| Port-Status | 端口状态变化时通知控制器 |
-| Error | 报告错误 |
+| 消息         | 作用                               |
+| ------------ | ---------------------------------- |
+| Packet-In    | 交换机遇到未知包，上送给控制器决策 |
+| Flow-Removed | 流表项被删除时通知控制器           |
+| Port-Status  | 端口状态变化时通知控制器           |
+| Error        | 报告错误                           |
 
 ### 7.3 对称消息
 
-| 消息 | 作用 |
-|------|------|
-| Hello | 建立连接时互相打招呼 |
-| Echo | 心跳检测，确认连接存活 |
-| Experimenter | 厂商自定义扩展 |
+| 消息         | 作用                   |
+| ------------ | ---------------------- |
+| Hello        | 建立连接时互相打招呼   |
+| Echo         | 心跳检测，确认连接存活 |
+| Experimenter | 厂商自定义扩展         |
 
 ### 7.4 一次完整的交互流程
 
@@ -237,7 +240,7 @@ flowchart LR
 sequenceDiagram
     participant SW as 交换机
     participant CT as 控制器
-    
+
     SW->>CT: Hello（建立连接）
     CT->>SW: Hello（协商版本）
     CT->>SW: Features-Request
@@ -252,14 +255,14 @@ sequenceDiagram
 
 ## 八、本章小结
 
-| 项目 | 内容 |
-|------|------|
-| 阅读 | 《深度解析SDN》第4章 — OpenFlow 协议详解 |
-| 阅读 | 《重构网络 SDN架构实现》第2~3章 — 流表、组表、计量表 |
-| 精读 | 基于 OpenFlow 的 SDN 技术研究（左青云） |
-| 快读 | Network Innovation using OpenFlow: A Survey |
+| 项目     | 内容                                                   |
+| -------- | ------------------------------------------------------ |
+| 阅读     | 《深度解析SDN》第4章 — OpenFlow 协议详解               |
+| 阅读     | 《重构网络 SDN架构实现》第2~3章 — 流表、组表、计量表   |
+| 精读     | 基于 OpenFlow 的 SDN 技术研究（左青云）                |
+| 快读     | Network Innovation using OpenFlow: A Survey            |
 | 核心收获 | 流表结构、多级流表匹配流程、组表四种类型、计量表与 QoS |
-| 待深入 | 明天搭建 Mininet 实验环境，动手验证流表转发 |
+| 待深入   | 明天搭建 Mininet 实验环境，动手验证流表转发            |
 
 ---
 
@@ -268,11 +271,11 @@ sequenceDiagram
 1. 《深度解析SDN：利益、战略、技术、实践》—— 第4章
 2. 《重构网络：SDN架构实现》—— 第2~3章
 3. 左青云. 基于OpenFlow的SDN技术研究.
-4. Lara, E. et al. "Network Innovation using OpenFlow: A Survey." *IEEE Communications Surveys & Tutorials*, 2013.
+4. Lara, E. et al. "Network Innovation using OpenFlow: A Survey." _IEEE Communications Surveys & Tutorials_, 2013.
 5. [OpenFlow 1.3 Specification](https://opennetworking.org/of-spec/)
 
 ---
 
-*本文是「SDN 学习指南」系列的第3篇。*
+_本文是「SDN 学习指南」系列的第3篇。_
 
-*系列导航：上一篇 → SDN 三层架构 | 下一篇 → Mininet 网络实验*
+_系列导航：上一篇 → SDN 三层架构 | 下一篇 → Mininet 网络实验_

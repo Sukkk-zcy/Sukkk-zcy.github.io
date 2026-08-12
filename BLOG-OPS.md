@@ -20,14 +20,13 @@ E:\BLOG/
 │   │   └── blog/           # 文章内容（.mdx 文件）
 │   │       ├── SDN/        # SDN 分类（7 篇）
 │   │       ├── P4/         # P4 分类（3 篇）
-│   │       ├── Embedded/   # 嵌入式开发分类（4 篇）
+│   │       ├── Embedded/   # 嵌入式开发分类（5 篇）
 │   │       └── Devtools/   # 开发环境搭建分类（4 篇）
 │   ├── components/         # Astro 组件
 │   ├── layouts/            # 页面布局
 │   └── utils/
 │       └── content-paths.ts  # 分类/标签路径工具函数
 ├── packages/pure/          # 主题组件包（含 ArticleBottom.astro 等）
-├── .github/workflows/      # GitHub Actions 部署配置
 ├── public/                 # 静态资源
 ├── dist/                   # 构建产物（.gitignore）
 ├── deploy-temp/            # 部署临时目录（可删）
@@ -38,32 +37,14 @@ E:\BLOG/
 
 ## 部署方式
 
-### 方式一：GitHub Actions 自动部署（推荐）
+### 本地手动部署（SSH 方式，推荐）
 
-推送代码到 GitHub 后自动构建部署。
-
-- **工作流文件**: `.github/workflows/deploy.yml`
-- **流程**: Node.js 20 → npm install --legacy-peer-deps → astro build → 部署到 gh-pages
-
-### 方式二：本地手动部署（SSH 方式，无需授权）
+一键脚本：`deploy.ps1`（清理缓存 → 构建 → 复制到 deploy-temp → 推送 gh-pages）
 
 ```powershell
-# 1. 构建
 cd E:\BLOG
-$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
-
-# 2. 部署到 gh-pages（使用 SSH，无需授权）
-Remove-Item -Path "E:\BLOG\deploy-temp" -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path "E:\BLOG\deploy-temp" | Out-Null
-Copy-Item -Path "E:\BLOG\dist\*" -Destination "E:\BLOG\deploy-temp\" -Recurse -Force
-New-Item -ItemType File -Force -Path "E:\BLOG\deploy-temp\.nojekyll" | Out-Null
-Push-Location E:\BLOG\deploy-temp
-git init; git add .; git commit -m "deploy: $(Get-Date -Format 'yyyy-MM-dd HH:mm')"
-git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
-Pop-Location
+.\deploy.ps1
 ```
-
-**注意**: 使用 SSH 方式推送，已配置 SSH key，无需手动授权。
 
 ---
 
@@ -80,11 +61,11 @@ Pop-Location
 ```yaml
 ---
 title: "文章标题"
-publishDate: 2025-07-20
+publishDate: 2026-07-20 00:00:00  # 建议带时间，与现有文章格式一致
 description: "一句话描述"
 tags: ["SDN", "OpenFlow"]      # 标签用正确大小写
 categories: ["SDN"]            # 必须和目录名一致
-series: ["SDN 学习指南"]        # 系列名（可选）
+series: ["SDN 学习指南"]        # 系列名（可选，现有文章暂未使用）
 language: "中文"
 draft: false
 comment: true
@@ -157,6 +138,7 @@ npm install --legacy-peer-deps
 - **typst**: 依赖问题，已禁用
 - **远程字体**: 网络问题，已禁用
 - **Giscus 评论**: 未配置 repo，待启用
+- **Waline 评论**: `site.config.ts` 中 `waline.enable: false`，未启用
 
 ---
 
@@ -164,7 +146,6 @@ npm install --legacy-peer-deps
 
 - `src/site.config.ts` — 站点标题、作者、GitHub 等基础信息
 - `astro.config.mjs` — Astro 框架配置（集成、构建选项等）
-- `.github/workflows/deploy.yml` — GitHub Actions 部署流水线
 - `packages/pure/components/pages/ArticleBottom.astro` — 文章底部上下章导航（已自定义）
 
 ---

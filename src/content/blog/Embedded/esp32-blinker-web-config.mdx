@@ -1,9 +1,9 @@
-﻿---
-title: "ESP32 Web 配网实战"
+---
+title: 'ESP32 Web 配网实战'
 publishDate: 2026-06-25 00:00:00
-description: "通过 Web 页面为 ESP32 配置 WiFi 和 Blinker 授权码，支持历史配置记录，开机自动重连"
-tags: ["ESP32", "Blinker", "WiFi配网"]
-categories: ["Embedded"]
+description: '通过 Web 页面为 ESP32 配置 WiFi 和 Blinker 授权码，支持历史配置记录，开机自动重连'
+tags: ['ESP32', 'Blinker', 'WiFi配网']
+categories: ['Embedded']
 language: '中文'
 draft: false
 comment: true
@@ -11,7 +11,7 @@ comment: true
 
 ## 前言
 
-在上一篇 [Blinker 开发入门指南](/post/blinker-getting-started/) 中，我们了解了 Blinker 的基础用法。但在实际项目中，WiFi 名称和密码写死在代码里非常不方便——每换一个网络就要重新烧录。
+在上一篇 [Blinker 开发入门指南](/blog/embedded/blinker-getting-started) 中，我们了解了 Blinker 的基础用法。但在实际项目中，WiFi 名称和密码写死在代码里非常不方便——每换一个网络就要重新烧录。
 
 本文介绍一个 ESP32 Web 配网方案，通过手机连接 ESP32 热点，在网页上配置 WiFi 和 Blinker 授权码，配置保存后开机自动重连。
 
@@ -197,10 +197,10 @@ void WIFIConnect::loop() {
 
 ## 硬件连接
 
-| 引脚 | 功能 | 说明 |
-|------|------|------|
+| 引脚  | 功能       | 说明                            |
+| ----- | ---------- | ------------------------------- |
 | GPIO2 | LED 指示灯 | 连接=常亮，配网=闪烁，断开=熄灭 |
-| GPIO0 | 重置按键 | 长按3秒清除配置并重启 |
+| GPIO0 | 重置按键   | 长按3秒清除配置并重启           |
 
 ## 使用步骤
 

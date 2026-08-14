@@ -1,14 +1,14 @@
 {
   "site": {
-    "name": "灵的梦境",
-    "url": "https://lemonadorable.github.io/",
-    "friendPage": "https://lemonadorable.github.io/links/",
+    "name": "Sukkk",
+    "url": "https://sukkk-zcy.github.io/",
+    "friendPage": "https://sukkk-zcy.github.io/links/",
     "avatar": "https://sukkk-zcy.github.io/favicon.ico",
-    "description": "愿美梦成真"
+    "description": "记录技术笔记和成长历程"
   },
   "deployWorkflow": "deploy.yml",
   "linksFile": "public/links.json",
-  "targetGroup": "cf-links",
+  "targetGroup": "all-links",
   "labels": {
     "request": "friend-link",
     "checking": "friend-link: checking",

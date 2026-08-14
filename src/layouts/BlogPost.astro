@@ -139,7 +139,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
 
   function initBlogNavigation() {
     // 1. Footnotes
-    document.querySelectorAll('a[data-footnote-ref], a.data-footnote-backref').forEach((link) => {
+    document.querySelectorAll('a[data-footnote-ref], a[data-footnote-backref]').forEach((link) => {
       link.addEventListener('click', (e) => {
         const href = (link as HTMLAnchorElement).getAttribute('href')
         if (!href?.startsWith('#')) return
@@ -158,14 +158,14 @@ const currentPostSlug = getPostSlug(Astro.props.post)
 
     wikilinks.forEach((link) => {
       const href = link.getAttribute('href') || ''
-      const match = href.match(/\/blog\/([^/]+)/)
+      const match = href.match(/\/blog\/(?:.*\/)?([^/]+)$/)
       if (match && !indexMap.has(match[1])) indexMap.set(match[1], currentIndex++)
     })
 
     wikilinks.forEach((link) => {
       if (link.nextElementSibling?.classList.contains('wikilink-locate-btn')) return
       const href = link.getAttribute('href') || ''
-      const match = href.match(/\/blog\/([^/]+)/)
+      const match = href.match(/\/blog\/(?:.*\/)?([^/]+)$/)
       const index = match ? indexMap.get(match[1]) : null
       if (!index) return
 
@@ -201,7 +201,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
       .forEach((row) => {
         if (row.querySelector('.links-index')) return
         const href = row.querySelector('a.links-link')?.getAttribute('href') || ''
-        const match = href.match(/\/blog\/([^/]+)/)
+        const match = href.match(/\/blog\/(?:.*\/)?([^/]+)$/)
         const index = match ? indexMap.get(match[1]) : null
         if (index) {
           row.setAttribute('data-index', String(index))

@@ -18,7 +18,7 @@ export const theme: ThemeUserConfig = {
     }
   },
   logo: {
-    src: '/src/assets/avatar.jpg',
+    src: '/src/assets/avatar.png',
     alt: 'Sukkk'
   },
 

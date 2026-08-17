@@ -22,7 +22,7 @@
     "cache:avatars": "tsx preset/scripts/cacheAvatars.ts"
   },
   "dependencies": {
-    "@astrojs/check": "0.9.8",
+    "@astrojs/check": "0.9.10",
     "@astrojs/compiler-rs": "^0.1.8",
     "@astrojs/markdown-remark": "^7.1.0",
     "@astrojs/rss": "4.0.18",
@@ -32,7 +32,7 @@
     "@unocss/reset": "^66.6.8",
     "@waline/client": "^3.13.0",
     "astro": "6.1.8",
-    "astro-mermaid": "^1.2.0",
+    "astro-mermaid": "^2.1.0",
     "astro-pure": "1.4.6",
     "d3": "^7.9.0",
     "flexsearch": "^0.8.212",

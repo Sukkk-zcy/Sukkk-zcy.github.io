@@ -102,7 +102,8 @@ span.katex-display {
   background-color: transparent !important;
 }
 
-.dark .mermaid svg {
+.dark .mermaid svg,
+html[data-theme='dark'] .mermaid svg {
   background-color: transparent !important;
 }
 
@@ -171,7 +172,8 @@ span.katex-display {
   }
 }
 
-.dark {
+.dark,
+html[data-theme='dark'] {
   .astro-code pre span {
     color: var(--shiki-dark) !important;
   }

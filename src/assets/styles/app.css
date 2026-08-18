@@ -17,7 +17,8 @@
   --radius: 0.5rem;
 }
 
-.dark {
+.dark,
+html[data-theme='dark'] {
   /* Primary */
   --primary: 267 68% 78%;
   /* Foreground */
@@ -38,7 +39,8 @@
   --un-default-border-color: hsl(var(--border) / 1);
 }
 
-html.dark {
+html.dark,
+html[data-theme='dark'] {
   color-scheme: dark;
 }
 

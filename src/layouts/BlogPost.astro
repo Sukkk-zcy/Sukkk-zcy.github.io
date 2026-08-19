@@ -8,7 +8,7 @@ import 'katex/dist/katex.min.css'
 import config from 'virtual:config'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { ArticleBottom, Copyright, GraphView, Hero, TOC } from 'astro-pure/components/pages'
+import { ArticleBottom, GraphView, Hero, TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
 import ArticleRail from '@/components/blog/ArticleRail.astro'
 import Backlinks from '@/components/blog/Backlinks.astro'
@@ -102,8 +102,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
       id='blog-graph-view'
       class='blog-graph-view'
     />
-    {/* Copyright */}
-    <Copyright {data} />
+
     {/* Article recommend */}
     <ArticleBottom collections={posts} {id} />
   </div>

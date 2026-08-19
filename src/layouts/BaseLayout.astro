@@ -130,6 +130,16 @@ const {
     </style>
 
     <script>
+      // Re-apply theme after Astro View Transition swap
+      function reapplyTheme() {
+        var theme = localStorage.getItem('theme')
+        if (!theme || theme === 'system') {
+          theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+        document.documentElement.setAttribute('data-theme', theme)
+      }
+
       function animatePageContent() {
         const content = document.querySelector<HTMLElement>('[data-page-content]')
         if (!content) return
@@ -138,7 +148,9 @@ const {
         content.classList.add('is-page-entering')
       }
 
+      reapplyTheme()
       animatePageContent()
+      document.addEventListener('astro:after-swap', reapplyTheme)
       document.addEventListener('astro:page-load', animatePageContent)
     </script>
   </body>

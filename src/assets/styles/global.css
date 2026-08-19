@@ -102,8 +102,167 @@ span.katex-display {
   background-color: transparent !important;
 }
 
-.dark .mermaid svg {
+.dark .mermaid svg,
+html[data-theme='dark'] .mermaid svg {
   background-color: transparent !important;
+}
+
+/* ===== Mermaid 视觉升级（与博客主题配色统一）=====
+ * 浅色配色已在 astro.config.ts 的 themeVariables 设置；
+ * 深色模式通过覆盖规则切换为深色系（CSS 变量无法在 mermaid 初始化期传入，
+ * 故在渲染后的 SVG 上以 CSS 覆盖，SVG 内联于 DOM 时可继承页面变量） */
+
+/* 容器：无背景，完全融入博客底色 */
+pre.mermaid {
+  border-radius: 12px;
+  margin: 1.75rem 0 !important;
+  padding: 0.75rem 1rem !important;
+  background: none !important;
+}
+
+/* 浅色模式容器：轻微底色区分即可 */
+html:not([data-theme='dark']) pre.mermaid {
+  background: hsl(var(--muted) / 0.3) !important;
+}
+
+
+
+/* 流程图节点：统一圆角（所有形状） */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon,
+.mermaid .node path,
+.mermaid .cluster rect,
+.mermaid .cluster polygon,
+.mermaid .cluster path {
+  rx: 10px !important;
+  ry: 10px !important;
+}
+
+.mermaid .basic.label-container {
+  stroke-width: 1.5px;
+  stroke: hsl(var(--primary) / 0.6) !important;
+}
+
+/* 节点内文字颜色跟随主题 */
+.mermaid .nodeLabel,
+.mermaid .node .label p,
+.mermaid .label span,
+.mermaid .label p {
+  color: hsl(var(--foreground) / 0.92) !important;
+}
+
+/* 连线与箭头 */
+.mermaid .flowchart-link,
+.mermaid .edgePath .path {
+  stroke-width: 1.8px;
+}
+
+/* 边标签背景 — 覆盖 mermaid 内部 #id 选择器 */
+.mermaid .labelBkg,
+.mermaid .edgeLabel,
+.mermaid .edgeLabel p,
+.mermaid .edgeLabel rect {
+  background-color: hsl(var(--card) / 0.92) !important;
+  fill: hsl(var(--card) / 0.92) !important;
+}
+
+.mermaid .edgeLabel,
+.mermaid .edgeLabel p,
+.mermaid .edgeLabel span {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* ===== 深色模式覆盖 ===== */
+
+/* 节点：用半透明浅底 + 亮紫边框 */
+.dark .mermaid .node rect,
+.dark .mermaid .node circle,
+.dark .mermaid .node ellipse,
+.dark .mermaid .node polygon,
+.dark .mermaid .node path,
+.dark .mermaid .basic.label-container,
+.dark .mermaid .actor rect,
+.dark .mermaid .note rect,
+.dark .mermaid .cluster rect {
+  fill: hsl(var(--muted) / 0.8) !important;
+  stroke: hsl(var(--primary) / 0.7) !important;
+  stroke-width: 1.5px !important;
+}
+
+/* 节点文字 */
+.dark .mermaid .nodeLabel,
+.dark .mermaid .node .label p,
+.dark .mermaid .label span,
+.dark .mermaid .label p {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* 连线：加深可见度 */
+.dark .mermaid .flowchart-link,
+.dark .mermaid .edgePath .path,
+.dark .mermaid .actor-line,
+.dark .mermaid .loopLine,
+.dark .mermaid .messageLine0,
+.dark .mermaid .messageLine1,
+.dark .mermaid .labelBox {
+  stroke: hsl(var(--primary) / 0.55) !important;
+  stroke-width: 1.8px !important;
+}
+
+/* 箭头 + marker */
+.dark .mermaid .marker,
+.dark .mermaid .arrowheadPath {
+  fill: hsl(var(--primary) / 0.55) !important;
+}
+
+/* 边标签背景 + 文字 — 用 pre.mermaid 提升优先级覆盖 mermaid 内部 #id 选择器 */
+.dark pre.mermaid .labelBkg,
+.dark pre.mermaid .edgeLabel,
+.dark pre.mermaid .edgeLabel p,
+.dark pre.mermaid .edgeLabel rect,
+.dark pre.mermaid .icon-shape,
+.dark pre.mermaid .icon-shape p {
+  background-color: hsl(var(--muted)) !important;
+  fill: hsl(var(--muted)) !important;
+}
+
+.dark pre.mermaid .edgeLabel,
+.dark pre.mermaid .edgeLabel p,
+.dark pre.mermaid .edgeLabel span {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 时序图参与者 */
+.dark .mermaid .actor {
+  fill: hsl(var(--muted)) !important;
+  stroke: hsl(var(--primary) / 0.5) !important;
+}
+
+/* 时序图 note */
+.dark .mermaid .note {
+  fill: hsl(var(--muted) / 0.8) !important;
+  stroke: hsl(var(--primary) / 0.4) !important;
+}
+
+/* 文字通用 */
+.dark .mermaid text,
+.dark .mermaid .cluster-label text,
+.dark .mermaid .cluster-label span,
+.dark .mermaid .titleText,
+.dark .mermaid .loopText,
+.dark .mermaid .taskText,
+.dark .mermaid .sectionTitle,
+.dark .mermaid .messageText {
+  color: hsl(var(--foreground)) !important;
+  fill: hsl(var(--foreground)) !important;
+}
+
+/* subgraph 背景 */
+.dark .mermaid .cluster rect {
+  fill: hsl(var(--muted) / 0.45) !important;
+  stroke: hsl(var(--primary) / 0.4) !important;
 }
 
 /* [Shiki basic] */
@@ -171,7 +330,8 @@ span.katex-display {
   }
 }
 
-.dark {
+.dark,
+html[data-theme='dark'] {
   .astro-code pre span {
     color: var(--shiki-dark) !important;
   }

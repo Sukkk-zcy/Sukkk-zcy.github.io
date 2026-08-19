@@ -62,17 +62,8 @@ export const theme: ThemeUserConfig = {
 
 export const integ: IntegrationUserConfig = {
   links: {
-    logbook: [
-      { date: '2025-08-05', content: '友链页面正式上线，欢迎交换友链！' },
-      { date: '2025-08-05', content: '新收录：旧梦与花、Meteor Echo' },
-      { date: '2025-08-05', content: '新收录：iMaeGoo\'s Blog，头像更新' }
-    ],
-    applyTip: [
-      { name: 'Name', val: theme.title },
-      { name: 'Desc', val: '晓看天色暮看云' },
-      { name: 'Link', val: 'https://sukkk-zcy.github.io/' },
-      { name: 'Avatar', val: 'https://sukkk-zcy.github.io/favicon.ico' }
-    ],
+    logbook: [],
+    applyTip: [],
     cacheAvatar: false
   },
   quote: {

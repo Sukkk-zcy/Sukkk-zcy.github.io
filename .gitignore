@@ -86,3 +86,4 @@ src/env.d.ts
 
 # 站点静态资源（本地保留）
 public/
+design-preview

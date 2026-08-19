@@ -133,11 +133,68 @@ export default defineConfig({
     // mdx(),
     // https://github.com/astro-community/astro-mermaid
     mermaid({
-      // 布局与文字优化：固定字号、紧凑节点、关闭自动缩放（宽图保持原生尺寸，容器横向滚动）
+      // 布局与视觉升级：base 主题 + 与博客主色调（紫调）一致的浅色配色
+      // 深色模式配色由 global.css 中 .dark .mermaid 覆盖规则接管
       mermaidConfig: {
         securityLevel: 'loose',
+        // base 主题允许完整自定义变量，避免默认主题的单一配色
+        theme: 'base',
         themeVariables: {
-          fontSize: '15px'
+          fontFamily: 'ui-sans-serif, system-ui, -apple-system, PingFang SC, Microsoft YaHei, sans-serif',
+          fontSize: '14px',
+          // 浅色主题配色（与博客 --primary 紫调一致）
+          primaryColor: '#f4f0ff',
+          primaryBorderColor: '#b8a5f0',
+          primaryTextColor: '#2a2438',
+          lineColor: '#8a7fb8',
+          secondaryColor: '#ffe9f3',
+          tertiaryColor: '#e8f6ff',
+          secondaryBorderColor: '#f5c8dc',
+          tertiaryBorderColor: '#b3d9f0',
+          edgeLabelBackground: '#ffffff',
+          clusterBkg: '#fbf7ff',
+          clusterBorder: '#cfc5ee',
+          titleColor: '#2a2438',
+          mainBkg: '#f4f0ff',
+          nodeBorder: '#b8a5f0',
+          nodeTextColor: '#2a2438',
+          actorBkg: '#f4f0ff',
+          actorBorder: '#b8a5f0',
+          actorTextColor: '#2a2438',
+          actorLineColor: '#8a7fb8',
+          signalColor: '#8a7fb8',
+          signalTextColor: '#2a2438',
+          labelBoxBkgColor: '#fff5fa',
+          labelBoxBorderColor: '#f5c8dc',
+          labelTextColor: '#2a2438',
+          loopTextColor: '#2a2438',
+          noteBkgColor: '#e8f6ff',
+          noteBorderColor: '#b3d9f0',
+          noteTextColor: '#2a2438',
+          activationBkgColor: '#f0e8ff',
+          activationBorderColor: '#b8a5f0',
+          sequenceNumberColor: '#ffffff',
+          sectionBkgColor: '#f4f0ff',
+          altSectionBkgColor: '#fbf7ff',
+          sectionBkgColor2: '#fff0f6',
+          excludeBkgColor: '#f2f2f2',
+          taskBorderColor: '#8a7fb8',
+          taskBkgColor: '#f4f0ff',
+          taskTextLightColor: '#ffffff',
+          taskTextColor: '#2a2438',
+          taskTextDarkColor: '#2a2438',
+          todayLineColor: '#e5788d',
+          gridColor: '#e8e4f5',
+          border1: '#b8a5f0',
+          border2: '#f5c8dc',
+          border3: '#b3d9f0',
+          border4: '#a8e3c0',
+          border5: '#f5e3a8',
+          border6: '#c0bdf5',
+          border7: '#e8b8b8',
+          border8: '#b8e0e0',
+          border9: '#e8c8e8',
+          background: '#ffffff'
         },
         flowchart: {
           curve: 'basis',
@@ -146,10 +203,25 @@ export default defineConfig({
           padding: 8,
           htmlLabels: true,
           // 输出固定像素宽度，避免大图被压缩导致文字过小
-          useMaxWidth: false
+          useMaxWidth: false,
+          nodeMinWidth: 120
         },
         sequence: {
           mirrorActors: false,
+          useMaxWidth: false,
+          actorMargin: 60,
+          boxMargin: 12,
+          messageMargin: 40,
+          width: 160 // 参与者框宽度
+        },
+        gantt: {
+          useMaxWidth: false,
+          barHeight: 28
+        },
+        pie: {
+          useMaxWidth: false
+        },
+        er: {
           useMaxWidth: false
         }
       }

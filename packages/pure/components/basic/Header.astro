@@ -139,7 +139,8 @@ import { Icon } from '../user'
       margin-inline: 8%;
     }
   }
-  :global(.dark) header-component.not-top {
+  :global(.dark) header-component.not-top,
+  :global(html[data-theme='dark']) header-component.not-top {
     background-color: hsl(var(--muted) / var(--un-bg-opacity));
   }
 

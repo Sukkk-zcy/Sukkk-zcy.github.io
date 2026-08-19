@@ -62,7 +62,10 @@ rm -rf .astro dist
 # 1. 构建
 NODE_OPTIONS="--max-old-space-size=8192" npm run build
 
-# 2. 部署到 gh-pages
+# 2. 确保 .nojekyll 存在（GitHub Pages 必须，否则忽略 _astro 目录）
+touch dist/.nojekyll
+
+# 3. 部署到 gh-pages
 mkdir -p deploy-temp && cp -r dist/* deploy-temp/
 cd deploy-temp && git init && git add . && git commit -m "deploy: $(date '+%Y-%m-%d')"
 git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
@@ -72,6 +75,7 @@ cd .. && rm -rf deploy-temp
 Windows PowerShell 等价命令：
 ```powershell
 $env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
+New-Item -Path "dist\.nojekyll" -ItemType File -Force | Out-Null
 Copy-Item -Path "dist\*" -Destination "deploy-temp\" -Recurse -Force
 Push-Location deploy-temp
 git init; git add .; git commit -m "deploy: $(Get-Date)"

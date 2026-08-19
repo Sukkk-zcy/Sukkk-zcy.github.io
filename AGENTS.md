@@ -4,141 +4,195 @@
 
 **必须使用中文**与用户交互。这是一个博客运维项目。
 
-## Project Overview
+## 项目概览
 
-Astro Theme Iris - an Astro 6.x blog theme with knowledge management features (wikilinks, knowledge graph, FlexSearch). Based on astro-theme-pure, customized for a personal knowledge base.
+Astro Theme Iris — 基于 Astro 6.x 的个人知识博客，支持 wikilinks、知识图谱、FlexSearch。主题基于 astro-pure，已深度定制。
 
-## Critical Commands
+- **博客地址**: https://sukkk-zcy.github.io/
+- **GitHub 仓库**: `Sukkk-zcy/Sukkk-zcy.github.io`
+- **部署分支**: `gh-pages`（GitHub Pages 服务该分支）
+- **开发环境**: WSL2 + Ubuntu 24.04
 
-```bash
-# Install (MUST use --legacy-peer-deps due to TypeScript 6.x conflicts)
-npm install --legacy-peer-deps
-# Alternative: bun install (faster, avoids some version conflicts)
+## 目录结构
 
-# Development
-npm run dev              # Start dev server
-npm run dev:check        # Dev with type checking
-
-# Build (runs checks first)
-# 注意：构建时内存不足需要设置 NODE_OPTIONS
-$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
-npm run build:full       # 更完整的构建: astro-pure check + astro check + astro build
-
-# Lint & Format
-npm run lint             # ESLint with Astro plugin (自带 --fix)
-npm run format           # Prettier (Astro + import sorting)
-npm run yijiansilian     # One-click: lint + sync + check + format
-                         # 注意：此脚本内部用 `bun` 执行，需先安装 bun
-
-# Clean build cache (Windows)
-Remove-Item -Path ".astro","dist" -Recurse -Force
+```
+BLOG/
+├── src/
+│   ├── content/blog/          # 文章内容（.mdx）
+│   │   ├── SDN/               # SDN 系列（7 篇）
+│   │   ├── P4/                # P4 系列（3 篇）
+│   │   ├── Embedded/          # 嵌入式开发（5 篇）
+│   │   └── Devtools/          # 开发工具（4 篇）
+│   ├── components/            # Astro 组件
+│   ├── layouts/               # 页面布局
+│   ├── plugins/               # 自定义 remark/rehype/shiki 插件
+│   ├── utils/                 # 工具函数
+│   └── assets/                # 静态资源（头像等）
+├── packages/pure/             # 主题组件库（astro-pure）
+├── public/                    # 静态资源
+├── dist/                      # 构建产物（.gitignore）
+└── astro.config.ts            # Astro 框架配置
 ```
 
-## Architecture
+## 常用命令
 
-### Monorepo Structure
-- `packages/pure/` - Theme component library (astro-pure), provides components, utils, types
-- `src/` - Blog content and customizations
-- Root `package.json` defines workspaces for `packages/*`
+```bash
+# 安装（必须 --legacy-peer-deps，TypeScript 6.x 冲突）
+npm install --legacy-peer-deps
 
-### Key Paths
-- `src/site.config.ts` - Site configuration (title, author, social links, integrations)
-- `astro.config.ts` - Astro framework config (integrations, build options)
-- `src/content/blog/<Category>/` - Blog posts in MDX format
-- `src/components/` - Astro components (custom + theme)
-- `src/plugins/` - Custom remark/rehype/shiki plugins (wikilinks, autolink headings, shiki transformers), wired in `astro.config.ts`
-- `src/utils/content-paths.ts` - Category/tag path utilities
+# 开发
+npm run dev              # 启动开发服务器
+npm run dev:check        # 带类型检查的开发
 
-### Content Collections
-- `blog` - Blog posts (MDX files in `src/content/blog/`)
-- `docs` - Documentation pages (if used)
-- Schema defined in `src/content.config.ts`
+# 构建（内存不足需设置 NODE_OPTIONS）
+NODE_OPTIONS="--max-old-space-size=8192" npm run build
 
-### Integrations
-- **astro-pure** - Main theme framework (auto-adds sitemap, MDX, UnoCSS)
-- **mermaid** - Diagram support
-- **uno.config.ts** - UnoCSS configuration with custom typography
-- **Typst** - Currently disabled (dependency issues)
-- **Giscus/Waline** - Comment systems (currently disabled/unconfigured)
+# 代码质量
+npm run lint             # ESLint（自带 --fix）
+npm run format           # Prettier
+npm run yijiansilian     # 一键：lint + sync + check + format（需 bun）
 
-## Known Gotchas
+# 清理缓存
+rm -rf .astro dist
+```
 
-### Windows-Specific
-- **Category case sensitivity**: Windows filesystem doesn't preserve case. Use `KNOWN_ACRONYMS` mapping in `src/utils/content-paths.ts` to handle `sdn` → `SDN`, `p4` → `P4`, etc.
-- **Renaming directories**: Use intermediate names (`sdn` → `sdn_tmp` → `SDN`) to avoid conflicts
+## 部署
 
-### Git Workflow
-- **禁止直接 `git pull`**：项目频繁更新，自动合并可能覆盖本地定制。改用 `git fetch` + `git merge --no-commit` 手动审查合并结果（见 README CAUTION）
+```bash
+# 1. 构建
+NODE_OPTIONS="--max-old-space-size=8192" npm run build
 
-### Content Rules
-- **Categories are directory-based**: Structure in `src/content/blog/<Category>/` determines category
-- **Frontmatter `categories` field**: Must match directory name (case-sensitive)
-- **Tags**: Must use correct case (`SDN` not `sdn`, `DDoS` not `ddos`)
-- **File naming**: Use kebab-case (`sdn-04-new-topic.mdx`)
-- **Reference articles must include references section** at the end
+# 2. 部署到 gh-pages
+mkdir -p deploy-temp && cp -r dist/* deploy-temp/
+cd deploy-temp && git init && git add . && git commit -m "deploy: $(date '+%Y-%m-%d')"
+git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
+cd .. && rm -rf deploy-temp
+```
 
-### Build & Deploy
-- **Output**: Static site to `dist/` directory
-- **Deployment**: 一键部署用根目录 `deploy.ps1`（SSH 方式推送到 `gh-pages`，内部含清理缓存 + 构建 + 部署）
-- **CI**: 仓库内无 `.github/workflows`，GitHub Pages 直接服务 `gh-pages` 分支
-- **手动部署等价命令**（`deploy.ps1` 的步骤，需要时参考）:
-  ```powershell
-  $env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
-  Copy-Item -Path "dist\*" -Destination "deploy-temp\" -Recurse -Force
-  Push-Location deploy-temp
-  git init; git add .; git commit -m "deploy: $(Get-Date)"
-  git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
-  Pop-Location
-  ```
+Windows PowerShell 等价命令：
+```powershell
+$env:NODE_OPTIONS="--max-old-space-size=8192"; npm run build
+Copy-Item -Path "dist\*" -Destination "deploy-temp\" -Recurse -Force
+Push-Location deploy-temp
+git init; git add .; git commit -m "deploy: $(Get-Date)"
+git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
+Pop-Location
+```
 
-### Dependencies
-- `node_modules` is ~520MB, don't delete unless necessary
-- TypeScript 6.x requires `--legacy-peer-deps` for npm install
-- Some packages have version conflicts (use `bun` as alternative)
+## 文章管理
 
-## Configuration Files
+### 新建文章
 
-| File | Purpose |
-|------|---------|
-| `src/site.config.ts` | Site title, author, menu, footer, integrations |
-| `astro.config.ts` | Astro config, integrations, markdown plugins |
-| `uno.config.ts` | UnoCSS styling, typography, theme colors |
-| `tsconfig.json` | TypeScript config with path aliases |
-| `eslint.config.mjs` | ESLint with Astro plugin |
-| `prettier.config.mjs` | Prettier config with Astro + import sorting |
-| `packages/pure/package.json` | Theme component library |
+在 `src/content/blog/<分类名>/` 下创建 `.mdx` 文件，文件名用 kebab-case。
 
-## Path Aliases
+### Frontmatter 模板
 
-TypeScript path aliases defined in `tsconfig.json`:
-- `@/assets/*` → `./src/assets/*`
-- `@/public/*` → `./public/*`
-- `@/components/*` → `./src/components/*`
-- `@/layouts/*` → `./src/layouts/*`
-- `@/utils` → `./src/utils/index.ts`
-- `@/utils/*` → `./src/utils/*`
-- `@/plugins/*` → `./src/plugins/*`
-- `@/pages/*` → `./src/pages/*`
-- `@/types` → `./src/types/index.ts`
-- `@/site-config` → `./src/site.config.ts`
+```yaml
+---
+title: "文章标题"
+publishDate: 2026-07-20 00:00:00
+description: "一句话描述"
+tags: ["SDN", "OpenFlow"]      # 标签用正确大小写
+categories: ["SDN"]            # 必须和目录名一致（大小写敏感）
+language: "中文"
+draft: false
+comment: true
+---
+```
 
-## Style Conventions
+### 内容规范
 
-- **No semicolons** (Prettier config)
-- **Single quotes** (Prettier config)
-- **Import ordering**: Managed by `@ianvs/prettier-plugin-sort-imports`
-- **End of line**: LF (`.editorconfig`)
-- **Tab width**: 2 spaces
+- **分类是目录决定的**：`src/content/blog/SDN/xxx.mdx` → 自动归类为 SDN
+- **frontmatter `categories` 字段**必须和目录名一致
+- **标签大小写**：`SDN` 不是 `sdn`，`DDoS` 不是 `ddos`，`ESP32` 不是 `esp32`
+- **文件命名**：kebab-case（`sdn-04-new-topic.mdx`）
+- **引用文章**末尾必须包含参考文献章节
 
-## Disabled Features
+### 图片/图床
 
-- **Typst integration**: Dependency issues, disabled in `astro.config.ts`
-- **Remote fonts**: Network issues, disabled
-- **Giscus comments**: Not configured (empty repo/ID fields)
-- **Waline comments**: Disabled
+- **图床地址**: `https://sukk-imgbed.pages.dev`
+- **图床管理后台**: `https://sukk-imgbed.pages.dev/dashboard`
+- **认证码**: `29016`
+- **上传方式**: Telegram Bot（CloudFlare ImgBed 方案）
+- Markdown 中引用：`![描述](https://sukk-imgbed.pages.dev/file/xxx.png)`
 
-## Reference Documents
+## 架构要点
 
-- `BLOG-OPS.md` - Detailed operations manual (deployment, troubleshooting)
-- `README.md` / `README-zh-CN.md` - Project documentation
-- `packages/pure/README.md` - Theme component library docs
+### Monorepo 结构
+
+- `packages/pure/` — 主题组件库，提供组件、工具、类型
+- `src/` — 博客内容和定制
+- 根 `package.json` 定义 workspaces
+
+### 关键配置文件
+
+| 文件 | 用途 |
+|------|------|
+| `src/site.config.ts` | 站点标题、作者、菜单、页脚、集成 |
+| `astro.config.ts` | Astro 配置、集成、Markdown 插件、mermaid 主题 |
+| `uno.config.ts` | UnoCSS 样式、排版、主题色 |
+| `tsconfig.json` | TypeScript 路径别名 |
+| `eslint.config.mjs` | ESLint + Astro 插件 |
+| `prettier.config.mjs` | Prettier + import 排序 |
+
+### 路径别名
+
+```
+@/assets/*    → ./src/assets/*
+@/components/* → ./src/components/*
+@/layouts/*   → ./src/layouts/*
+@/utils       → ./src/utils/index.ts
+@/plugins/*   → ./src/plugins/*
+@/pages/*     → ./src/pages/*
+@/site-config → ./src/site.config.ts
+```
+
+### 样式规范
+
+- 无分号、单引号、2 空格缩进、LF 换行
+- Import 排序由 `@ianvs/prettier-plugin-sort-imports` 管理
+
+### Mermaid 图表
+
+- 主题：`base`（自定义配色），深色模式由 CSS 覆盖规则接管
+- 配色：博客紫色调（`#f4f0ff` / `#b8a5f0` / `#8a7fb8`）
+- 字体：`ui-sans-serif → PingFang SC → Microsoft YaHei`
+- 深浅色适配：CSS 变量 + `.dark .mermaid` 覆盖
+- **已知限制**：cluster 标题（subgraph 标题）紧贴顶部边框，是 mermaid 布局算法限制，无法用 CSS 修复
+
+### 图床图片 vs 内联 SVG
+
+- **截图/实物图**：上传图床，用 `![](url)` 引用
+- **架构图/概念图**：优先用 mermaid（已定制主题），复杂排版可用内联 SVG + CSS 变量（自动适配深浅色）
+- 内联 SVG 中的颜色用 `hsl(var(--primary))` 等 CSS 变量，深浅色自动切换
+
+## 已知问题 & 历史修复
+
+### Windows 分类大小写
+
+Windows 文件系统不区分大小写，`post.filePath` 返回小写路径。已在 `src/utils/content-paths.ts` 的 `KNOWN_ACRONYMS` 中映射：`sdn→SDN`、`p4→P4`、`ddos→DDoS`、`esp32→ESP32`。
+
+**重命名目录**必须用中间名过渡：`sdn → sdn_tmp → SDN`
+
+### ArticleBottom 上下章导航
+
+曾出现重定向问题（`/blog/sdn-03` → `/blog/sdn/sdn-03`），已修复为从 `entry.filePath` 提取完整路径。同分类内导航也已实现。
+
+### Git 工作流
+
+**禁止直接 `git pull`**：项目频繁更新，自动合并可能覆盖本地定制。改用：
+```bash
+git fetch && git merge --no-commit
+# 检查合并结果后再 commit
+```
+
+### npm 安装
+
+TypeScript 6.x 与 `@astrojs/check` 冲突，必须 `--legacy-peer-deps`。`node_modules` 约 520MB，不要轻易删除。
+
+## 已禁用功能
+
+- **Typst 集成**：依赖问题
+- **远程字体**：网络问题
+- **Giscus 评论**：未配置 repo/ID
+- **Waline 评论**：`site.config.ts` 中 `waline.enable: false`

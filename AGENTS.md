@@ -31,6 +31,7 @@ BLOG/
 ├── packages/pure/             # 主题组件库（astro-pure）
 ├── public/                    # 静态资源
 ├── dist/                      # 构建产物（.gitignore）
+├── P4-LEARNING-PLAN.md        # P4 实验学习计划
 └── astro.config.ts            # Astro 框架配置
 ```
 
@@ -66,7 +67,10 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 touch dist/.nojekyll
 
 # 3. 部署到 gh-pages
-mkdir -p deploy-temp && cp -r dist/* deploy-temp/
+# 注意：必须用 `cp -r dist/. deploy-temp/`（点号结尾）而非 `cp -r dist/* deploy-temp/`
+# 因为 bash 的 `*` 通配符默认不展开以 `.` 开头的隐藏文件，会漏掉 `.nojekyll`
+# 没有 .nojekyll → GitHub Pages 启用 Jekyll → Jekyll 忽略 _astro/ 目录 → 所有 CSS/JS/图片 404
+mkdir -p deploy-temp && cp -r dist/. deploy-temp/
 cd deploy-temp && git init && git add . && git commit -m "deploy: $(date '+%Y-%m-%d')"
 git push -f git@github.com:Sukkk-zcy/Sukkk-zcy.github.io.git master:gh-pages
 cd .. && rm -rf deploy-temp
@@ -200,3 +204,45 @@ TypeScript 6.x 与 `@astrojs/check` 冲突，必须 `--legacy-peer-deps`。`node
 - **远程字体**：网络问题
 - **Giscus 评论**：未配置 repo/ID
 - **Waline 评论**：`site.config.ts` 中 `waline.enable: false`
+
+## 实验环境（WSL2）
+
+SDN/P4 实验在 WSL2 + Ubuntu 24.04 上进行，工具链已预装：
+
+| 工具 | 版本 | 用途 |
+|------|------|------|
+| Python 3 | 3.12.3 | 控制平面脚本 |
+| Mininet | 2.3.1 | 网络拓扑仿真 |
+| p4c | 1.2.5.15 | P4 编译器 |
+| simple_switch | 1.15.4 | BMv2 软件交换机 |
+| simple_switch_grpc | — | P4Runtime gRPC 支持 |
+| OVS | 3.3.4 | Open vSwitch |
+| Wireshark | 4.2.2 | 抓包分析 |
+| Docker | 29.1.3 | 容器化环境 |
+
+### 需要安装
+
+```bash
+# P4Runtime Python 客户端
+pip3 install p4runtime-sh protobuf grpcio
+
+# Go（p4-cases 控制器编译需要）
+wget https://go.dev/dl/go1.25.1.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.25.1.linux-amd64.tar.gz
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
+
+# Scapy（自动化测试）
+pip3 install scapy
+```
+
+### 参考仓库（zhh2001）
+
+| 仓库 | 内容 |
+|------|------|
+| `zhh2001/p4-language-guide-zh` | P4 中文教程 16 章 + 5 个可运行示例 |
+| `zhh2001/p4runtime-cn-labs` | P4Runtime 中文实战 7 个实验 |
+| `zhh2001/p4-cases` | 14 个 P4 案例（Go 控制器 + 自动测试） |
+| `zhh2001/int` | INT 带内网络遥测 |
+| `zhh2001/P4Sentinel` | 可编程数据面流控框架（146⭐） |
+
+详见 `P4-LEARNING-PLAN.md`。

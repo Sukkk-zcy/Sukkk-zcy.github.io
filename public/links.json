@@ -5,6 +5,12 @@
             "desc": "友情链接",
             "link_list": [
                 {
+                    "name": "陈珏",
+                    "intro": "上海工程技术大学 · SDN与可编程网络",
+                    "link": "https://seee.sues.edu.cn/fb/d9/c20786a195545/page.htm",
+                    "avatar": "https://seee.sues.edu.cn/favicon.ico"
+                },
+                {
                     "name": "旧梦与花",
                     "intro": "春风若有怜花意，可否许我再少年",
                     "link": "https://zhh2001.github.io/",

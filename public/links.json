@@ -21,6 +21,12 @@
                     "intro": "虹墨空间站",
                     "link": "https://www.imaegoo.com",
                     "avatar": "https://cdn.jsdelivr.net/npm/imaegoo/avatar.jpg"
+                },
+                {
+                    "name": "YangTianCheng",
+                    "intro": "全栈工程师 & AI 研究者",
+                    "link": "https://kingrious.github.io/",
+                    "avatar": "https://avatars.githubusercontent.com/u/141030026?v=4"
                 }
             ]
         }

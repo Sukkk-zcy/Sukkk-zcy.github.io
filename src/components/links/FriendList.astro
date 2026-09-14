@@ -22,12 +22,6 @@ interface FriendList {
   link_list: Friend[]
 }
 
-function shuffle(arr: Friend[]) {
-  return arr.sort(() => {
-    return Math.random() - 0.5
-  })
-}
-
 const {
   title,
   list: friendList,
@@ -41,14 +35,14 @@ const getAvatarSrc = (friend: Friend) =>
   (config.integ?.links?.cacheAvatar ?? false)
     ? (friend.avatar_cache?.path ?? friend.avatar)
     : friend.avatar
-const fallbackAvatar = '/favicon/favicon.gif'
+const fallbackAvatar = '/favicon/avatar-fallback.svg'
 ---
 
 {title && <h2 id={friendList.id_name}>{title}</h2>}
 <div class='grid gap-4 sm:grid-cols-2 lg:grid-cols-3' {...props}>
   {
     friendList.link_list.length > 0 ? (
-      shuffle(friendList.link_list).map((frd: Friend, index) => {
+      friendList.link_list.map((frd: Friend, index) => {
         const avatarSrc = getAvatarSrc(frd)
         const isRemote = typeof avatarSrc === 'string' && avatarSrc.startsWith('http')
         return (

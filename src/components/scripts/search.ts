@@ -150,6 +150,36 @@ const tokenizeTerm = (term: string) => {
   return tokens.sort((a, b) => b.length - a.length) // always highlight longest terms first
 }
 
+const escapeHtml = (str: string) =>
+  str.replace(
+    /[&<>"']/g,
+    (ch) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[ch] as string
+  )
+
+const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/**
+ * Build a single case-insensitive pattern matching any of the search terms.
+ * Longest terms come first so a shorter term never shadows a longer one.
+ * Returning one combined pattern (instead of replacing term by term) is what
+ * keeps the highlighted markup intact - see the note in `highlight`.
+ */
+const buildHighlightPattern = (terms: string[]): RegExp | null => {
+  const escaped = [...new Set(terms)]
+    .filter((term) => term.trim() !== '')
+    .sort((a, b) => b.length - a.length)
+    .map(escapeRegExp)
+
+  return escaped.length ? new RegExp(`(${escaped.join('|')})`, 'gi') : null
+}
+
 function highlight(searchTerm: string, text: string, trim?: boolean) {
   const tokenizedTerms = tokenizeTerm(searchTerm)
   let tokenizedText = text.split(/\s+/).filter((t) => t !== '')
@@ -177,16 +207,24 @@ function highlight(searchTerm: string, text: string, trim?: boolean) {
     tokenizedText = tokenizedText.slice(startIndex, endIndex)
   }
 
+  // 单遍替换，且在「未转义的原文」上切分，再逐段转义：
+  //  - 按词反复 replace 时，后一个短词（s / a / as 等）会匹配到前一个词刚插入的
+  //    <span class="highlight"> 标记，把已生成的标签结构改坏；
+  //  - 若先转义再匹配，转义产生的实体也会被词条命中（如查询 `a & b` 会把
+  //    `&amp;` 里的 `a` 切碎）。
+  const highlightPattern = buildHighlightPattern(tokenizedTerms)
   const slice = tokenizedText
     .map((tok) => {
-      // see if this tok is prefixed by any search terms
-      for (const searchTok of tokenizedTerms) {
-        if (tok.toLowerCase().includes(searchTok.toLowerCase())) {
-          const regex = new RegExp(searchTok.toLowerCase(), 'gi')
-          return tok.replace(regex, `<span class="highlight">$&</span>`)
-        }
-      }
+      if (!highlightPattern) return escapeHtml(tok)
+      // split 带捕获组时，奇数下标即匹配到的片段
       return tok
+        .split(highlightPattern)
+        .map((part, index) =>
+          index % 2 === 1
+            ? `<span class="highlight">${escapeHtml(part)}</span>`
+            : escapeHtml(part)
+        )
+        .join('')
     })
     .join(' ')
 
@@ -196,8 +234,10 @@ function highlight(searchTerm: string, text: string, trim?: boolean) {
 }
 
 function highlightHTML(searchTerm: string, el: HTMLElement) {
-  const tokenizedTerms = tokenizeTerm(searchTerm)
   const html = p.parseFromString(el.innerHTML, 'text/html')
+  // escapeRegExp 保证 `c++`、`p4(`、`**` 这类查询不会让 RegExp 抛异常
+  const pattern = buildHighlightPattern(tokenizeTerm(searchTerm))
+  if (!pattern) return html.body
 
   const createHighlightSpan = (text: string) => {
     const span = document.createElement('span')
@@ -206,11 +246,10 @@ function highlightHTML(searchTerm: string, el: HTMLElement) {
     return span
   }
 
-  const highlightTextNodes = (node: Node, term: string) => {
+  const highlightTextNodes = (node: Node) => {
     if (node.nodeType === Node.TEXT_NODE) {
       const nodeText = node.nodeValue ?? ''
-      const regex = new RegExp(term.toLowerCase(), 'gi')
-      const matches = nodeText.match(regex)
+      const matches = nodeText.match(pattern)
       if (!matches || matches.length === 0) return
       const spanContainer = document.createElement('span')
       let lastIndex = 0
@@ -224,13 +263,11 @@ function highlightHTML(searchTerm: string, el: HTMLElement) {
       node.parentNode?.replaceChild(spanContainer, node)
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       if ((node as HTMLElement).classList.contains('highlight')) return
-      Array.from(node.childNodes).forEach((child) => highlightTextNodes(child, term))
+      Array.from(node.childNodes).forEach((child) => highlightTextNodes(child))
     }
   }
 
-  for (const term of tokenizedTerms) {
-    highlightTextNodes(html.body, term)
-  }
+  highlightTextNodes(html.body)
 
   return html.body
 }

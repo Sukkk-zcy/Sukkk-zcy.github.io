@@ -16,7 +16,7 @@
     "astro": "astro",
     "pure": "astro-pure",
     "format": "prettier --write  '**/*.{js,jsx,ts,tsx,md,mdx,astro}'",
-    "lint": "eslint --fix src/**/*.{js,ts,jsx,tsx,astro}",
+    "lint": "eslint --fix \"src/**/*.{js,ts,jsx,tsx,astro}\"",
     "yijiansilian": "npm run lint && npm run sync && npm run check && npm run format",
     "clean": "node -e \"for (const d of ['.astro','.vercel','dist','deploy-temp']) require('fs').rmSync(d,{recursive:true,force:true})\"",
     "cache:avatars": "tsx preset/scripts/cacheAvatars.ts"

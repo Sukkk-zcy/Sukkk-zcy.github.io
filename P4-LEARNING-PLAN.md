@@ -56,10 +56,10 @@
 
 ```bash
 # 已克隆的仓库
-~/p4-language-guide-zh/    # P4 中文教程 + 5 个示例
-~/p4runtime-cn-labs/       # P4Runtime 控制平面教程
-~/p4-cases/                # 14 个进阶案例
-~/TT-INT/                  # INT 研究实现（后期用）
+~/Projects/P4Pro/refs/p4-language-guide-zh/    # P4 中文教程 + 5 个示例
+~/Projects/P4Pro/refs/p4runtime-cn-labs/       # P4Runtime 控制平面教程
+~/Projects/P4Pro/refs/p4-cases/                # 14 个进阶案例
+~/Projects/P4Pro/refs/TT-INT/                  # INT 研究实现（后期用）
 
 # 免 sudo 运行实验的封装脚本（本机 sudo 需密码，已解决）
 ~/bin/p4rootless
@@ -67,7 +67,7 @@
 
 运行任意实验：
 ```bash
-cd ~/p4-language-guide-zh
+cd ~/Projects/P4Pro/refs/p4-language-guide-zh
 p4rootless bash examples/01-hello/run.sh
 ```
 
@@ -243,7 +243,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh   # 测试环境
 
 **跑仓库**：
 ```bash
-cd ~/TT-INT
+cd ~/Projects/P4Pro/refs/TT-INT
 bash tests/run.sh        # 免 root 的 BMv2 功能测试
 ```
 
@@ -255,10 +255,10 @@ bash tests/run.sh        # 免 root 的 BMv2 功能测试
 
 | 资源 | 用途 |
 |------|------|
-| `~/p4-language-guide-zh/docs/` | P4_16 中文教程 16 章（主力教材） |
-| `~/p4-language-guide-zh/appendix/B-术语表.md` | 中英术语对照 |
-| `~/p4-language-guide-zh/appendix/D-常见问题.md` | 调试技巧 |
-| `~/p4-cases/` | 14 个进阶案例（Go 控制器 + 自动测试） |
-| `~/TT-INT/` | INT 研究实现 |
+| `~/Projects/P4Pro/refs/p4-language-guide-zh/docs/` | P4_16 中文教程 16 章（主力教材） |
+| `~/Projects/P4Pro/refs/p4-language-guide-zh/appendix/B-术语表.md` | 中英术语对照 |
+| `~/Projects/P4Pro/refs/p4-language-guide-zh/appendix/D-常见问题.md` | 调试技巧 |
+| `~/Projects/P4Pro/refs/p4-cases/` | 14 个进阶案例（Go 控制器 + 自动测试） |
+| `~/Projects/P4Pro/refs/TT-INT/` | INT 研究实现 |
 | [P4-16 规范](https://p4.org/p4-specs/) | 权威语法参考 |
 | [P4 官方 tutorials](https://github.com/p4lang/tutorials) | 官方练习 |

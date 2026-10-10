@@ -29,20 +29,6 @@ export const updateStyle = (): ShikiTransformer => {
   }
 }
 
-// Process meta string, like ```ts title="test.ts"
-export const processMeta = (): ShikiTransformer => {
-  return {
-    name: 'shiki-transformer-process-meta',
-    preprocess() {
-      if (!this.options.meta) return
-      const rawMeta = this.options.meta?.__raw
-      if (!rawMeta) return
-      const meta = parseMetaString(rawMeta)
-      Object.assign(this.options.meta, meta)
-    }
-  }
-}
-
 // Add a title to the code block
 export const addTitle = (): ShikiTransformer => {
   return {

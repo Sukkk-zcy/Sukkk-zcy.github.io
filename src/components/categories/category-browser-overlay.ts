@@ -28,6 +28,19 @@ type PostItem = {
 type BrowserItem = FolderItem | PostItem
 type SortMode = 'name-asc' | 'name-desc' | 'date-desc' | 'date-asc' | 'type'
 
+const escapeHtml = (str: string) =>
+  str.replace(
+    /[&<>"']/g,
+    (ch) =>
+      ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[ch] as string
+  )
+
 const selector = '[data-category-browser-overlay]'
 const stateKey = 'category-browser-overlay-state'
 let activeDialog: HTMLDialogElement | null = null
@@ -400,10 +413,10 @@ const initialize = () => {
         const lowerName = item.name.toLowerCase()
         const idx = lowerName.indexOf(query)
         if (idx !== -1) {
-          highlightedTitle = item.name.slice(0, idx) + 
-            `<mark style="background: hsl(var(--primary) / 0.3); color: inherit; border-radius: 2px;">` + 
-            item.name.slice(idx, idx + query.length) + `</mark>` + 
-            item.name.slice(idx + query.length)
+          highlightedTitle = escapeHtml(item.name.slice(0, idx)) +
+            `<mark style="background: hsl(var(--primary) / 0.3); color: inherit; border-radius: 2px;">` +
+            escapeHtml(item.name.slice(idx, idx + query.length)) + `</mark>` +
+            escapeHtml(item.name.slice(idx + query.length))
         }
       }
       contentsList.append(makeRow(item, index, highlightedTitle))

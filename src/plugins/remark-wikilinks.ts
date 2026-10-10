@@ -1,111 +1,129 @@
 /**
  * Remark plugin to transform Obsidian-style wikilinks [[link]] to standard markdown links
  * 将 Obsidian 风格的双链 [[link]] 转换为标准 markdown 链接
+ *
+ * Resolution order for `[[target]]`:
+ *   1. explicit path relative to the current post (`./sibling`)
+ *   2. exact content id (`sdn/sdn-03-openflow-protocol`)
+ *   3. unique bare filename (`sdn-03-openflow-protocol`)
+ *
+ * Unresolved links keep a `/blog/<target>` fallback and are marked
+ * `wikilink-broken` so mistakes show up in the browser instead of 404-ing
+ * silently.
  */
 import type { Link, Root, Text } from 'mdast'
 import type { Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
 
+// Relative import: this module is also loaded from astro.config.ts, before
+// Vite aliases are available.
+import type { WikilinkIndex } from '../utils/wikilink-map'
+
 export interface WikilinkOptions {
   /** Base path for blog posts */
   basePath?: string
-  /** Collection of valid slugs to validate links */
-  validSlugs?: Set<string>
+  /** Build-time reference index produced by `buildWikilinkIndex` */
+  index?: WikilinkIndex
 }
 
-// Regex to match [[wikilink]] or [[wikilink|display text]]
-const WIKILINK_REGEX = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
+// Regex to match [[wikilink]], [[wikilink|display text]] and [[wikilink#heading]]
+const WIKILINK_REGEX = /\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g
 
-/**
- * Parse a wikilink and return the target slug and display text
- */
-function parseWikilink(match: string): { slug: string; displayText: string } | null {
-  const wikilinkMatch = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/.exec(match)
-  if (!wikilinkMatch) return null
-
-  const rawSlug = wikilinkMatch[1].trim()
-  const displayText = wikilinkMatch[2]?.trim() || rawSlug
-
-  // Handle relative paths like ./slug or ../slug
-  let slug = rawSlug
-  if (slug.startsWith('./')) {
-    slug = slug.slice(2)
-  } else if (slug.startsWith('../')) {
-    // Keep as is for parent directory references
-    slug = rawSlug
-  }
-
-  // Remove .md or .mdx extension if present
-  slug = slug.replace(/\.(md|mdx)$/, '')
-
-  return { slug, displayText }
-}
-
-/**
- * Normalize a slug for comparison
- */
-function normalizeSlug(slug: string): string {
-  return slug
-    .toLowerCase()
+/** Keep unicode letters/digits so Chinese filenames survive normalisation. */
+function slugify(value: string): string {
+  return value
+    .trim()
+    .replaceAll('\\', '/')
+    .replace(/\.(md|mdx)$/i, '')
     .replace(/\s+/g, '-')
-    .replace(/[^\w\-/]/g, '')
+    .replace(/[^\p{L}\p{N}\-_/]/gu, '')
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/\/+/g, '/')
+    .toLowerCase()
+}
+
+function toPosix(value: string): string {
+  return value.replaceAll('\\', '/')
+}
+
+/**
+ * Work out which content directory the current file lives in, so bare
+ * `[[sibling]]` references resolve the way Obsidian users expect.
+ */
+function currentDirectory(filePath: string | undefined): string {
+  if (!filePath) return ''
+
+  const normalised = toPosix(filePath)
+  const relative = normalised.replace(/^.*?src\/content\/blog\//, '')
+  if (relative === normalised) return ''
+
+  const separator = relative.lastIndexOf('/')
+  return separator === -1 ? '' : relative.slice(0, separator).toLowerCase()
 }
 
 export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (options = {}) {
-  const { basePath = '/blog', validSlugs } = options
+  const { basePath = '/blog', index } = options
 
   return function (tree, file) {
     const contentBasePath = file.path?.includes('/content/docs/') ? '/docs' : basePath
-    // Collect wikilinks for backlink processing
-    const foundLinks: string[] = []
+    const sourceDir = currentDirectory(file.path)
 
-    visit(tree, 'text', (node: Text, index, parent) => {
-      if (!parent || index === undefined) return
+    /** Resolve a raw reference into a canonical URL, or undefined when unknown. */
+    const resolve = (rawTarget: string): string | undefined => {
+      const isExplicitRelative = /^\.\.?\//.test(rawTarget.trim())
+      const target = slugify(rawTarget)
+
+      if (!index) return undefined
+
+      if (isExplicitRelative && sourceDir) {
+        const joined = slugify(`${sourceDir}/${target.replace(/^\.\.?\//, '')}`)
+        const relativeHit = index.byFullId.get(joined)
+        if (relativeHit) return relativeHit
+      }
+
+      const fullHit = index.byFullId.get(target)
+      if (fullHit) return fullHit
+
+      if (!target.includes('/')) {
+        const bareHit = index.byBasename.get(target)
+        if (bareHit) return bareHit
+      }
+
+      return undefined
+    }
+
+    visit(tree, 'text', (node: Text, idx, parent) => {
+      if (!parent || idx === undefined) return
 
       const text = node.value
       const matches = [...text.matchAll(WIKILINK_REGEX)]
 
       if (matches.length === 0) return
 
-      // Build new children array with text and link nodes
       const newChildren: (Text | Link)[] = []
       let lastIndex = 0
 
       for (const match of matches) {
-        const parsed = parseWikilink(match[0])
-        if (!parsed) continue
-
-        const { slug, displayText } = parsed
+        const [fullMatch, rawTarget, rawAnchor, rawDisplay] = match
         const matchStart = match.index!
-        const matchEnd = matchStart + match[0].length
+        const matchEnd = matchStart + fullMatch.length
 
-        // Add text before this match
         if (matchStart > lastIndex) {
-          newChildren.push({
-            type: 'text',
-            value: text.slice(lastIndex, matchStart)
-          })
+          newChildren.push({ type: 'text', value: text.slice(lastIndex, matchStart) })
         }
 
-        // Determine the link URL
-        let linkUrl: string
-        if (slug.startsWith('../') || slug.startsWith('./')) {
-          // Relative path - keep as is
-          linkUrl = slug
-        } else {
-          // Convert to absolute path
-          const normalizedSlug = normalizeSlug(slug)
-          linkUrl = `${contentBasePath}/${normalizedSlug}`
+        const target = rawTarget.trim()
+        const anchor = rawAnchor?.trim()
+        const displayText = (rawDisplay?.trim() || target).replace(/^\.\.?\//, '')
 
-          // Record the link for backlink processing
-          foundLinks.push(normalizedSlug)
-        }
+        const canonical = resolve(target)
+        const isValid = canonical !== undefined
 
-        // Check if the link is valid (if validSlugs provided)
-        const isValid = !validSlugs || validSlugs.has(normalizeSlug(slug))
+        // Keep unresolved links navigable-ish but visibly flagged.
+        let linkUrl = canonical ?? `${contentBasePath}/${slugify(target).replace(/^\.\.?\//, '')}`
+        if (anchor) linkUrl += `#${slugify(anchor)}`
 
-        // Create link node
-        const linkNode: Link = {
+        newChildren.push({
           type: 'link',
           url: linkUrl,
           title: isValid ? null : '⚠️ 此链接可能无效',
@@ -116,30 +134,19 @@ export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (optio
               'data-wikilink': 'true'
             }
           }
-        }
+        } as Link)
 
-        newChildren.push(linkNode)
         lastIndex = matchEnd
       }
 
-      // Add remaining text after last match
       if (lastIndex < text.length) {
-        newChildren.push({
-          type: 'text',
-          value: text.slice(lastIndex)
-        })
+        newChildren.push({ type: 'text', value: text.slice(lastIndex) })
       }
 
-      // Replace the text node with new nodes
       if (newChildren.length > 0) {
-        parent.children.splice(index, 1, ...newChildren)
+        parent.children.splice(idx, 1, ...newChildren)
       }
     })
-
-    // Store found links in file data for backlink processing
-    if (file.data.astro && foundLinks.length > 0) {
-      ;(file.data.astro as any).wikilinks = foundLinks
-    }
   }
 }
 

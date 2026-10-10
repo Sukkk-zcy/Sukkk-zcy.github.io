@@ -14,8 +14,7 @@ import ArticleRail from '@/components/blog/ArticleRail.astro'
 import Backlinks from '@/components/blog/Backlinks.astro'
 import CategoryBreadcrumbs from '@/components/blog/CategoryBreadcrumbs.astro'
 import OutgoingLinks from '@/components/blog/OutgoingLinks.astro'
-import { Giscus } from '@/components/giscus'
-import { PageInfo } from '@/components/waline'
+import SeriesNav from '@/components/blog/SeriesNav.astro'
 import type { Backlink } from '@/utils/backlinks'
 import { getPostSlug } from '@/utils/content-paths'
 
@@ -42,9 +41,7 @@ const {
   heroImage,
   publishDate,
   title,
-  updatedDate,
-  draft: isDraft,
-  comment: enableComment
+  updatedDate
 } = data
 
 const socialImage = heroImage
@@ -63,7 +60,6 @@ const currentPostSlug = getPostSlug(Astro.props.post)
   back='/blog'
   mode='article'
   graphTarget='#blog-graph-view'
-  commentTarget={!isDraft && enableComment && config.integ.giscus?.enable ? '#giscus' : undefined}
 >
   <Fragment slot='left-sidebar'>
     <ArticleRail
@@ -78,16 +74,14 @@ const currentPostSlug = getPostSlug(Astro.props.post)
 
   <Fragment slot='header'>
     <CategoryBreadcrumbs post={Astro.props.post} />
-    <Hero {data} {remarkPluginFrontmatter}>
-      <Fragment slot='description'>
-        {!isDraft && enableComment && <PageInfo comment class='mt-1' />}
-      </Fragment>
-    </Hero>
+    <Hero {data} {remarkPluginFrontmatter} />
   </Fragment>
 
   <slot />
 
   <div slot='content-after' class='mt-8 flex flex-col gap-3 sm:gap-6 border-t pt-8'>
+    <SeriesNav post={Astro.props.post} {posts} />
+
     {/* Wikilinks: Outgoing & Backlinks */}
     {
       (outgoingLinks.length > 0 || backlinks.length > 0) && (
@@ -106,11 +100,6 @@ const currentPostSlug = getPostSlug(Astro.props.post)
     {/* Article recommend */}
     <ArticleBottom collections={posts} {id} />
   </div>
-
-  <Fragment slot='bottom'>
-    {/* Comment */}
-    {!isDraft && enableComment && config.integ.giscus?.enable && <Giscus class='mt-3 sm:mt-6' />}
-  </Fragment>
 </PageLayout>
 
 {config.integ.mediumZoom.enable && <MediumZoom />}

@@ -407,18 +407,6 @@ function setupTippyForLink(link: HTMLAnchorElement, parentSlug: string | null = 
   }
 }
 
-// Clean up all instances (reserved for future use)
-// Exporting to mark as used, even though not currently called
-export function cleanupAllInstances() {
-  tippyInstances.forEach((previewInstance) => {
-    previewInstance.instance.destroy()
-    previewInstance.childInstances.forEach((childInstance) => {
-      childInstance.destroy()
-    })
-  })
-  tippyInstances.clear()
-}
-
 // Find which preview the mouse is currently over
 function findPreviewUnderMouse(x: number, y: number): string | null {
   // Check all previews, starting from the topmost (highest z-index)

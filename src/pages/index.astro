@@ -11,6 +11,7 @@ import ProfileWidget from '@/components/bento/widgets/ProfileWidget.astro'
 import GithubWidget from '@/components/bento/widgets/GithubWidget.astro'
 import ProjectWidget from '@/components/bento/widgets/ProjectWidget.astro'
 import SkillsWidget from '@/components/bento/widgets/SkillsWidget.astro'
+import StartHereWidget from '@/components/bento/widgets/StartHereWidget.astro'
 import HobbiesWidget from '@/components/bento/widgets/HobbiesWidget.astro'
 import SponsorWidget from '@/components/bento/widgets/SponsorWidget.astro'
 import LinksWidget from '@/components/bento/widgets/LinksWidget.astro'
@@ -146,6 +147,7 @@ if (!images[imagePath])
     <div id='content' class='animate w-full px-4 pt-8 md:pt-16 pb-12 max-w-6xl mx-auto'>
       <BentoGrid>
         <ProfileWidget />
+        <StartHereWidget />
         <ProjectWidget />
         <SkillsWidget />
         <HobbiesWidget />

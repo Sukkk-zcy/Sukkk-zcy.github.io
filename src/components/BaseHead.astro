@@ -24,12 +24,12 @@ const socialImageURL = imgSrc ? new URL(imgSrc, Astro.url).href : undefined
 
 {/* Preconnect hints for third-party origins */}
 <link rel='preconnect' href='https://cdn.jsdelivr.net' crossorigin />
-<link rel='preconnect' href='https://giscus.app' crossorigin />
 <link rel='dns-prefetch' href='https://dummyjson.com' />
 
 {/* Icons / Favicon */}
 <link rel='icon' type='image/svg+xml' href='/favicon/favicon.svg' />
-<link rel='alternate icon' href='/favicon.ico' sizes='any' />
+<link rel='icon' type='image/png' sizes='32x32' href='/favicon/favicon-32.png' />
+<link rel='apple-touch-icon' sizes='180x180' href='/favicon/favicon-180.png' />
 
 {/* Font - using system fonts */}
 <style>
@@ -63,6 +63,8 @@ const socialImageURL = imgSrc ? new URL(imgSrc, Astro.url).href : undefined
       <meta content={socialImageURL} property='og:image' />
       <meta content='1200' property='og:image:width' />
       <meta content='630' property='og:image:height' />
+      <meta content='image/png' property='og:image:type' />
+      <meta content={`${config.title} - ${config.description}`} property='og:image:alt' />
     </>
   )
 }

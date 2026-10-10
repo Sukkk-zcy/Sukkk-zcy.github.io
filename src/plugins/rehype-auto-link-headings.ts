@@ -30,7 +30,7 @@ export default function rehypeAutolinkHeadings({
 
         node.children = node.children || []
         if (behavior === 'wrap') {
-          node.children = [link]
+          node.children = [link, ...node.children]
         } else if (behavior === 'prepend') {
           node.children.unshift(link)
         } else if (behavior === 'append') {

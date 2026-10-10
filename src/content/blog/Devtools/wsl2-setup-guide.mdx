@@ -1,0 +1,221 @@
+---
+title: 'WSL2 + Ubuntu 24.04 环境搭建'
+publishDate: 2026-06-19 00:00:00
+updatedDate: 2026-09-29 00:00:00
+description: '在 Windows 上安装 WSL2 与 Ubuntu 24.04 的完整流程，含发行版安装、用户配置、日常使用命令与 Ubuntu 基础环境初始化。'
+tags: ['WSL2', '开发工具']
+categories: ['Devtools']
+language: '中文'
+draft: false
+comment: true
+---
+
+import { Aside } from 'astro-pure/user'
+
+很多网络与嵌入式实验都要在 Linux 下跑，但并非人人都有第二台机器。WSL2 是 Windows 自带的 Linux 子系统，不用装虚拟机就能拿到一个完整的内核级 Linux 环境——本博客的 SDN、P4 实验全部跑在上面。
+
+这篇文章覆盖从安装到「装完能直接用」的全部步骤。装好之后可以直接去 [Mininet 网络实验](/blog/sdn/sdn-04-mininet-experiment) 开始做实验。
+
+---
+
+## 一、什么是 WSL2
+
+WSL 是 Windows 内嵌的 Linux 环境，可以直接运行 Ubuntu、Debian 等发行版，并且能读写 Windows 的文件系统。
+
+### 1.1 WSL2 与虚拟机的区别
+
+| 方案   | 安装复杂度 | 启动速度 | 资源占用 | 内核     |
+| ------ | ---------- | -------- | -------- | -------- |
+| 虚拟机 | 步骤较多   | 较慢     | 高       | 完整内核 |
+| WSL2   | 简单       | 秒级启动 | 低       | 完整内核 |
+
+关键点在于 WSL2 用的是**真实的 Linux 内核**（跑在轻量虚拟化上），这和 WSL1 的「系统调用转译」有本质区别。像 Mininet 这种依赖 network namespace、iptables、cgroups 的工具，**必须**在 WSL2 下才能正常工作。
+
+### 1.2 系统要求
+
+- Windows 11：默认即 WSL2
+- Windows 10 2004 及以后：默认即 WSL2
+- Windows 10 2004 之前：默认是 WSL1，需要升级系统或手动转换
+
+<Aside type='tip' title='提示'>
+  Windows 11 用户可以直接跳到下一节，WSL2 已经默认启用。
+</Aside>
+
+---
+
+## 二、安装步骤
+
+### 2.1 打开管理员终端
+
+右键点击「开始菜单」，选择「终端（管理员）」。一定要选带「管理员」字样的版本，否则安装时会报权限错误。
+
+### 2.2 查看可安装的发行版
+
+```powershell
+wsl --list --online
+```
+
+这一步同时也能确认 WSL 组件本身是否可用。
+
+### 2.3 安装 Ubuntu 24.04
+
+```powershell
+wsl --install -d Ubuntu-24.04
+```
+
+等待下载与安装完成，期间可能需要重启一次。
+
+### 2.4 配置用户与密码
+
+安装完成后系统会要求创建默认用户：
+
+1. 回车创建用户
+2. 输入用户名
+3. 输入两次密码（输入时不回显，输完按回车即可）
+
+配置完成后命令行提示符会切换成刚创建的用户名，此时已经进入 Ubuntu 系统。
+
+### 2.5 验证安装
+
+```bash
+lsb_release -a
+```
+
+输出中的 `Release` 应该显示 `24.04`。同时确认内核版本：
+
+```bash
+uname -r
+```
+
+带 `microsoft-standard-WSL2` 字样即为 WSL2 内核；如果显示 `WSL1` 或版本号明显偏低，说明还在用 WSL1，需要转换：
+
+```powershell
+wsl --set-version Ubuntu-24.04 2
+```
+
+---
+
+## 三、日常使用
+
+| 命令                            | 功能               |
+| ------------------------------- | ------------------ |
+| `wsl`                           | 启动 Linux 系统    |
+| `wsl --shutdown`                | 关闭 WSL，释放内存 |
+| `wsl --unregister Ubuntu-24.04` | 卸载发行版         |
+| `wsl -l -v`                     | 查看发行版与版本   |
+
+在 Ubuntu 中可以直接访问 Windows 的 C盘、D盘、E盘：
+
+```bash
+ls /mnt/d/
+```
+
+<Aside type='tip' title='图形化管理'>
+  发行版一多，命令行管理会变得繁琐。可以用 [[wsl-dashboard-guide|WSL Dashboard]] 这类图形化面板管理实例、端口转发与 USB 透传。
+</Aside>
+
+<Aside type='tip' title='性能提示'>
+  跨文件系统访问（`/mnt/c/...`）有额外的 I/O 开销，读取大量小文件时会明显变慢。**代码仓库放在 Linux 侧**（例如 `~/projects`），只把需要交换的文件放 `/mnt` 下，编译和 `npm install` 的速度会有数量级的差别。
+</Aside>
+
+---
+
+## 四、Ubuntu 基础环境初始化
+
+刚装好的 WSL2 Ubuntu 几乎是空白系统，做实验前先完成这几件基础事情。
+
+### 4.1 更新软件源
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+取决于网速，这一步可能需要几分钟。
+
+### 4.2 安装 Git
+
+Ubuntu 默认没有预装 Git，而不少工具需要从 GitHub 拉取源码：
+
+```bash
+sudo apt install -y git
+```
+
+验证：
+
+```bash
+git --version
+```
+
+### 4.3 让 `python` 指向 Python 3
+
+Ubuntu 24.04 自带 Python 3，但很多老项目的 Makefile 里写的是 `python` 而不是 `python3`，会直接报 `command not found`：
+
+```bash
+sudo ln -s /usr/bin/python3 /usr/bin/python
+```
+
+验证：
+
+```bash
+python --version
+```
+
+<Aside type='caution' title='注意'>
+  Ubuntu 24.04 起 `pip install` 受 PEP 668 限制，系统级安装会报 `externally-managed-environment`。要么用 `pip install --break-system-packages`，要么用 `python3 -m venv` 建虚拟环境——推荐后者。
+</Aside>
+
+### 4.4 安装编译工具
+
+部分组件（例如 Mininet 的 `mnexec`）需要用 C 编译器现场构建：
+
+```bash
+sudo apt install -y gcc make
+```
+
+### 4.5 安装 tcpdump
+
+抓包分析必备，顺便装上：
+
+```bash
+sudo apt install -y tcpdump
+```
+
+---
+
+## 五、常见问题
+
+### 5.1 `wsl --install` 提示需要启用虚拟机平台
+
+在管理员 PowerShell 中执行：
+
+```powershell
+dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+```
+
+然后重启电脑。
+
+### 5.2 忘记 Linux 用户密码
+
+在 Windows 终端中把默认用户切回 root，再用 `passwd` 重置：
+
+```powershell
+ubuntu2404.exe config --default-user root
+```
+
+进入后执行 `passwd <你的用户名>`，重置完再切回来即可。
+
+### 5.3 WSL 长期占用内存不释放
+
+WSL2 的虚拟机会缓存内存，空闲时不会立刻归还。用完手动关闭即可：
+
+```powershell
+wsl --shutdown
+```
+
+---
+
+## 参考资料
+
+1. [WSL 官方文档](https://learn.microsoft.com/zh-cn/windows/wsl/) — 微软官方安装与配置指南
+2. [WSL2 内核更新包](https://learn.microsoft.com/zh-cn/windows/wsl/install-manual) — 手动安装步骤
+3. [Ubuntu on WSL](https://ubuntu.com/wsl) — Ubuntu 官方 WSL 说明

@@ -1,8 +1,12 @@
 ---
 title: 'P4 快速入门（二）：一次看懂一个 P4 程序'
 publishDate: 2026-07-08 00:00:00
-description: '通过一个最小可运行示例讲解 header、parser、match-action 与 V1Model 流水线'
-tags: ['P4', 'Parser', 'Match-Action', 'V1Model', '入门']
+updatedDate: 2026-09-29 00:00:00
+description: '通过一个最小可运行示例，逐段讲解 P4 程序的 header 定义、parser 状态机、match-action 表与 V1Model 流水线，并附常见编译错误。'
+tags: ['P4', '入门']
+series: 'p4'
+seriesOrder: 2
+seriesTitle: 'P4 快速入门'
 categories: ['P4']
 language: '中文'
 draft: false
@@ -10,6 +14,8 @@ comment: true
 ---
 
 本文通过一个最小可运行示例讲解 P4 程序的核心构件：header、parser、match-action 表、control 与 deparser，最后介绍 V1Model 流水线与编译运行方法。语法细节对应规范章节 [1]。
+
+如果你还不清楚 P4 要解决什么问题，建议先看 [[p4-01-quickstart-overview|可编程数据平面，从黑盒到白盒]]。
 
 ---
 
@@ -159,6 +165,8 @@ transition select(hdr.ethernet.etherType) {   // 按 etherType 跳转
     default: accept;
 }
 verify(hdr.ipv4.version == 4, error.Ipv4IncorrectVersion);  // 校验失败进入 reject
+// 注：error.Ipv4IncorrectVersion 不在 p4c 标准 error 集合中，
+// 需先在全局声明：`error { Ipv4IncorrectVersion }`
 bit<16> t = lookahead(bit<16>);               // 预览但不消费字节
 ```
 
@@ -206,7 +214,7 @@ register<bit<32>>(1024) per_port_pps;
 
 `control` 的 `apply` 为处理逻辑入口，按顺序执行查表、判断与字段修改。Deparser 通过 `emit` 按序输出报头，未 emit 的报头将从报文中移除。
 
-P4-16 控制块不提供 `for` 循环（语言设计保证每包处理时间有界，循环仅存在于 parser 状态机，规范 §11）[1]。遍历 header stack 需展开：
+P4-16 控制块不提供 `for` 循环（语言设计保证每包处理时间有界，循环仅存在于 parser 状态机，规范 §12）[1]。遍历 header stack 需展开：
 
 ```p4
 apply {
@@ -223,7 +231,7 @@ apply {
 
 ## 三、V1Model 流水线
 
-`V1Switch(...)` 是 BMv2 的参考架构 V1Model，规定六个块的固定执行顺序（规范 §12）[1]。其他架构（PSA、TNA）的流水线结构不同。
+`V1Switch(...)` 是 BMv2 的参考架构 V1Model，规定六个块的固定执行顺序（规范 §17）[1]。其他架构（PSA、TNA）的流水线结构不同。
 
 ```mermaid
 flowchart LR
@@ -259,7 +267,7 @@ table_add MyIngress.l2_forward forward 00:00:00:00:00:02 => 1
 
 预期行为：目的 MAC 为 `00:00:00:00:00:02` 的报文从端口 1 转发，其余报文被默认动作丢弃。
 
-> 提示：编译工具链细节与常见问题可参考 p4c 文档 [3]；中文资料可参考张恒华《P4 中文教程》[5]，覆盖规范与 V1Model 细节。
+> 提示：编译工具链细节与常见问题可参考 p4c 文档 [3]；中文资料可参考张恒华《P4 中文教程》[5]，覆盖规范与 V1Model 细节。完整的工具链安装步骤见 [[p4-03-practice-frontier|环境、控制平面与研究前沿]]。
 
 ---
 
@@ -280,9 +288,3 @@ table_add MyIngress.l2_forward forward 00:00:00:00:00:02 => 1
 5. 张恒华. _P4 中文教程_. https://github.com/zhh2001/p4-language-guide-zh
 
 > 说明：示例结构参考官方 tutorials 的 basic 练习，完整练习与答案见 [4]。
-
----
-
-_本文是「P4 快速入门」系列的第 2 篇。_
-
-_系列导航：上一篇 → [可编程数据平面，从黑盒到白盒](/blog/p4/p4-01-quickstart-overview) | 下一篇 → [环境、控制平面与研究前沿](/blog/p4/p4-03-practice-frontier)_

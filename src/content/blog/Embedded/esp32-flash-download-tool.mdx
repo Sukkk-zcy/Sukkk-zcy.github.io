@@ -1,8 +1,9 @@
 ---
 title: '乐鑫 Flash Download Tool 完全指南：烧录、提取、合并固件'
 publishDate: 2026-06-18 00:00:00
-description: '乐鑫官方 Flash Download Tools 使用教程，覆盖固件烧录、Flash 内容提取备份、多固件合并三大核心功能'
-tags: ['ESP32', '固件烧录', 'Flash Download Tool']
+updatedDate: 2026-09-29 00:00:00
+description: '乐鑫官方 Flash Download Tools 使用教程，覆盖固件烧录、Flash 内容提取备份、多固件合并三大核心功能与常见报错。'
+tags: ['ESP32', '固件烧录']
 categories: ['Embedded']
 language: '中文'
 draft: false
@@ -11,7 +12,7 @@ comment: true
 
 ## 前言
 
-日常开发中，我们习惯用 Arduino IDE 或 PlatformIO 一键编译烧录。但在很多场景下，我们需要一种更"底层"、更通用的方式操作 ESP32 的 Flash：
+日常开发中，我们习惯用 Arduino IDE 或 PlatformIO 一键编译烧录（环境问题见 [[platformio-notes|PlatformIO 首次安装使用注意事项]]）。但在很多场景下，我们需要一种更"底层"、更通用的方式操作 ESP32 的 Flash：
 
 - 手头只有别人编译好的 **bin 固件包**，需要手动烧录；
 - 想**备份原厂固件**，或者分析设备里到底刷了什么；
@@ -32,13 +33,13 @@ Flash Download Tools 是乐鑫官方提供的图形化固件烧录软件，支�
 
 下载地址（乐鑫官网 → 工具）：
 
-```
+```text
 https://www.espressif.com/zh-hans/support/download/other-tools
 ```
 
 下载后是一个压缩包（例如 `flash_download_tool_3.9.7.zip`），解压即可使用，**无需安装**。目录结构大致如下：
 
-```
+```text
 flash_download_tool_3.9.7/
 ├── flash_download_tool_3.9.7.exe   # 32 位版本
 ├── flash_download_tool_3.9.7_64.exe # 64 位版本
@@ -71,7 +72,7 @@ flash_download_tool_3.9.7/
 
 双击运行 `flash_download_tool_3.9.7_64.exe`，弹出启动对话框：
 
-```
+```text
 ChipType:    ESP32        ← 选择芯片型号
 WorkMode:    Develop      ← 开发模式
 LoadMode:    UART         ← 通过串口下载
@@ -116,7 +117,7 @@ LoadMode:    UART         ← 通过串口下载
 
 确认 COM 口和波特率（默认 460800 即可，不稳定可降到 230400 / 115200），点击 **START**，开始烧录：
 
-```
+```text
 等待上电同步...
 正在擦除/写入...
 FINISH  ✔
@@ -150,7 +151,7 @@ FINISH  ✔
 
 工具会把指定地址区间的内容逐段读出来，写入本地 bin 文件：
 
-```
+```text
 ReadFlash 完成 → 生成 backup_4m.bin
 ```
 
@@ -182,7 +183,7 @@ ReadFlash 完成 → 生成 backup_4m.bin
 
 合并完成后，把 `target.bin` 发给任何有 Flash Download Tool 的人，对方只需：
 
-```
+```text
 地址填 0x0 → 选择 target.bin → START
 ```
 
@@ -227,3 +228,5 @@ Flash Download Tools 是乐鑫官方、无需安装、覆盖全系芯片的万�
 | **CombineBin 合并** | 多固件打包成一个 bin，批量生产 / 分发一步到位 |
 
 配合官方命令行工具 `esptool.py`，基本可以覆盖 ESP32 开发中所有"和 Flash 打交道"的需求。收藏本文，下次刷机不慌。
+
+实际使用场景推荐看两篇：[[cc-air-monitor|CC AIR MONITOR 固件烧录指南]]（烧录第三方编译好的合并固件）与 [[platformio-notes|PlatformIO 首次安装使用注意事项]]（用 IDE 一键烧录时的环境问题）。

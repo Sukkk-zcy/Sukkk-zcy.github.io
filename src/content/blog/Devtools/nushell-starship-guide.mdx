@@ -1,13 +1,16 @@
 ---
 title: 'Nushell + Starship 终端环境配置指南'
 publishDate: 2026-06-28 00:00:00
-description: 'Nushell 是一个现代结构化 Shell，Starship 是一个跨 Shell 的快速提示符工具，两者搭配使用可以获得美观且高效的终端体验。本文记录从安装到配置的完整流程。'
-tags: ['Nushell', 'Starship', '终端']
+updatedDate: 2026-09-29 00:00:00
+description: 'Nushell 与 Starship 的安装与配置全流程：结构化 Shell 的语法要点、提示符主题定制、性能诊断与跨 Shell 复用。'
+tags: ['开发工具']
 categories: ['Devtools']
 language: '中文'
 draft: false
 comment: true
 ---
+
+import { Aside } from 'astro-pure/user'
 
 ## 简介
 
@@ -28,6 +31,10 @@ Nu 同时支持 Windows / macOS / Linux，当前最新稳定版为 **0.113.1**�
 ---
 
 ## 安装 Nushell
+
+<Aside type='tip' title='运行环境'>
+  Nushell 在 Windows 上可以直接跑，但如果你同时做 Linux 侧的开发（比如 [Mininet 网络实验](/blog/sdn/sdn-04-mininet-experiment)），建议在 [[wsl2-setup-guide|WSL2 + Ubuntu 24.04]] 里也装一份，两边配置可以完全复用——Starship 是真跨 Shell 的。
+</Aside>
 
 ### 方式一：winget（推荐 / Windows）
 
@@ -53,7 +60,7 @@ cargo install nu --locked
 
 在 Windows Terminal 中，进入设置 → 配置文件 → 添加新配置文件，命令行指向 Nu 可执行文件路径：
 
-```
+```text
 C:\Users\<用户名>\AppData\Local\Programs\nu\bin\nu.exe
 ```
 

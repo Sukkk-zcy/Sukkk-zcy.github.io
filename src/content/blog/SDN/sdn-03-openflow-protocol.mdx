@@ -1,8 +1,12 @@
 ---
 title: 'OpenFlow 协议'
 publishDate: 2026-06-17 00:00:00
-description: 'OpenFlow 流表结构、匹配流程、组表与计量表'
+updatedDate: 2026-09-29 00:00:00
+description: '系统梳理 OpenFlow 的流表结构、多级流表匹配流程与优先级规则，以及动作集、组表、计量表和控制器消息类型。'
 tags: ['SDN', 'OpenFlow']
+series: 'sdn'
+seriesOrder: 3
+seriesTitle: 'SDN 学习指南'
 categories: ['SDN']
 language: '中文'
 draft: false
@@ -11,7 +15,7 @@ comment: true
 
 import { Aside } from 'astro-pure/user'
 
-在上一篇中我们了解了 OpenFlow 作为南向接口协议的角色。今天我们深入 OpenFlow 的内部机制，搞清楚三个核心问题：
+在 [[sdn-02-architecture-deep-dive|上一篇]] 中我们了解了 OpenFlow 作为南向接口协议的角色。今天我们深入 OpenFlow 的内部机制，搞清楚三个核心问题：
 
 1. 流表的内部结构是什么样的？
 2. 数据包进入交换机后，匹配流程到底是怎么走的？
@@ -21,7 +25,7 @@ import { Aside } from 'astro-pure/user'
 
 ## 一、OpenFlow 版本概览
 
-在上篇（SDN 三层架构）中我们已经介绍了 OpenFlow 的版本演进，这里直接进入核心机制。目前学术界和工业界主要使用 **OpenFlow 1.3**，这也是我们学习的重点。
+在上篇 [[sdn-02-architecture-deep-dive|SDN 三层架构]] 中我们已经介绍了 OpenFlow 的版本演进，这里直接进入核心机制。目前学术界和工业界主要使用 **OpenFlow 1.3**，这也是我们学习的重点。
 
 ---
 
@@ -44,7 +48,7 @@ import { Aside } from 'astro-pure/user'
 
 OpenFlow 1.0 支持 12 个匹配字段，OpenFlow 1.3 扩展到了 40 多个。常用的包括：
 
-```
+```text
 入端口 (Ingress Port)
 ─────────────────────
 源 MAC 地址 (Eth Src)
@@ -101,7 +105,7 @@ Goto-Table 指令?}
 
 ### 3.2 关键概念：多级流表
 
-OpenFlow 1.3 引入了**多级流表**，允许多张流表串联工作。数据包可以像过流水线一样，依次经过流表 0、流表 1、流表 2...
+OpenFlow 1.1 引入了**多级流表**，允许多张流表串联工作。数据包可以像过流水线一样，依次经过流表 0、流表 1、流表 2...
 
 每一张流表执行特定功能：
 
@@ -147,7 +151,7 @@ OpenFlow 1.3 引入了**多级流表**，允许多张流表串联工作。数据
 
 ## 五、组表（Group Table）
 
-组表是 OpenFlow 1.3 引入的高级转发机制。当多个流表项需要执行相同的复杂动作时，可以把动作封装到组表中，流表项只需引用组 ID。
+组表是 OpenFlow 1.1 引入的高级转发机制。当多个流表项需要执行相同的复杂动作时，可以把动作封装到组表中，流表项只需引用组 ID。
 
 ### 5.1 组表的四种类型
 
@@ -262,7 +266,7 @@ sequenceDiagram
 | 精读     | 基于 OpenFlow 的 SDN 技术研究（左青云）                |
 | 快读     | Network Innovation using OpenFlow: A Survey            |
 | 核心收获 | 流表结构、多级流表匹配流程、组表四种类型、计量表与 QoS |
-| 待深入   | 明天搭建 Mininet 实验环境，动手验证流表转发            |
+| 待深入   | 搭建 Mininet 实验环境，动手验证流表转发（见 [[sdn-04-mininet-experiment|Mininet 网络实验]]） |
 
 ---
 
@@ -273,9 +277,3 @@ sequenceDiagram
 3. 左青云. 基于OpenFlow的SDN技术研究.
 4. Lara, E. et al. "Network Innovation using OpenFlow: A Survey." _IEEE Communications Surveys & Tutorials_, 2013.
 5. [OpenFlow 1.3 Specification](https://opennetworking.org/of-spec/)
-
----
-
-_本文是「SDN 学习指南」系列的第3篇。_
-
-_系列导航：上一篇 → SDN 三层架构 | 下一篇 → Mininet 网络实验_

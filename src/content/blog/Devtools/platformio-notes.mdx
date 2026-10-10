@@ -1,19 +1,22 @@
 ---
-title: 'PlatformIO首次安装使用注意事项'
+title: 'PlatformIO 首次安装使用注意事项'
 publishDate: 2026-06-21 00:00:00
-description: 'PlatformIO首次安装使用时遇到的问题及解决方案'
-tags: ['PlatformIO', 'VS Code']
+updatedDate: 2026-09-29 00:00:00
+description: 'PlatformIO 首次安装时扩展启动失败、新建项目卡在加载的成因与解决方案，含离线安装包与预缓存依赖的恢复步骤。'
+tags: ['开发工具', 'ESP32']
 categories: ['Devtools']
 language: '中文'
 draft: false
 comment: true
 ---
 
+import { Aside } from 'astro-pure/user'
+
 ## 引言
 
-因网络原因，PlatformIO首次创建项目时容易出些一些问题，目前网络教程大多是切换网络、镜像源、配置Python环境等，此类教程大都比较繁琐，且不一定能解决问题。
+因网络原因，PlatformIO 首次创建项目时容易出一些问题，目前网络教程大多是切换网络、镜像源、配置 Python 环境等，此类教程大都比较繁琐，且不一定能解决问题。
 
-本文以VS Code为例，提供首次安装和创建项目时无法加载的解决方案，其它IDE也可自行尝试。
+本文以 VS Code 为例，提供首次安装和创建项目时无法加载的解决方案，其它 IDE 也可自行尝试。
 
 ## 扩展启动失败
 
@@ -22,14 +25,59 @@ comment: true
 
 ![离线安装](https://sukk-imgbed.pages.dev/file/1784520413232_离线安装.png)
 
-[点击下载PlatformIO离线安装包](https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/platformio-offline/platformio.platformio-ide-3.1.1@win32-x64.vsix)
+[点击下载 PlatformIO 离线安装包](https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/platformio-offline/platformio.platformio-ide-3.1.1@win32-x64.vsix)（v3.1.1，Windows x64，28,182,780 字节）
+
+下载后建议先校验完整性，避免因网络中断拿到截断的安装包：
+
+```powershell
+# Windows PowerShell
+(Get-FileHash .\platformio.platformio-ide-3.1.1@win32-x64.vsix -Algorithm SHA256).Hash.ToLower()
+```
+
+```bash
+# Linux / macOS
+sha256sum platformio.platformio-ide-3.1.1@win32-x64.vsix
+```
+
+正确输出为：
+
+```text
+b6a104947a717805a4daa1bdc495bc64ecf025e80306d56dce340f30ad7f965d
+```
+
+<Aside type='tip' title='镜像与备用来源'>
+  如果上面的 Release 链接失效，可以从官方渠道取到同一版本的 vsix：
+
+  - VS Code 市场：[platformio.platformio-ide](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide)（右侧 Version History 下载指定版本）
+  - Open VSX：[platformio/platformio-ide](https://open-vsx.org/extension/platformio/platformio-ide)（可直接选版本下载）
+
+  注意 vsix 必须与你的 VS Code 平台匹配（win32-x64 / linux-x64 / darwin-arm64 等），否则会提示不兼容。
+</Aside>
 
 ## 首次创建项目无法加载
 
 1. 打开任务管理器将关于vscode/platformIO/python的进程全部关掉，不会关可以直接关机重启。
-2. 根据你的电脑路径，找到.platfromio文件夹将其删除。
-3. 下载中的.platformio解压在原文件夹路径，重新打开vscode，可能还有其他依赖加载，一般几十秒就可以正常启动了。
+2. 根据你的电脑路径，找到`.platformio`文件夹并将其删除。
+3. 将下载的`.platformio`压缩包解压到原来的文件夹路径，重新打开vscode，可能还有其他依赖加载，一般几十秒就可以正常启动了。
 
 ![PlatformIO文件路径](https://sukk-imgbed.pages.dev/file/1784520426575_platformio文件路径.png)
 
-[点击下载.platformio文件](https://pan.baidu.com/s/1wgq2J7eosyw5shmHPX-7SA?pwd=v1t3)
+[点击下载 .platformio 文件](https://pan.baidu.com/s/1wgq2J7eosyw5shmHPX-7SA?pwd=v1t3)（百度网盘，提取码 `v1t3`）
+
+<Aside type='caution' title='网盘链接失效时'>
+  网盘链接不可控，若失效可以自己重建这份缓存：在能正常联网的机器上新建一个 PlatformIO 项目，等依赖拉取完成后，把用户目录下的 `.platformio` 整个打包拷过来即可。核心是 `packages/`（工具链与框架）与 `platforms/` 两个目录。
+</Aside>
+
+## 总结
+
+PlatformIO 首次安装最常见的失败原因都是网络问题：扩展下载慢、首次创建项目时拉取依赖超时。对于网络环境不佳的情况，离线安装包（扩展 + 已缓存的依赖）是性价比最高的解决方案，一次下载、长期复用。
+
+如果遇到本文未覆盖的问题，建议先查看 VS Code 的「输出」面板中的 PlatformIO 日志，再根据错误信息搜索对应解决方案。
+
+环境正常之后，就可以用同一套工具链给 ESP32 烧录固件了，具体操作见 [[esp32-flash-download-tool|乐鑫 Flash Download Tool 完全指南]]。
+
+## 参考资料
+
+- [PlatformIO 离线安装包（vsix）](https://github.com/Sukkk-zcy/Sukkk-zcy.github.io/releases/download/platformio-offline/platformio.platformio-ide-3.1.1@win32-x64.vsix)
+- [PlatformIO 预缓存依赖文件](https://pan.baidu.com/s/1wgq2J7eosyw5shmHPX-7SA?pwd=v1t3)
+- [PlatformIO 官方文档](https://docs.platformio.org/)

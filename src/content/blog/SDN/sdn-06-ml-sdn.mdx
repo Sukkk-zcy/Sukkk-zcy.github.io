@@ -1,15 +1,19 @@
 ---
 title: 'ML 与 SDN'
 publishDate: 2026-06-27 00:00:00
-description: '机器学习在 SDN 中的三大应用、传统方法与深度学习的对比'
-tags: ['SDN', '机器学习', '深度学习']
+updatedDate: 2026-09-29 00:00:00
+description: '机器学习在 SDN 中能做什么：流量分类、异常检测与路由优化三大方向，以及传统方法、ML、DL 的选型对比与 Transformer 前沿。'
+tags: ['SDN', '机器学习', '网络安全']
+series: 'sdn'
+seriesOrder: 6
+seriesTitle: 'SDN 学习指南'
 categories: ['SDN']
 language: '中文'
 draft: false
 comment: true
 ---
 
-上一篇从安全角度看入侵检测，这一篇把视角拉远——ML 到底能在 SDN 中做什么？读了几篇综述，把我的理解和疑问整理出来。
+上一篇 [[sdn-05-intrusion-detection|SDN 安全与入侵检测]] 从安全角度看入侵检测，这一篇把视角拉远——ML 到底能在 SDN 中做什么？读了几篇综述，把我的理解和疑问整理出来。
 
 ---
 
@@ -135,7 +139,7 @@ flowchart LR
 
 **还没想明白的问题**：
 
-- P4 和 ML 怎么结合？比如在数据平面用 P4 做实时检测，控制平面用 ML 做全局分析？
+- P4 和 ML 怎么结合？比如在数据平面用 P4 做实时检测，控制平面用 ML 做全局分析？（见 [[p4-03-practice-frontier|P4 研究前沿]]）
 - 这些方法在真实网络中的效果到底怎么样？论文里的数据集和真实流量差距有多大？
 
 这些问题可能要在后面的 P4 学习和研究中慢慢回答。
@@ -149,7 +153,7 @@ flowchart LR
 | 阅读     | 3 篇 ML+SDN 综述                                   |
 | 核心收获 | ML 在 SDN 的三大应用（流量分类/异常检测/路由优化） |
 | 个人思考 | 组合方法最实用、路由优化最难落地、LLM 是锦上添花   |
-| 入门总结 | 7 篇文章完成 SDN 入门，下一篇整理知识体系          |
+| 入门总结 | 7 篇文章完成 SDN 入门，下一篇整理知识体系（见 [[sdn-07-knowledge-summary|SDN 知识总结]]） |
 
 ---
 
@@ -158,9 +162,3 @@ flowchart LR
 1. "A Survey of Machine Learning Techniques Applied to Software Defined Networking: Research Issues and Challenges"
 2. "A Survey of Networking Applications Applying the Software Defined Networking Concept Based on Machine Learning"
 3. "Transformers and Large Language Models for Efficient Intrusion Detection"
-
----
-
-_本文是「SDN 学习指南」系列的第6篇。_
-
-_系列导航：上一篇 → SDN 安全与入侵检测 | 下一篇 → SDN 知识总结_

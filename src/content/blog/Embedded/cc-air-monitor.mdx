@@ -1,7 +1,8 @@
 ---
 title: 'CC AIR MONITOR 固件烧录指南'
 publishDate: 2026-06-22 00:00:00
-description: '基于CCAirDetector修改的CC AIR MONITOR固件烧录与配置教程'
+updatedDate: 2026-09-29 00:00:00
+description: '基于 CCAirDetector 二次开发的 CC AIR MONITOR 固件烧录与配置步骤，含下载工具、bin 文件地址与故障排查。'
 tags: ['ESP32', '固件烧录']
 categories: ['Embedded']
 language: '中文'
@@ -11,13 +12,15 @@ comment: true
 
 ## 说明
 
-本固件基于 @大聪明的二手脑袋 开源的 CCAirDetector 进行修改，改动如下：
+本固件基于 B站 @大聪明的二手脑袋 开源的 CCAirDetector 进行修改，改动如下：
 
 - 修改默认上电界面为 page3
 
 - 调换了 page2 和 page3 的部分显示组件
 
 - web 配网界面新增和风天气认证参数填写，无需配置 Arduino 环境，直接烧录固件即可
+
+> 硬件主控为 ESP32 系列芯片（本机为 ESP32-C3，具体以你 PCB 上的丝印为准）。烧录前请先确认板载芯片型号，在 Flash Download Tool 中选中对应的 ChipType。工具本身的用法见 [[esp32-flash-download-tool|乐鑫 Flash Download Tool 完全指南]]。
 
 ![CC AIR MONITOR Page2](https://sukk-imgbed.pages.dev/file/1784520432087_CC_AIR_MONITOR_Page2.JPEG)
 
@@ -33,10 +36,25 @@ comment: true
 
 ## 固件烧录
 
-1. 选择你的芯片型号
+1. 将 PCB 通过 USB 转串口（或板载 USB）连接到电脑
 
-2. 选择 bin 文件路径，左侧复选框需要打勾，地址为 `0`
+2. **进入下载模式**：按住 PCB 上的 BOOT 键不放，再按一下 RST/EN 键，然后松开 BOOT 键
 
-3. 选择 COM 端口，点击 START，等待显示 FINISH 即烧录成功
+3. 打开 Flash Download Tool，选择你的芯片型号（ChipType）
 
-4. 单击 PCB 上的 RST 以重启系统
+4. 选择 bin 文件路径，左侧复选框需要打勾，地址为 `0`（该 bin 为合并固件，从 0 地址开始烧写）
+
+5. 选择 COM 端口（默认波特率 115200），点击 START，等待显示 FINISH 即烧录成功
+
+6. 单击 PCB 上的 RST 以重启系统，屏幕应显示 page3 界面
+
+## 故障排查
+
+- **提示连接失败 / 无法进入下载模式**：确认 BOOT 键按住时再触发 RST；部分板子需先按住 BOOT 再上电
+- **COM 端口不识别**：检查 USB 驱动（CH340 / CP2102 等，视板载芯片而定）
+- **烧录后白屏或黑屏**：确认芯片型号选择正确，或重新烧录一次
+
+## 参考资料
+
+- CCAirDetector 原作者：B站 @大聪明的二手脑袋（开源项目）
+- [ESP Flash Download Tool 官方说明](https://docs.espressif.com/projects/esptool/en/latest/esp32/)

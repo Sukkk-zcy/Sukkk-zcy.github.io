@@ -1,8 +1,9 @@
 ---
 title: 'ESP32 Web 配网实战'
 publishDate: 2026-06-25 00:00:00
-description: '通过 Web 页面为 ESP32 配置 WiFi 和 Blinker 授权码，支持历史配置记录，开机自动重连'
-tags: ['ESP32', 'Blinker', 'WiFi配网']
+updatedDate: 2026-09-29 00:00:00
+description: '通过 Web 页面为 ESP32 配置 WiFi 与 Blinker 授权码，支持 NVS 历史配置记录与开机自动重连，附核心代码解析。'
+tags: ['ESP32', 'Blinker']
 categories: ['Embedded']
 language: '中文'
 draft: false
@@ -26,7 +27,7 @@ comment: true
 
 ## 项目结构
 
-```
+```text
 ESP32_Blinker_NET/
 ├── src/
 │   ├── main.cpp          # 主程序：Blinker 初始化 + WiFi 管理
@@ -214,4 +215,6 @@ void WIFIConnect::loop() {
 
 这个 Web 配网方案解决了 Blinker 项目中 WiFi 配置固化的问题，通过 Web 页面和历史记录功能，让用户无需重新烧录即可切换网络。配合 Blinker 的心跳包和回调机制，可以快速搭建物联网应用。
 
-> 本项目完整代码见 `E:\Embedded\库\Blinker开发规范\ESP32_Blinker_NET`
+> 本文仅展示核心流程，完整的 `WIFIConnect` 类（含 NVS 历史记录存储）可按需自行扩展。
+
+改完配网逻辑重新编译后，烧录方式见 [[esp32-flash-download-tool|乐鑫 Flash Download Tool 完全指南]]。

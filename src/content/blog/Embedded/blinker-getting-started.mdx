@@ -1,8 +1,9 @@
 ---
 title: 'Blinker 开发入门指南'
 publishDate: 2026-06-25 00:00:00
-description: 'Blinker开发规范，适合嵌入式开发者快速上手'
-tags: ['ESP32', 'Blinker', '物联网']
+updatedDate: 2026-09-29 00:00:00
+description: 'Blinker 开发规范速查：九大标准模块、组件与回调函数、心跳包数据上报、实时数据、掉线检测与常见错误排查。'
+tags: ['ESP32', 'Blinker']
 categories: ['Embedded']
 language: '中文'
 draft: false
@@ -210,16 +211,16 @@ WiFi 模式下必须实现掉线重启检测：
 ```cpp
 void wifiOfflineMonitor()
 {
+  if (millis() < 180000) return;  // 启动 3 分钟内不检测，避免误判
+
   if (Blinker.connect()) {
     offline_millis = 0;
     offline_flag = false;
-  }
-  else if (!Blinker.connect() && millis() > 180000) {
+  } else if (offline_millis == 0) {
+    offline_millis = millis();         // 记录首次掉线时刻
     offline_flag = true;
-  }
-
-  if (millis() > 180000 && offline_millis && millis() - offline_millis >= 180000) {
-    ESP.restart();  // 掉线超三分钟重启
+  } else if (millis() - offline_millis >= 180000) {
+    ESP.restart();                     // 掉线超 3 分钟重启
   }
 }
 ```
@@ -258,7 +259,7 @@ void setup()
 
 ## ESP32 Web 配网
 
-`ESP32_Blinker_NET` 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。
+`ESP32_Blinker_NET` 是一个完整的 Web 配网示例项目，支持通过网页配置 WiFi 和 Blinker 授权码。详细实现与代码解析见 [[esp32-blinker-web-config|ESP32 Web 配网实战]]。
 
 **工作流程**：
 
@@ -372,3 +373,5 @@ Blinker 以其简洁的 API、丰富的组件和跨平台支持，极大降低�
 6. **WiFi 掉线要检测** — 三分钟无响应自动重启
 
 遵循这些规范，你就能用 Blinker 快速搭建出稳定可靠的物联网应用。
+
+接下来可以看 [[esp32-blinker-web-config|ESP32 Web 配网实战]] 把 WiFi 配置从代码里拿出来，或者用 [[esp32-flash-download-tool|Flash Download Tool]] 把固件烧进模组。

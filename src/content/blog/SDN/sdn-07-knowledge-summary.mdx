@@ -1,8 +1,12 @@
 ---
 title: 'SDN 知识总结'
 publishDate: 2026-06-30 00:00:00
-description: 'SDN 入门知识回顾、思维导图整理与 Mininet 实验巩固'
-tags: ['SDN', '复习']
+updatedDate: 2026-09-29 00:00:00
+description: 'SDN 入门知识体系回顾：用思维导图串联七篇文章，补齐星型与树形拓扑实验、iperf 带宽对比，并列出后续待解决的问题。'
+tags: ['SDN', 'Mininet']
+series: 'sdn'
+seriesOrder: 7
+seriesTitle: 'SDN 学习指南'
 categories: ['SDN']
 language: '中文'
 draft: false
@@ -10,6 +14,15 @@ comment: true
 ---
 
 把前面学到的知识串成一个完整的知识体系。这一周从 SDN 概念到 Mininet 实验，再到入侵检测和 ML 应用，建立了比较完整的入门认知。
+
+系列全部七篇索引，方便按需跳读：
+
+1. [[sdn-01-sdn-introduction|SDN 是什么]] — 诞生背景、三层架构与核心概念
+2. [[sdn-02-architecture-deep-dive|SDN 三层架构]] — 控制层与数据层解耦、三大接口
+3. [[sdn-03-openflow-protocol|OpenFlow 协议]] — 流表、组表与计量表
+4. [[sdn-04-mininet-experiment|Mininet 网络实验]] — 环境搭建与拓扑实验
+5. [[sdn-05-intrusion-detection|SDN 安全与入侵检测]] — 攻击类型与检测方法
+6. [[sdn-06-ml-sdn|ML 与 SDN]] — 三大应用方向与前沿趋势
 
 ---
 
@@ -161,7 +174,7 @@ flowchart TD
 
 4 台主机都连在同 1 台交换机上，任何两台之间只需经过 1 跳。结果：
 
-```
+```text
 *** Results: 0% dropped (12/12 received)
 ```
 
@@ -198,12 +211,12 @@ mininet> iperf
 
 学习中可能还不太清楚的问题：
 
-| 问题                               | 优先级 | 计划解决时间 |
-| ---------------------------------- | ------ | ------------ |
-| Ryu 控制器如何编写简单的 L2 Switch | 高     | 后续         |
-| 如何在 Mininet 中运行 Ryu 控制器   | 高     | 后续         |
-| P4 环境搭建与第一个 P4 程序        | 高     | 下一篇       |
-| 深度学习模型如何部署到实际网络中   | 低     | 后续研究     |
+| 问题                               | 优先级 | 状态                                    |
+| ---------------------------------- | ------ | --------------------------------------- |
+| Ryu 控制器如何编写简单的 L2 Switch | 高     | 待办                                    |
+| 如何在 Mininet 中运行 Ryu 控制器   | 高     | 待办                                    |
+| P4 环境搭建与第一个 P4 程序        | 高     | ✅ 已完成，见 [[p4-03-practice-frontier]] |
+| 深度学习模型如何部署到实际网络中   | 低     | 待研究                                  |
 
 ---
 
@@ -215,10 +228,4 @@ mininet> iperf
 | 整理       | 完成 SDN 入门知识体系思维导图                       |
 | 实验       | 星型拓扑、树形拓扑 pingall，iperf 带宽对比          |
 | 规划       | 列出遗留问题，为 P4 学习做准备                      |
-| 下一篇预告 | P4 系列：从 OpenFlow 到 P4 可编程数据面（独立系列） |
-
----
-
-_本文是「SDN 学习指南」系列的第7篇（完结）。_
-
-_系列导航：上一篇 → ML 与 SDN_
+| 下一篇预告 | [[p4-01-quickstart-overview|P4 快速入门]] 系列（独立系列） |

@@ -1,8 +1,12 @@
 ---
 title: 'SDN 是什么'
 publishDate: 2026-06-10 00:00:00
-description: '理解 SDN 的诞生背景、三层架构与核心概念'
+updatedDate: 2026-09-29 00:00:00
+description: '从传统网络控制与转发紧耦合的困境讲起，梳理 SDN 的核心思想、三层架构、三大接口与三个核心特征。'
 tags: ['SDN', '入门']
+series: 'sdn'
+seriesOrder: 1
+seriesTitle: 'SDN 学习指南'
 categories: ['SDN']
 language: '中文'
 draft: false
@@ -75,7 +79,7 @@ SDN 的核心思想就一句话：
 
 ## 三、SDN 的三层架构
 
-SDN 采用了清晰的三层架构，这是理解 SDN 最关键的知识点：
+SDN 采用了清晰的三层架构，这是理解 SDN 最关键的知识点——每一层的职责与协作细节会在 [[sdn-02-architecture-deep-dive|SDN 三层架构]] 中展开：
 
 ```mermaid
 flowchart LR
@@ -155,7 +159,7 @@ flowchart LR
 | SDN (OpenFlow)  | 控制与转发分离，集中控制，OpenFlow 南向协议  |
 | P4 可编程数据面 | 不仅控制面可编程，数据面也可编程，协议无关   |
 
-SDN 是从传统网络到可编程网络的关键一步。而下一代技术 P4 则更进一步，让数据平面本身也变得可编程（这将是后续学习的内容）。
+SDN 是从传统网络到可编程网络的关键一步。其中 OpenFlow 让控制面的协议可以标准化下发（细节见 [[sdn-03-openflow-protocol|OpenFlow 协议]]），而下一代技术 P4 则更进一步，让数据平面本身也变得可编程（见 [[p4-01-quickstart-overview|P4 快速入门]]）。
 
 ---
 
@@ -185,9 +189,3 @@ SDN 是从传统网络到可编程网络的关键一步。而下一代技术 P4 
 2. Kreutz, D. et al. "A Survey of Software-Defined Networking: Past, Present, and Future of Programmable Networks." _IEEE Communications Surveys & Tutorials_, 2015.
 3. Akyildiz, I. F. et al. "A Survey on Software-Defined Networking." _IEEE Network_, 2014.
 4. [SDNLAB SDN 指南](http://www.sdnlab.com/sdn-guide/)
-
----
-
-_本文是「SDN 学习指南」系列的第1篇。_
-
-_系列导航：下一篇 → SDN 架构深入_

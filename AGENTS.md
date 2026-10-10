@@ -31,7 +31,6 @@ BLOG/
 ├── packages/pure/             # 主题组件库（astro-pure）
 ├── public/                    # 静态资源
 ├── dist/                      # 构建产物（.gitignore）
-├── P4-LEARNING-PLAN.md        # P4 实验学习计划
 └── astro.config.ts            # Astro 框架配置
 ```
 
@@ -205,44 +204,17 @@ TypeScript 6.x 与 `@astrojs/check` 冲突，必须 `--legacy-peer-deps`。`node
 - **Giscus 评论**：未配置 repo/ID
 - **Waline 评论**：`site.config.ts` 中 `waline.enable: false`
 
-## 实验环境（WSL2）
+## 与其他项目的关系
 
-SDN/P4 实验在 WSL2 + Ubuntu 24.04 上进行，工具链已预装：
+本仓库**只负责博客**（内容写作 + 站点构建 + 部署）。
 
-| 工具 | 版本 | 用途 |
-|------|------|------|
-| Python 3 | 3.12.3 | 控制平面脚本 |
-| Mininet | 2.3.1 | 网络拓扑仿真 |
-| p4c | 1.2.5.15 | P4 编译器 |
-| simple_switch | 1.15.4 | BMv2 软件交换机 |
-| simple_switch_grpc | — | P4Runtime gRPC 支持 |
-| OVS | 3.3.4 | Open vSwitch |
-| Wireshark | 4.2.2 | 抓包分析 |
-| Docker | 29.1.3 | 容器化环境 |
+**P4 / SDN 的学习、实验与科研在 `~/Projects/P4Pro/`**，不要写进这里：
 
-### 需要安装
-
-```bash
-# P4Runtime Python 客户端
-pip3 install p4runtime-sh protobuf grpcio
-
-# Go（p4-cases 控制器编译需要）
-wget https://go.dev/dl/go1.25.1.linux-amd64.tar.gz
-sudo tar -C /usr/local -xzf go1.25.1.linux-amd64.tar.gz
-echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
-
-# Scapy（自动化测试）
-pip3 install scapy
-```
-
-### 参考仓库（zhh2001）
-
-| 仓库 | 内容 |
+| 内容 | 归属 |
 |------|------|
-| `zhh2001/p4-language-guide-zh` | P4 中文教程 16 章 + 5 个可运行示例 |
-| `zhh2001/p4runtime-cn-labs` | P4Runtime 中文实战 7 个实验 |
-| `zhh2001/p4-cases` | 14 个 P4 案例（Go 控制器 + 自动测试） |
-| `zhh2001/int` | INT 带内网络遥测 |
-| `zhh2001/P4Sentinel` | 可编程数据面流控框架（146⭐） |
+| 博客文章（.mdx）、友链、样式、部署 | **本仓库** |
+| P4 实验、INT 研究、论文笔记、环境搭建 | `~/Projects/P4Pro/` |
 
-详见 `P4-LEARNING-PLAN.md`。
+**写 P4 相关文章时的交接方式**：在 P4Pro 会话里跑完实验，把笔记存到
+`~/Projects/P4Pro/sessions/<日期>_<主题>/notes.md`；然后在 BLOG 会话里读该文件写文章。
+不要把实验过程搬进博客会话（详见 P4Pro 的会话约定）。

@@ -9,7 +9,9 @@ import mermaid from 'astro-mermaid'
 // import { typst } from 'astro-typst'
 // Local integrations
 import rehypeAutolinkHeadings from './src/plugins/rehype-auto-link-headings.ts'
+import p4Grammar from './src/plugins/p4-grammar.ts'
 import remarkWikilinks from './src/plugins/remark-wikilinks.ts'
+import { buildWikilinkIndex } from './src/utils/wikilink-map.ts'
 // Shiki
 import {
   addCollapse,
@@ -24,6 +26,10 @@ import {
   transformerRemoveNotationEscape
 } from './src/plugins/shiki-official/transformers.ts'
 import config from './src/site.config.ts'
+
+// Scanned once at config load so `[[wikilinks]]` resolve to the canonical
+// /blog/<category>/<slug> route instead of a bare-filename redirect page.
+const wikilinkIndex = buildWikilinkIndex()
 
 // https://astro.build/config
 export default defineConfig({
@@ -68,7 +74,7 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [
       remarkMath,
-      [remarkWikilinks, { basePath: '/blog' }]
+      [remarkWikilinks, { basePath: '/blog', index: wikilinkIndex }]
     ],
     rehypePlugins: [
       [rehypeKatex, {}],
@@ -88,6 +94,10 @@ export default defineConfig({
         light: 'github-light',
         dark: 'github-dark'
       },
+      // Shiki ships no P4 grammar; without this every ```p4 block renders as
+      // plain text. See src/plugins/p4-grammar.ts
+      // @ts-ignore LanguageRegistration shape differs slightly between shiki versions
+      langs: [p4Grammar],
       transformers: [
         // Two copies of @shikijs/types (one under node_modules
         // and another nested under @astrojs/markdown-remark → shiki).

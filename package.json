@@ -18,19 +18,15 @@
     "format": "prettier --write  '**/*.{js,jsx,ts,tsx,md,mdx,astro}'",
     "lint": "eslint --fix \"src/**/*.{js,ts,jsx,tsx,astro}\"",
     "yijiansilian": "npm run lint && npm run sync && npm run check && npm run format",
-    "clean": "node -e \"for (const d of ['.astro','.vercel','dist','deploy-temp']) require('fs').rmSync(d,{recursive:true,force:true})\"",
-    "cache:avatars": "tsx preset/scripts/cacheAvatars.ts"
+    "clean": "node -e \"for (const d of ['.astro','.vercel','dist','deploy-temp']) require('fs').rmSync(d,{recursive:true,force:true})\""
   },
   "dependencies": {
     "@astrojs/check": "0.9.10",
-    "@astrojs/compiler-rs": "^0.1.8",
     "@astrojs/markdown-remark": "^7.1.0",
     "@astrojs/rss": "4.0.18",
-    "@astrojs/vercel": "10.0.4",
     "@unocss/astro": "^66.6.8",
     "@unocss/preset-typography": "^66.6.8",
     "@unocss/reset": "^66.6.8",
-    "@waline/client": "^3.13.0",
     "astro": "6.1.8",
     "astro-mermaid": "^2.1.0",
     "astro-pure": "1.4.6",
@@ -59,7 +55,6 @@
     "concurrently": "^10.0.4",
     "eslint": "^10.2.1",
     "eslint-plugin-astro": "^1.7.0",
-    "lightningcss": "^1.31.1",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
     "rehype": "^13.0.2",

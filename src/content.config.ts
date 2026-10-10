@@ -40,6 +40,15 @@ const blog = defineCollection({
         .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
         .optional(),
       draft: z.boolean().default(false),
+      /**
+       * Optional series grouping. Posts sharing a `series` slug are chained
+       * into prev/next navigation ordered by `seriesOrder`, which removes the
+       * need for hand-written "上一篇 / 下一篇" footers.
+       */
+      series: z.string().optional(),
+      seriesOrder: z.number().int().positive().optional(),
+      /** Display name for the series; falls back to `series` when omitted. */
+      seriesTitle: z.string().optional(),
       // Special fields
       comment: z.boolean().default(true)
     })

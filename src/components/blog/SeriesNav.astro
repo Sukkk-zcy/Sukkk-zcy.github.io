@@ -1,0 +1,251 @@
+---
+/**
+ * SeriesNav - automatic prev/next + progress navigation for multi-part series.
+ *
+ * Replaces the hand-written "系列导航：上一篇 → …" footers that used to live in
+ * each post. Driven entirely by the `series` / `seriesOrder` / `seriesTitle`
+ * frontmatter fields, so adding a post only touches that post.
+ */
+import type { CollectionEntry } from 'astro:content'
+
+import { getPostPath } from '@/utils/content-paths'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+  posts: CollectionEntry<'blog'>[]
+  class?: string
+}
+
+const { post, posts, class: className } = Astro.props
+const { series, seriesOrder, seriesTitle } = post.data
+
+// Collect the series members, ordered by `seriesOrder` (posts without an
+// explicit order fall back to the end of the list, oldest first).
+const members = series
+  ? posts
+      .filter((candidate) => candidate.data.series === series)
+      .sort((a, b) => {
+        const orderA = a.data.seriesOrder ?? Number.MAX_SAFE_INTEGER
+        const orderB = b.data.seriesOrder ?? Number.MAX_SAFE_INTEGER
+        if (orderA !== orderB) return orderA - orderB
+        return a.data.publishDate.getTime() - b.data.publishDate.getTime()
+      })
+  : []
+
+const hasSeries = members.length > 1
+const currentIndex = members.findIndex((member) => member.id === post.id)
+const previous = currentIndex > 0 ? members[currentIndex - 1] : undefined
+const next = currentIndex >= 0 && currentIndex < members.length - 1 ? members[currentIndex + 1] : undefined
+const displayTitle = seriesTitle ?? series ?? ''
+const position = currentIndex >= 0 ? currentIndex + 1 : seriesOrder
+---
+
+{
+  hasSeries && (
+    <nav class:list={['series-nav rounded-xl border px-3 py-3 sm:px-4', className]} aria-label={`${displayTitle} 系列导航`}>
+      <div class='series-header'>
+        <h3 class='series-title'>{displayTitle}</h3>
+        {position && (
+          <span class='series-progress'>
+            第 {position} / {members.length} 篇
+          </span>
+        )}
+      </div>
+
+      <ol class='series-list'>
+        {members.map((member, index) => {
+          const isCurrent = member.id === post.id
+          return (
+            <li class:list={['series-item', isCurrent && 'is-current']}>
+              {isCurrent ? (
+                <span class='series-link' aria-current='page'>
+                  <span class='series-index'>{index + 1}</span>
+                  <span class='series-name'>{member.data.title}</span>
+                </span>
+              ) : (
+                <a class='series-link' href={getPostPath(member)}>
+                  <span class='series-index'>{index + 1}</span>
+                  <span class='series-name'>{member.data.title}</span>
+                </a>
+              )}
+            </li>
+          )
+        })}
+      </ol>
+
+      <div class='series-pager'>
+        {
+          previous ? (
+            <a class='series-pager-link' href={getPostPath(previous)} rel='prev'>
+              <span class='series-pager-label'>上一篇</span>
+              <span class='series-pager-title'>{previous.data.title}</span>
+            </a>
+          ) : (
+            <span class='series-pager-empty'>已是第一篇</span>
+          )
+        }
+        {
+          next ? (
+            <a class='series-pager-link is-next' href={getPostPath(next)} rel='next'>
+              <span class='series-pager-label'>下一篇</span>
+              <span class='series-pager-title'>{next.data.title}</span>
+            </a>
+          ) : (
+            <span class='series-pager-empty'>已是最后一篇</span>
+          )
+        }
+      </div>
+    </nav>
+  )
+}
+
+<style>
+  .series-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .series-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .series-title {
+    margin: 0;
+    color: hsl(var(--foreground));
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+
+  .series-progress {
+    flex-shrink: 0;
+    color: hsl(var(--muted-foreground));
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .series-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .series-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.3rem 0.4rem;
+    border-radius: 0.4rem;
+    color: hsl(var(--foreground) / 0.78);
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition:
+      color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  a.series-link:hover {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.07);
+  }
+
+  .series-item.is-current .series-link {
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.1);
+    font-weight: 500;
+  }
+
+  .series-index {
+    flex-shrink: 0;
+    width: 1.05rem;
+    color: hsl(var(--muted-foreground));
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-align: right;
+  }
+
+  .series-item.is-current .series-index {
+    color: hsl(var(--primary));
+  }
+
+  .series-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .series-pager {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid hsl(var(--border) / 0.68);
+  }
+
+  .series-pager-link {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid hsl(var(--border) / 0.7);
+    border-radius: 0.5rem;
+    color: hsl(var(--foreground));
+    text-decoration: none;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease;
+  }
+
+  .series-pager-link:hover {
+    border-color: hsl(var(--primary) / 0.45);
+    background: hsl(var(--primary) / 0.06);
+  }
+
+  .series-pager-link.is-next {
+    text-align: right;
+  }
+
+  .series-pager-label {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.7rem;
+  }
+
+  .series-pager-title {
+    overflow: hidden;
+    font-size: 0.8125rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .series-pager-empty {
+    display: flex;
+    align-items: center;
+    color: hsl(var(--muted-foreground) / 0.75);
+    font-size: 0.75rem;
+  }
+
+  .series-pager-empty:last-child {
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 640px) {
+    .series-pager {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .series-pager-link.is-next {
+      text-align: left;
+    }
+
+    .series-pager-empty:last-child {
+      justify-content: flex-start;
+    }
+  }
+</style>

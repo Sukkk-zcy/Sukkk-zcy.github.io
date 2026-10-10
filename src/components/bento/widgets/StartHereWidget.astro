@@ -1,0 +1,81 @@
+---
+/**
+ * StartHereWidget - curated entry points for new readers.
+ *
+ * The blog has three self-contained learning tracks but no single entry point;
+ * before this, readers had to guess reading order from the post list.
+ */
+import BentoCard from '../BentoCard.astro'
+
+const paths = [
+  {
+    label: '网络可编程',
+    hint: 'SDN → P4',
+    accent: '#8a7fb8',
+    steps: [
+      { title: 'SDN 是什么', href: '/blog/sdn/sdn-01-sdn-introduction' },
+      { title: 'OpenFlow 协议', href: '/blog/sdn/sdn-03-openflow-protocol' },
+      { title: 'Mininet 网络实验', href: '/blog/sdn/sdn-04-mininet-experiment' },
+      { title: 'P4 快速入门', href: '/blog/p4/p4-01-quickstart-overview' }
+    ]
+  },
+  {
+    label: 'ESP32 嵌入式',
+    hint: 'Blinker 生态',
+    accent: '#5b9bd5',
+    steps: [
+      { title: 'Blinker 开发入门', href: '/blog/embedded/blinker-getting-started' },
+      { title: 'ESP32 Web 配网', href: '/blog/embedded/esp32-blinker-web-config' },
+      { title: 'Flash Download Tool', href: '/blog/embedded/esp32-flash-download-tool' }
+    ]
+  },
+  {
+    label: '开发环境',
+    hint: 'WSL2 / 终端',
+    accent: '#5cb85c',
+    steps: [
+      { title: 'WSL2 环境搭建', href: '/blog/devtools/wsl2-setup-guide' },
+      { title: 'WSL Dashboard', href: '/blog/devtools/wsl-dashboard-guide' },
+      { title: 'Nushell + Starship', href: '/blog/devtools/nushell-starship-guide' }
+    ]
+  }
+]
+---
+
+<BentoCard
+  class='col-span-1 row-span-2 md:col-span-2 lg:col-span-2 flex flex-col'
+  color='#8a7fb8'
+>
+  <div class='flex h-full min-h-0 flex-col gap-2.5'>
+    <div class='flex items-baseline justify-between gap-3'>
+      <h3 class='text-base font-bold'>从这里开始</h3>
+      <span class='text-xs text-muted-foreground'>三条学习路径</span>
+    </div>
+
+    <ol class='grid min-h-0 flex-1 gap-2 sm:grid-cols-3'>
+      {
+        paths.map((path) => (
+          <li class='flex min-w-0 flex-col gap-1.5 rounded-2xl border border-border/50 bg-background/40 p-2.5'>
+            <div class='flex items-baseline gap-1.5'>
+              <span class='h-2 w-2 shrink-0 rounded-full' style={`background: ${path.accent}`} />
+              <span class='truncate text-xs font-semibold'>{path.label}</span>
+            </div>
+            <span class='text-[0.65rem] leading-none text-muted-foreground'>{path.hint}</span>
+            <ul class='flex flex-col gap-1'>
+              {path.steps.map((step) => (
+                <li class='min-w-0'>
+                  <a
+                    href={step.href}
+                    class='block truncate text-[0.7rem] leading-snug text-foreground/75 no-underline transition-colors hover:text-primary'
+                  >
+                    {step.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</BentoCard>

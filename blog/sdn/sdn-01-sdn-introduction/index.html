@@ -82,27 +82,15 @@
 <hr>
 <h2 id="三sdn-的三层架构">三、SDN 的三层架构<a class="anchor" href="#三sdn-的三层架构">#</a></h2>
 <p>SDN 采用了清晰的三层架构，这是理解 SDN 最关键的知识点——每一层的职责与协作细节会在 <a href="/blog/sdn/sdn-02-architecture-deep-dive" class="wikilink" data-wikilink="true">SDN 三层架构</a> 中展开：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph 应用层[应用层 Application Layer]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        A1[流量工程] --- A2[安全防护] --- A3[负载均衡] --- A4[...]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    应用层 ---|北向接口 API| C[SDN 控制器&#x3C;br/>OpenDaylight / ONOS / Ryu...]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C ---|南向接口 API| 数据层</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph 数据层[数据层 Data Layer]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        D1[交换机] --- D2[路由器] --- D3[防火墙] --- D4[中间盒]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     subgraph 应用层[应用层 Application Layer]
         A1[流量工程] --- A2[安全防护] --- A3[负载均衡] --- A4[...]
     end
-    应用层 ---|北向接口 API| C[SDN 控制器<br/>OpenDaylight / ONOS / Ryu...]
+    应用层 ---|北向接口 API| C[SDN 控制器&#x3C;br/>OpenDaylight / ONOS / Ryu...]
     C ---|南向接口 API| 数据层
     subgraph 数据层[数据层 Data Layer]
         D1[交换机] --- D2[路由器] --- D3[防火墙] --- D4[中间盒]
-    end" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    end</pre>
 <h3 id="31-数据层">3.1 数据层<a class="anchor" href="#31-数据层">#</a></h3>
 <p>也叫基础设施层，由各种网络设备组成。这些设备不再需要运行复杂的路由协议，只需根据控制器下发的**流表（Flow Table）**来转发数据包。可以说是”无脑转发”，但效率极高。</p>
 <h3 id="32-控制层">3.2 控制层<a class="anchor" href="#32-控制层">#</a></h3>

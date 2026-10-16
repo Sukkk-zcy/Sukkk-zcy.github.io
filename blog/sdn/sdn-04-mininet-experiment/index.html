@@ -183,25 +183,14 @@ completed in 0.247 seconds" onclick="
 </ol>
 <h3 id="32-网络拓扑图">3.2 网络拓扑图<a class="anchor" href="#32-网络拓扑图">#</a></h3>
 <p>这个实验的拓扑非常简单：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h1((h1)) --- s1(交换机 s1)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h2((h2)) --- s1</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph net[10.0.0.0/24]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        h1</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        h2</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        s1</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     h1((h1)) --- s1(交换机 s1)
     h2((h2)) --- s1
     subgraph net[10.0.0.0/24]
         h1
         h2
         s1
-    end" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    end</pre>
 <p>两台主机通过同一台交换机互联，相当于两台电脑连在同一个交换机上。</p>
 <hr>
 <h2 id="四指定拓扑实验">四、指定拓扑实验<a class="anchor" href="#四指定拓扑实验">#</a></h2>
@@ -231,17 +220,10 @@ h3 -> h1 h2
           setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
         "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
 <p>拓扑图：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h1((h1)) --- s1(交换机 s1)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h2((h2)) --- s1</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h3((h3)) --- s1</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     h1((h1)) --- s1(交换机 s1)
     h2((h2)) --- s1
-    h3((h3)) --- s1" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    h3((h3)) --- s1</pre>
 <p>3 台主机两两互通，总共 6 次 ping（h1→h2、h1→h3、h2→h1、h2→h3、h3→h1、h3→h2），全部成功。</p>
 <h3 id="42-linear-拓扑n-台交换机串联">4.2 Linear 拓扑：N 台交换机串联<a class="anchor" href="#42-linear-拓扑n-台交换机串联">#</a></h3>
 <div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><pre><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">sudo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> mn</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --topo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> linear,4</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --test</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingall</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">bash</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="sudo mn --topo linear,4 --test pingall" onclick="
@@ -274,25 +256,14 @@ completed in 0.615 seconds" onclick="
           setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
         "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
 <p>拓扑图：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h1((h1)) --- s1(交换机 s1)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h2((h2)) --- s2(交换机 s2)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h3((h3)) --- s3(交换机 s3)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h4((h4)) --- s4(交换机 s4)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1 --- s2</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s2 --- s3</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s3 --- s4</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     h1((h1)) --- s1(交换机 s1)
     h2((h2)) --- s2(交换机 s2)
     h3((h3)) --- s3(交换机 s3)
     h4((h4)) --- s4(交换机 s4)
     s1 --- s2
     s2 --- s3
-    s3 --- s4" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    s3 --- s4</pre>
 <p>4 台交换机串联成一条线，每台交换机下挂一台主机。注意完成时间从 0.247 秒增加到了 0.615 秒，因为交换机之间的转发路径变长了。</p>
 <hr>
 <h2 id="五交互式操作">五、交互式操作<a class="anchor" href="#五交互式操作">#</a></h2>
@@ -404,21 +375,12 @@ topos = { &#x27;mytopo&#x27;: ( lambda: MyTopo() ) }" onclick="
           setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
         "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button><button class="collapse-toggle bg-card text-muted-foreground rounded-lg m-2" aria-label="Toggle collapse code block" onclick="this.parentElement.classList.toggle(&#x27;collapsed&#x27;)"><svg class="size-5"><use href="/icons/code.svg#mingcute-arrow-down-line"></use></svg><span class="desc"> code</span></button><div class="collapse-fade"></div></div>
 <p>拓扑图：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h1((h1)) --- s1(交换机 s1)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h2((h2)) --- s1</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h3((h3)) --- s2(交换机 s2)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    h4((h4)) --- s2</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1 --- s2</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     h1((h1)) --- s1(交换机 s1)
     h2((h2)) --- s1
     h3((h3)) --- s2(交换机 s2)
     h4((h4)) --- s2
-    s1 --- s2" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    s1 --- s2</pre>
 <p>运行：</p>
 <div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><pre><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">sudo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> mn</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --custom</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> topo.py</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --topo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> mytopo</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --test</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> pingall</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">bash</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="sudo mn --custom topo.py --topo mytopo --test pingall" onclick="
           navigator.clipboard.writeText(this.dataset.code);

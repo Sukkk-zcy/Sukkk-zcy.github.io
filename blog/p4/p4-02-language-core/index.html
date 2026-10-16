@@ -242,38 +242,20 @@ V1Switch(MyParser(), VerifyChecksum(), MyIngress(),
 <li><code>union</code>：表示互斥报头（IPv4 / IPv6 二选一）；</li>
 <li><code>isValid()</code>：仅被 <code>extract</code> 过的报头有效。</li>
 </ul>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    H["header"] --> S["struct（报头集合）"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    H --> ST["header stack&#x3C;br/>H[n] 数组语法"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    H --> U["union（互斥报头）"]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
-    H[&#x22;header&#x22;] --> S[&#x22;struct（报头集合）&#x22;]
-    H --> ST[&#x22;header stack<br/>H[n] 数组语法&#x22;]
-    H --> U[&#x22;union（互斥报头）&#x22;]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+<pre class="mermaid">flowchart TD
+    H["header"] --> S["struct（报头集合）"]
+    H --> ST["header stack&#x3C;br/>H[n] 数组语法"]
+    H --> U["union（互斥报头）"]</pre>
 <h3 id="parser报文解析状态机">Parser：报文解析状态机<a class="anchor" href="#parser报文解析状态机">#</a></h3>
 <p>parser 为有限状态机：每个状态 <code>extract</code> 提取字节，<code>select</code> 按字段值选择后续状态（规范 §13）[1]。</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">stateDiagram-v2</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    [*] --> parse_ethernet</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    parse_ethernet --> parse_ipv4 : etherType == 0x0800</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    parse_ethernet --> parse_arp : etherType == 0x0806</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    parse_ethernet --> accept : default</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    parse_ipv4 --> accept</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    parse_arp --> accept</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    accept --> [*]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="stateDiagram-v2
+<pre class="mermaid">stateDiagram-v2
     [*] --> parse_ethernet
     parse_ethernet --> parse_ipv4 : etherType == 0x0800
     parse_ethernet --> parse_arp : etherType == 0x0806
     parse_ethernet --> accept : default
     parse_ipv4 --> accept
     parse_arp --> accept
-    accept --> [*]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    accept --> [*]</pre>
 <p>常用原语：</p>
 <div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="p4"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">pkt.</span><span style="color:#6F42C1;--shiki-dark:#B392F0">extract</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(</span><span style="color:#005CC5;--shiki-dark:#79B8FF">hdr</span><span style="color:#24292E;--shiki-dark:#E1E4E8">.ethernet);                    </span><span style="color:#6A737D;--shiki-dark:#6A737D">// 提取以太网头</span></span>
 <span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">transition</span><span style="color:#D73A49;--shiki-dark:#F97583"> select</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(</span><span style="color:#005CC5;--shiki-dark:#79B8FF">hdr</span><span style="color:#24292E;--shiki-dark:#E1E4E8">.ethernet.etherType) {   </span><span style="color:#6A737D;--shiki-dark:#6A737D">// 按 etherType 跳转</span></span>
@@ -303,21 +285,12 @@ bit<16> t = lookahead(bit<16>);               // 预览但不消费字节" oncli
 | <code>exact</code>   | 全比特精确匹配 | MAC 表、VLAN 表 |
 | <code>lpm</code>     | 最长前缀匹配   | IP 路由表       |
 | <code>ternary</code> | 值 + 掩码      | ACL、流量分类   |</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A["报文到达"] --> B["按 key 查表"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B -->|"命中"| C["执行 action"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B -->|"未命中"| D["执行 default_action"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C --> E["继续流水线 / 发出"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    D --> E</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
-    A[&#x22;报文到达&#x22;] --> B[&#x22;按 key 查表&#x22;]
-    B -->|&#x22;命中&#x22;| C[&#x22;执行 action&#x22;]
-    B -->|&#x22;未命中&#x22;| D[&#x22;执行 default_action&#x22;]
-    C --> E[&#x22;继续流水线 / 发出&#x22;]
-    D --> E" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+<pre class="mermaid">flowchart LR
+    A["报文到达"] --> B["按 key 查表"]
+    B -->|"命中"| C["执行 action"]
+    B -->|"未命中"| D["执行 default_action"]
+    C --> E["继续流水线 / 发出"]
+    D --> E</pre>
 <p>数据面状态通过 <code>counter</code> / <code>meter</code> / <code>register</code> 维护。注意 v1model 中表属性 <code>counters</code> 仅可绑定 <code>direct_counter</code>；普通 <code>counter</code> 需在 action 中显式调用 <code>count(index)</code> [2]。</p>
 <div class="astro-code astro-code-themes github-light github-dark collapsed" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="p4"><pre><code><span class="line"><span style="color:#6A737D;--shiki-dark:#6A737D">// direct_counter：绑定到表，命中表项自动计数</span></span>
 <span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">direct_counter</span><span style="color:#24292E;--shiki-dark:#E1E4E8">(</span><span style="color:#005CC5;--shiki-dark:#79B8FF">CounterType</span><span style="color:#24292E;--shiki-dark:#E1E4E8">.PACKETS_AND_BYTES) port_counter;</span></span>
@@ -379,23 +352,13 @@ register<bit<32>>(1024) per_port_pps;" onclick="
 <hr>
 <h2 id="三v1model-流水线">三、V1Model 流水线<a class="anchor" href="#三v1model-流水线">#</a></h2>
 <p><code>V1Switch(...)</code> 是 BMv2 的参考架构 V1Model，规定六个块的固定执行顺序（规范 §17）[1]。其他架构（PSA、TNA）的流水线结构不同。</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    P["Parser&#x3C;br/>解析报文"] --> V["VerifyChecksum&#x3C;br/>校验和验证（可选）"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    V --> I["MyIngress&#x3C;br/>入口处理"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    I --> E["MyEgress&#x3C;br/>出口处理"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    E --> C["ComputeChecksum&#x3C;br/>计算校验和（可选）"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C --> D["MyDeparser&#x3C;br/>打包"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    D --> OUT["报文离开"]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
-    P[&#x22;Parser<br/>解析报文&#x22;] --> V[&#x22;VerifyChecksum<br/>校验和验证（可选）&#x22;]
-    V --> I[&#x22;MyIngress<br/>入口处理&#x22;]
-    I --> E[&#x22;MyEgress<br/>出口处理&#x22;]
-    E --> C[&#x22;ComputeChecksum<br/>计算校验和（可选）&#x22;]
-    C --> D[&#x22;MyDeparser<br/>打包&#x22;]
-    D --> OUT[&#x22;报文离开&#x22;]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+<pre class="mermaid">flowchart LR
+    P["Parser&#x3C;br/>解析报文"] --> V["VerifyChecksum&#x3C;br/>校验和验证（可选）"]
+    V --> I["MyIngress&#x3C;br/>入口处理"]
+    I --> E["MyEgress&#x3C;br/>出口处理"]
+    E --> C["ComputeChecksum&#x3C;br/>计算校验和（可选）"]
+    C --> D["MyDeparser&#x3C;br/>打包"]
+    D --> OUT["报文离开"]</pre>
 <p>| 块                | 作用                                 |
 | ----------------- | ------------------------------------ |
 | <code>Parser</code>          | 字节流解析为报头                     |

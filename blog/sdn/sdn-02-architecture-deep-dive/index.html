@@ -107,37 +107,16 @@
 </ul>
 <p>东西向接口目前没有统一的标准协议，各控制器通常自定义实现。</p>
 <h3 id="34-三大接口一览">3.4 三大接口一览<a class="anchor" href="#34-三大接口一览">#</a></h3>
-<div class="astro-code astro-code-themes github-light github-dark collapsed" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">graph TB</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "应用层"[应用层]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        APP1[流量工程]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        APP2[安全防护]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "控制层"[控制层]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        C[控制器 Controller]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        OTHER[其他控制器]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "数据层"[数据层]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        SW1[交换机]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        SW2[交换机]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        SW3[交换机]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        SW4[交换机]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    APP1 --- N[北向接口 REST API]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    APP2 --- N</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    N --- C</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C --- E[东西向接口]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    E --- OTHER</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C --- S[南向接口 OpenFlow]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    S --- SW1 &#x26; SW2 &#x26; SW3 &#x26; SW4</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="graph TB
-    subgraph &#x22;应用层&#x22;[应用层]
+<pre class="mermaid">graph TB
+    subgraph "应用层"[应用层]
         APP1[流量工程]
         APP2[安全防护]
     end
-    subgraph &#x22;控制层&#x22;[控制层]
+    subgraph "控制层"[控制层]
         C[控制器 Controller]
         OTHER[其他控制器]
     end
-    subgraph &#x22;数据层&#x22;[数据层]
+    subgraph "数据层"[数据层]
         SW1[交换机]
         SW2[交换机]
         SW3[交换机]
@@ -149,11 +128,7 @@
     C --- E[东西向接口]
     E --- OTHER
     C --- S[南向接口 OpenFlow]
-    S --- SW1 &#x26; SW2 &#x26; SW3 &#x26; SW4" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button><button class="collapse-toggle bg-card text-muted-foreground rounded-lg m-2" aria-label="Toggle collapse code block" onclick="this.parentElement.classList.toggle(&#x27;collapsed&#x27;)"><svg class="size-5"><use href="/icons/code.svg#mingcute-arrow-down-line"></use></svg><span class="desc"> code</span></button><div class="collapse-fade"></div></div>
+    S --- SW1 &#x26; SW2 &#x26; SW3 &#x26; SW4</pre>
 <hr>
 <h2 id="四openflow-协议入门">四、OpenFlow 协议入门<a class="anchor" href="#四openflow-协议入门">#</a></h2>
 <p>OpenFlow 是目前最主流的 SDN 南向接口协议，由斯坦福大学于 2008 年提出。理解 OpenFlow 是理解 SDN 工作原理的关键。</p>
@@ -168,17 +143,10 @@
 </ul>
 <h3 id="42-数据包的处理流程">4.2 数据包的处理流程<a class="anchor" href="#42-数据包的处理流程">#</a></h3>
 <p>当一个数据包进入 OpenFlow 交换机时：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A[数据包进入] --> B{查找流表&#x3C;br/>按优先级从高到低匹配}</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B -->|匹配成功| C[执行动作&#x3C;br/>转发 / 丢弃 / 修改]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B -->|没有匹配| D[Packet-In&#x3C;br/>发给控制器决策]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
-    A[数据包进入] --> B{查找流表<br/>按优先级从高到低匹配}
-    B -->|匹配成功| C[执行动作<br/>转发 / 丢弃 / 修改]
-    B -->|没有匹配| D[Packet-In<br/>发给控制器决策]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+<pre class="mermaid">flowchart TD
+    A[数据包进入] --> B{查找流表&#x3C;br/>按优先级从高到低匹配}
+    B -->|匹配成功| C[执行动作&#x3C;br/>转发 / 丢弃 / 修改]
+    B -->|没有匹配| D[Packet-In&#x3C;br/>发给控制器决策]</pre>
 <p>这个流程就是 SDN 的核心工作机制：</p>
 <ol>
 <li><strong>默认情况下</strong>，交换机按流表规则自动转发</li>

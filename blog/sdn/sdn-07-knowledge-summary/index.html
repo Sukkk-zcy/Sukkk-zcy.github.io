@@ -96,35 +96,8 @@
 <h2 id="二思维导图">二、思维导图<a class="anchor" href="#二思维导图">#</a></h2>
 <p>把 SDN 入门知识整理成知识图谱，分为五个模块：</p>
 <h3 id="1-基础概念与-openflow-协议">1. 基础概念与 OpenFlow 协议<a class="anchor" href="#1-基础概念与-openflow-协议">#</a></h3>
-<div class="astro-code astro-code-themes github-light github-dark collapsed" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "基础"[基础概念]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        A[传统网络的问题]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        B[三层架构]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        B --> B1[应用层]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        B --> B2[控制层 SDN 控制器]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        B --> B3[数据层 按流表转发]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        C[三大接口]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        C --> C1[南向 OpenFlow]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        C --> C2[北向 REST API]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        C --> C3[东西向 控制器之间]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "of"[OpenFlow 协议]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        D[流表]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        D --> D1[匹配字段]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        D --> D2[优先级与计数器]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        D --> D3[动作集]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        E[多级流表 Goto-Table]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        F[组表]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        F --> F1[All 广播]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        F --> F2[Select 负载均衡]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        F --> F3[Fast Failover 故障切换]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        G[计量表 限速与 QoS]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        H[消息类型]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        H --> H1[控制器到交换机]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        H --> H2[交换机到控制器]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        H --> H3[对称消息]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
-    subgraph &#x22;基础&#x22;[基础概念]
+<pre class="mermaid">flowchart TD
+    subgraph "基础"[基础概念]
         A[传统网络的问题]
         B[三层架构]
         B --> B1[应用层]
@@ -135,7 +108,7 @@
         C --> C2[北向 REST API]
         C --> C3[东西向 控制器之间]
     end
-    subgraph &#x22;of&#x22;[OpenFlow 协议]
+    subgraph "of"[OpenFlow 协议]
         D[流表]
         D --> D1[匹配字段]
         D --> D2[优先级与计数器]
@@ -150,37 +123,10 @@
         H --> H1[控制器到交换机]
         H --> H2[交换机到控制器]
         H --> H3[对称消息]
-    end" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button><button class="collapse-toggle bg-card text-muted-foreground rounded-lg m-2" aria-label="Toggle collapse code block" onclick="this.parentElement.classList.toggle(&#x27;collapsed&#x27;)"><svg class="size-5"><use href="/icons/code.svg#mingcute-arrow-down-line"></use></svg><span class="desc"> code</span></button><div class="collapse-fade"></div></div>
+    end</pre>
 <h3 id="2-mininet-实验与安全检测">2. Mininet 实验与安全检测<a class="anchor" href="#2-mininet-实验与安全检测">#</a></h3>
-<div class="astro-code astro-code-themes github-light github-dark collapsed" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "mn"[Mininet 实验]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        I[环境 WSL2 + Ubuntu]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        J[拓扑类型]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        J --> J1[default 1+2]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        J --> J2[single 1+N]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        J --> J3[linear N串联]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        J --> J4[自定义 Python]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        K[工具]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        K --> K1[pingall 连通性]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        K --> K2[iperf 带宽]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        K --> K3[tcpdump 抓包]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    subgraph "sec"[安全与入侵检测]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        L[SDN 安全威胁]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        L --> L1[控制器攻击]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        L --> L2[流表溢出]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        L --> L3[欺骗与中间人攻击]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        M[DDoS 攻击分类]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        N[检测方法]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        N --> N1[统计方法]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        N --> N2[机器学习]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">        N --> N3[深度学习]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    end</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
-    subgraph &#x22;mn&#x22;[Mininet 实验]
+<pre class="mermaid">flowchart TD
+    subgraph "mn"[Mininet 实验]
         I[环境 WSL2 + Ubuntu]
         J[拓扑类型]
         J --> J1[default 1+2]
@@ -192,7 +138,7 @@
         K --> K2[iperf 带宽]
         K --> K3[tcpdump 抓包]
     end
-    subgraph &#x22;sec&#x22;[安全与入侵检测]
+    subgraph "sec"[安全与入侵检测]
         L[SDN 安全威胁]
         L --> L1[控制器攻击]
         L --> L2[流表溢出]
@@ -202,27 +148,14 @@
         N --> N1[统计方法]
         N --> N2[机器学习]
         N --> N3[深度学习]
-    end" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button><button class="collapse-toggle bg-card text-muted-foreground rounded-lg m-2" aria-label="Toggle collapse code block" onclick="this.parentElement.classList.toggle(&#x27;collapsed&#x27;)"><svg class="size-5"><use href="/icons/code.svg#mingcute-arrow-down-line"></use></svg><span class="desc"> code</span></button><div class="collapse-fade"></div></div>
+    end</pre>
 <h3 id="3-ml--sdn-前沿">3. ML + SDN 前沿<a class="anchor" href="#3-ml--sdn-前沿">#</a></h3>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    P[流量分类与 QoS] --> Q[异常检测]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    Q --> R[路由优化]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    R --> S[前沿趋势]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    S --> S1[Transformer]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    S --> S2[LLM 大语言模型]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     P[流量分类与 QoS] --> Q[异常检测]
     Q --> R[路由优化]
     R --> S[前沿趋势]
     S --> S1[Transformer]
-    S --> S2[LLM 大语言模型]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    S --> S2[LLM 大语言模型]</pre>
 <hr>
 <h2 id="三mininet-实验巩固">三、Mininet 实验巩固<a class="anchor" href="#三mininet-实验巩固">#</a></h2>
 <p>再跑几个实验巩固手感：</p>
@@ -233,19 +166,11 @@
           setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
         "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
 <p>拓扑图：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1(交换机 s1) --- h1(h1)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1 --- h2(h2)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1 --- h3(h3)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1 --- h4(h4)</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
+<pre class="mermaid">flowchart TD
     s1(交换机 s1) --- h1(h1)
     s1 --- h2(h2)
     s1 --- h3(h3)
-    s1 --- h4(h4)" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    s1 --- h4(h4)</pre>
 <p>4 台主机都连在同 1 台交换机上，任何两台之间只需经过 1 跳。结果：</p>
 <div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><pre><code><span class="line"><span>*** Results: 0% dropped (12/12 received)</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">text</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="*** Results: 0% dropped (12/12 received)" onclick="
           navigator.clipboard.writeText(this.dataset.code);
@@ -259,23 +184,13 @@
           setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
         "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
 <p>深度 2、分支因子 2 的树形拓扑，共 4 台主机 + 3 台交换机。拓扑结构：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1(交换机 s1) --- s2(交换机 s2)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s1 --- s3(交换机 s3)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s2 --- h1(h1)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s2 --- h2(h2)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s3 --- h3(h3)</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    s3 --- h4(h4)</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
+<pre class="mermaid">flowchart TD
     s1(交换机 s1) --- s2(交换机 s2)
     s1 --- s3(交换机 s3)
     s2 --- h1(h1)
     s2 --- h2(h2)
     s3 --- h3(h3)
-    s3 --- h4(h4)" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    s3 --- h4(h4)</pre>
 <h3 id="33-iperf-带宽对比">3.3 iperf 带宽对比<a class="anchor" href="#33-iperf-带宽对比">#</a></h3>
 <div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><pre><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">sudo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> mn</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --topo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> single,2</span></span>
 <span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">mininet</span><span style="color:#24292E;--shiki-dark:#E1E4E8">> </span><span style="color:#032F62;--shiki-dark:#9ECBFF">iperf</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">bash</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="sudo mn --topo single,2

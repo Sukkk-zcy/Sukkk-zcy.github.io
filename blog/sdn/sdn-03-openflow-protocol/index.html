@@ -106,25 +106,11 @@ TCP/UDP 目的端口 (Transport Dst)" onclick="
 <h2 id="三流表匹配流程">三、流表匹配流程<a class="anchor" href="#三流表匹配流程">#</a></h2>
 <p>这是 OpenFlow 最核心的机制。当一个数据包进入交换机时，处理流程如下：</p>
 <h3 id="31-完整流程图">3.1 完整流程图<a class="anchor" href="#31-完整流程图">#</a></h3>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    START([数据包进入交换机]) --> T0[查找第 0 级流表&#x3C;br/>从最低编号开始]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    T0 --> MATCH{匹配?}</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    MATCH -->|匹配成功| ACT[执行动作]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    MATCH -->|未匹配| PI[Packet-In&#x3C;br/>发送给控制器]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    PI --> CD[控制器决策</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">下发 Flow-Mod]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ACT --> CHECK{检查是否有</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">Goto-Table 指令?}</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CD --> CHECK</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CHECK -->|有| GT[跳转到下一级</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">流表继续匹配]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CHECK -->|无| END([数据包</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">离开交换机])</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    GT --> T0</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
-    START([数据包进入交换机]) --> T0[查找第 0 级流表<br/>从最低编号开始]
+<pre class="mermaid">flowchart TD
+    START([数据包进入交换机]) --> T0[查找第 0 级流表&#x3C;br/>从最低编号开始]
     T0 --> MATCH{匹配?}
     MATCH -->|匹配成功| ACT[执行动作]
-    MATCH -->|未匹配| PI[Packet-In<br/>发送给控制器]
+    MATCH -->|未匹配| PI[Packet-In&#x3C;br/>发送给控制器]
     PI --> CD[控制器决策
 下发 Flow-Mod]
     ACT --> CHECK{检查是否有
@@ -134,11 +120,7 @@ Goto-Table 指令?}
 流表继续匹配]
     CHECK -->|无| END([数据包
 离开交换机])
-    GT --> T0" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    GT --> T0</pre>
 <h3 id="32-关键概念多级流表">3.2 关键概念：多级流表<a class="anchor" href="#32-关键概念多级流表">#</a></h3>
 <p>OpenFlow 1.1 引入了<strong>多级流表</strong>，允许多张流表串联工作。数据包可以像过流水线一样，依次经过流表 0、流表 1、流表 2…</p>
 <p>每一张流表执行特定功能：</p>
@@ -180,36 +162,21 @@ Goto-Table 指令?}
 | Fast Failover | 优先执行活跃端口   | 链路冗余、故障切换 |</p>
 <h3 id="52-举个例子广播">5.2 举个例子：广播<a class="anchor" href="#52-举个例子广播">#</a></h3>
 <p>假设交换机要将一个 ARP 请求广播到所有端口。没有组表时，需要为每个端口写一条流表项。有了组表：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    SUB1[流表项：match=*] -- group:1 --> G[组表 Group ID=1&#x3C;br/>Type=All]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    G --> B1[动作 1: output:1]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    G --> B2[动作 2: output:2]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    G --> B3[动作 3: output:3]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
-    SUB1[流表项：match=*] -- group:1 --> G[组表 Group ID=1<br/>Type=All]
+<pre class="mermaid">flowchart LR
+    SUB1[流表项：match=*] -- group:1 --> G[组表 Group ID=1&#x3C;br/>Type=All]
     G --> B1[动作 1: output:1]
     G --> B2[动作 2: output:2]
-    G --> B3[动作 3: output:3]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    G --> B3[动作 3: output:3]</pre>
 <p>只需一条流表项就能实现广播，大大简化了配置。</p>
 <hr>
 <h2 id="六计量表meter-table">六、计量表（Meter Table）<a class="anchor" href="#六计量表meter-table">#</a></h2>
 <p>计量表用于流量控制和 QoS（服务质量）。它可以对匹配的流量进行限速、优先级调度等操作。</p>
 <h3 id="61-工作原理">6.1 工作原理<a class="anchor" href="#61-工作原理">#</a></h3>
 <p>计量表不是独立的处理阶段，而是通过流表项的 <code>Meter</code> 指令引用的。当数据包匹配到某条流表项后，如果该流表项包含 Meter 指令，就会先经过计量表处理，再执行后续动作：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A[流表项匹配] --> M[Meter 指令]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    M --> MT[计量表处理&#x3C;br/>限速 / 标记 / 统计]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    MT --> B[执行动作]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
+<pre class="mermaid">flowchart LR
     A[流表项匹配] --> M[Meter 指令]
-    M --> MT[计量表处理<br/>限速 / 标记 / 统计]
-    MT --> B[执行动作]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    M --> MT[计量表处理&#x3C;br/>限速 / 标记 / 统计]
+    MT --> B[执行动作]</pre>
 <p>计量表可以：</p>
 <ul>
 <li><strong>限速</strong>：超过阈值的包被丢弃或降级</li>
@@ -247,18 +214,7 @@ Goto-Table 指令?}
 | Echo         | 心跳检测，确认连接存活 |
 | Experimenter | 厂商自定义扩展         |</p>
 <h3 id="74-一次完整的交互流程">7.4 一次完整的交互流程<a class="anchor" href="#74-一次完整的交互流程">#</a></h3>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">sequenceDiagram</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    participant SW as 交换机</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    participant CT as 控制器</span></span>
-<span class="line"></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    SW->>CT: Hello（建立连接）</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CT->>SW: Hello（协商版本）</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CT->>SW: Features-Request</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    SW->>CT: Features-Reply（能力报告）</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CT->>SW: Modify-State（下发流表）</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    Note over SW: 数据包到达，按流表转发</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    SW->>CT: Packet-In（遇到未知包）</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    CT->>SW: Packet-Out / Flow-Mod</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="sequenceDiagram
+<pre class="mermaid">sequenceDiagram
     participant SW as 交换机
     participant CT as 控制器
 
@@ -269,11 +225,7 @@ Goto-Table 指令?}
     CT->>SW: Modify-State（下发流表）
     Note over SW: 数据包到达，按流表转发
     SW->>CT: Packet-In（遇到未知包）
-    CT->>SW: Packet-Out / Flow-Mod" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    CT->>SW: Packet-Out / Flow-Mod</pre>
 <hr>
 <h2 id="八本章小结">八、本章小结<a class="anchor" href="#八本章小结">#</a></h2>
 <p>| 项目     | 内容                                                   |

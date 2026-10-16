@@ -71,24 +71,7 @@
           setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
         "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
 <h2 id="工作流程">工作流程<a class="anchor" href="#工作流程">#</a></h2>
-<div class="astro-code astro-code-themes github-light github-dark collapsed" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A[开机] --> B{有已保存配置?}</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B -->|是| C[尝试连接WiFi]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B -->|否| D[进入配网模式]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C -->|成功| E[初始化Blinker]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C -->|失败 20秒超时| D</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    D --> F[ESP32_Config热点]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    F --> G[手机连接热点]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    G --> H[访问192.168.4.1]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    H --> I[Web页面配置]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    I --> J[保存配置]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    J --> K[ESP32重启]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    K --> C</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    E --> L[正常运行]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    L --> M{WiFi断开?}</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    M -->|是| N[自动重连]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    M -->|否| L</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    N -->|重连失败3分钟| O[重启ESP32]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
+<pre class="mermaid">flowchart TD
     A[开机] --> B{有已保存配置?}
     B -->|是| C[尝试连接WiFi]
     B -->|否| D[进入配网模式]
@@ -105,11 +88,7 @@
     L --> M{WiFi断开?}
     M -->|是| N[自动重连]
     M -->|否| L
-    N -->|重连失败3分钟| O[重启ESP32]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button><button class="collapse-toggle bg-card text-muted-foreground rounded-lg m-2" aria-label="Toggle collapse code block" onclick="this.parentElement.classList.toggle(&#x27;collapsed&#x27;)"><svg class="size-5"><use href="/icons/code.svg#mingcute-arrow-down-line"></use></svg><span class="desc"> code</span></button><div class="collapse-fade"></div></div>
+    N -->|重连失败3分钟| O[重启ESP32]</pre>
 <h2 id="核心代码解析">核心代码解析<a class="anchor" href="#核心代码解析">#</a></h2>
 <h3 id="主程序-maincpp">主程序 main.cpp<a class="anchor" href="#主程序-maincpp">#</a></h3>
 <p>主程序非常简洁，核心逻辑就三步：</p>

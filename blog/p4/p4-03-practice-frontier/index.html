@@ -48,41 +48,22 @@
 | P4-DPDK（PNA）         | 普通服务器接近线速 | 生态较新           | 性能实验       |</p>
 <p>一般建议直接使用官方 tutorials 提供的 VM / Docker 环境 [1]；如需修改编译器或运行时再源码编译（p4c 与 BMv2 [8]）。</p>
 <p>如果只是想先在本地熟悉 Linux 网络实验环境，可以从 <a href="/blog/sdn/sdn-04-mininet-experiment" class="wikilink" data-wikilink="true">Mininet 网络实验</a> 起步；尚未准备 Ubuntu 环境则先看 <a href="/blog/devtools/wsl2-setup-guide" class="wikilink" data-wikilink="true">WSL2 + Ubuntu 24.04 环境搭建</a>。</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A["实验目标"] -->|"学习与验证功能"| B["官方 VM / Docker"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A -->|"修改工具链"| D["源码编译 p4c + BMv2"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A -->|"性能测量"| E["P4-DPDK（PNA）"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B --> F["编写数据平面程序"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    D --> F</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    E --> F</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
-    A[&#x22;实验目标&#x22;] -->|&#x22;学习与验证功能&#x22;| B[&#x22;官方 VM / Docker&#x22;]
-    A -->|&#x22;修改工具链&#x22;| D[&#x22;源码编译 p4c + BMv2&#x22;]
-    A -->|&#x22;性能测量&#x22;| E[&#x22;P4-DPDK（PNA）&#x22;]
-    B --> F[&#x22;编写数据平面程序&#x22;]
+<pre class="mermaid">flowchart LR
+    A["实验目标"] -->|"学习与验证功能"| B["官方 VM / Docker"]
+    A -->|"修改工具链"| D["源码编译 p4c + BMv2"]
+    A -->|"性能测量"| E["P4-DPDK（PNA）"]
+    B --> F["编写数据平面程序"]
     D --> F
-    E --> F" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    E --> F</pre>
 <hr>
 <h2 id="二工具链">二、工具链<a class="anchor" href="#二工具链">#</a></h2>
 <p>完整流程为：p4c 编译源码，生成 JSON 与 p4info；simple_switch 加载运行；Mininet 构建拓扑并验证。</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart LR</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    A["*.p4"] --> B["p4c&#x3C;br/>--target bmv2 --arch v1model"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    B --> C["JSON + p4info.txt"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C --> D["simple_switch"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    D --> E["Mininet + 主机发包"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    E --> F["tcpdump / 控制器验证"]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart LR
-    A[&#x22;*.p4&#x22;] --> B[&#x22;p4c<br/>--target bmv2 --arch v1model&#x22;]
-    B --> C[&#x22;JSON + p4info.txt&#x22;]
-    C --> D[&#x22;simple_switch&#x22;]
-    D --> E[&#x22;Mininet + 主机发包&#x22;]
-    E --> F[&#x22;tcpdump / 控制器验证&#x22;]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+<pre class="mermaid">flowchart LR
+    A["*.p4"] --> B["p4c&#x3C;br/>--target bmv2 --arch v1model"]
+    B --> C["JSON + p4info.txt"]
+    C --> D["simple_switch"]
+    D --> E["Mininet + 主机发包"]
+    E --> F["tcpdump / 控制器验证"]</pre>
 <p>核心命令（承接第二篇示例）：</p>
 <div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><pre><code><span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">p4c</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --target</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> bmv2</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --arch</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> v1model</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> l2_forward.p4</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> -o</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> build</span></span>
 <span class="line"><span style="color:#6F42C1;--shiki-dark:#B392F0">sudo</span><span style="color:#032F62;--shiki-dark:#9ECBFF"> simple_switch_grpc</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --no-p4</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> --device-id</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> 0</span><span style="color:#005CC5;--shiki-dark:#79B8FF"> \</span></span>
@@ -105,15 +86,7 @@ sudo simple_switch_grpc --no-p4 -- --device-id 0 \
 <li>报文收发（Packet-in / Packet-out）；</li>
 <li>计数器与寄存器状态读取。</li>
 </ol>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">sequenceDiagram</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    participant C as 控制器</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    participant S as P4 交换机</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C->>C: 读取 p4info.txt</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C->>S: MasterArbitrationUpdate</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C->>S: SetForwardingPipelineConfig</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C->>S: WriteTableEntry</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    S-->>C: 统计 / Packet-in（可选）</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    C->>S: SendPacket（可选）</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="sequenceDiagram
+<pre class="mermaid">sequenceDiagram
     participant C as 控制器
     participant S as P4 交换机
     C->>C: 读取 p4info.txt
@@ -121,11 +94,7 @@ sudo simple_switch_grpc --no-p4 -- --device-id 0 \
     C->>S: SetForwardingPipelineConfig
     C->>S: WriteTableEntry
     S-->>C: 统计 / Packet-in（可选）
-    C->>S: SendPacket（可选）" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+    C->>S: SendPacket（可选）</pre>
 <p>以下代码基于官方 <code>p4runtime_lib</code> [2]：</p>
 <div class="astro-code astro-code-themes github-light github-dark collapsed" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="python"><pre><code><span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">from</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> p4runtime_lib.helper </span><span style="color:#D73A49;--shiki-dark:#F97583">import</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> P4InfoHelper</span></span>
 <span class="line"><span style="color:#D73A49;--shiki-dark:#F97583">import</span><span style="color:#24292E;--shiki-dark:#E1E4E8"> p4runtime_lib.bmv2</span></span>
@@ -182,23 +151,13 @@ sw.WriteTableEntry(te)" onclick="
 <hr>
 <h2 id="五研究前沿">五、研究前沿<a class="anchor" href="#五研究前沿">#</a></h2>
 <p>当前 P4 方向活跃的研究领域：</p>
-<div class="astro-code astro-code-themes github-light github-dark" style="background-color:#fff;--shiki-dark-bg:#24292e;color:#24292e;--shiki-dark:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="mermaid"><pre><code><span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">flowchart TD</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ROOT["P4 研究方向"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ROOT --> A["带内网络遥测（INT）"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ROOT --> B["网络内计算"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ROOT --> C["数据平面安全"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ROOT --> D["P4 + ML/DL 协同检测"]</span></span>
-<span class="line"><span style="color:#24292E;--shiki-dark:#E1E4E8">    ROOT --> E["数据平面验证"]</span></span></code></pre><span class="language ps-1 pe-3 text-sm bg-muted text-muted-foreground">mermaid</span><button class="copy text-muted-foreground p-1 box-content border rounded-lg bg-card" aria-label="Copy code" data-code="flowchart TD
-    ROOT[&#x22;P4 研究方向&#x22;]
-    ROOT --> A[&#x22;带内网络遥测（INT）&#x22;]
-    ROOT --> B[&#x22;网络内计算&#x22;]
-    ROOT --> C[&#x22;数据平面安全&#x22;]
-    ROOT --> D[&#x22;P4 + ML/DL 协同检测&#x22;]
-    ROOT --> E[&#x22;数据平面验证&#x22;]" onclick="
-          navigator.clipboard.writeText(this.dataset.code);
-          this.classList.add(&#x27;copied&#x27;);
-          setTimeout(() => this.classList.remove(&#x27;copied&#x27;), 2000)
-        "><div class="ready"><svg class="size-5"><use href="/icons/code.svg#mingcute-clipboard-line"></use></svg></div><div class="success hidden"><svg class="size-5"><use href="/icons/code.svg#mingcute-file-check-line"></use></svg></div></button></div>
+<pre class="mermaid">flowchart TD
+    ROOT["P4 研究方向"]
+    ROOT --> A["带内网络遥测（INT）"]
+    ROOT --> B["网络内计算"]
+    ROOT --> C["数据平面安全"]
+    ROOT --> D["P4 + ML/DL 协同检测"]
+    ROOT --> E["数据平面验证"]</pre>
 <p>推荐入口：</p>
 <ul>
 <li><em>Programmable Data Planes for Network Security</em>（arXiv 2025）：可编程交换机安全应用的系统综述，涵盖 heavy-hitter 检测与 DDoS 缓解 [4]；</li>

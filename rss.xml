@@ -1194,7 +1194,7 @@ mininet&gt; iperf
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;下一篇预告&lt;/td&gt;
-&lt;td&gt;[[p4-01-quickstart-overview&lt;/td&gt;
+&lt;td&gt;&lt;a href=&quot;https://sukkk-zcy.github.io/blog/p4/p4-01-quickstart-overview&quot; class=&quot;wikilink&quot; data-wikilink=&quot;true&quot;&gt;P4 快速入门&lt;/a&gt; 系列（独立系列）&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;</content:encoded><category>SDN</category></item><item><title>Nushell + Starship 终端环境配置指南</title><link>https://sukkk-zcy.github.io/blog/devtools/nushell-starship-guide</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/nushell-starship-guide</guid><description>Nushell 与 Starship 的安装与配置全流程：结构化 Shell 的语法要点、提示符主题定制、性能诊断与跨 Shell 复用。</description><pubDate>Sun, 28 Jun 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;简介&lt;/h2&gt;
@@ -1855,7 +1855,7 @@ $env.PROMPT_COMMAND = { ||
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;入门总结&lt;/td&gt;
-&lt;td&gt;7 篇文章完成 SDN 入门，下一篇整理知识体系（见 [[sdn-07-knowledge-summary&lt;/td&gt;
+&lt;td&gt;7 篇文章完成 SDN 入门，下一篇整理知识体系（见 &lt;a href=&quot;https://sukkk-zcy.github.io/blog/sdn/sdn-07-knowledge-summary&quot; class=&quot;wikilink&quot; data-wikilink=&quot;true&quot;&gt;SDN 知识总结&lt;/a&gt;）&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -2557,7 +2557,7 @@ void loop() {
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;待深入&lt;/td&gt;
-&lt;td&gt;ML 在 SDN 中的具体应用场景（见 [[sdn-06-ml-sdn&lt;/td&gt;
+&lt;td&gt;ML 在 SDN 中的具体应用场景（见 &lt;a href=&quot;https://sukkk-zcy.github.io/blog/sdn/sdn-06-ml-sdn&quot; class=&quot;wikilink&quot; data-wikilink=&quot;true&quot;&gt;ML 与 SDN&lt;/a&gt;）&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -3074,7 +3074,7 @@ mininet&gt; h1 ping -c 3 h2
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;待深入&lt;/td&gt;
-&lt;td&gt;安装 Ryu 控制器，实现第一个 SDN 实验（L2 Switch），再进入 [[sdn-05-intrusion-detection&lt;/td&gt;
+&lt;td&gt;安装 Ryu 控制器，实现第一个 SDN 实验（L2 Switch），再进入 &lt;a href=&quot;https://sukkk-zcy.github.io/blog/sdn/sdn-05-intrusion-detection&quot; class=&quot;wikilink&quot; data-wikilink=&quot;true&quot;&gt;SDN 安全与入侵检测&lt;/a&gt;&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -3832,7 +3832,7 @@ Goto-Table 指令?}
 &lt;/tr&gt;
 &lt;tr&gt;
 &lt;td&gt;待深入&lt;/td&gt;
-&lt;td&gt;搭建 Mininet 实验环境，动手验证流表转发（见 [[sdn-04-mininet-experiment&lt;/td&gt;
+&lt;td&gt;搭建 Mininet 实验环境，动手验证流表转发（见 &lt;a href=&quot;https://sukkk-zcy.github.io/blog/sdn/sdn-04-mininet-experiment&quot; class=&quot;wikilink&quot; data-wikilink=&quot;true&quot;&gt;Mininet 网络实验&lt;/a&gt;）&lt;/td&gt;
 &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -4203,7 +4203,7 @@ Goto-Table 指令?}
     end
 &lt;/code&gt;&lt;/pre&gt;
 &lt;h3&gt;3.1 数据层&lt;/h3&gt;
-&lt;p&gt;也叫基础设施层，由各种网络设备组成。这些设备不再需要运行复杂的路由协议，只需根据控制器下发的**流表（Flow Table）**来转发数据包。可以说是&quot;无脑转发&quot;，但效率极高。&lt;/p&gt;
+&lt;p&gt;也叫基础设施层，由各种网络设备组成。这些设备不再需要运行复杂的路由协议，只需根据控制器下发的流表（Flow Table）来转发数据包。可以说是&quot;无脑转发&quot;，但效率极高。&lt;/p&gt;
 &lt;h3&gt;3.2 控制层&lt;/h3&gt;
 &lt;p&gt;这是 SDN 的大脑。SDN 控制器是整个网络的核心，它：&lt;/p&gt;
 &lt;ul&gt;

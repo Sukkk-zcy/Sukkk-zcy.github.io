@@ -8,12 +8,12 @@ import 'katex/dist/katex.min.css'
 import config from 'virtual:config'
 
 import { MediumZoom } from 'astro-pure/advanced'
-import { ArticleBottom, GraphView, Hero, TOC } from 'astro-pure/components/pages'
+import { ArticleBottom, Hero, TOC } from 'astro-pure/components/pages'
 import PageLayout from '@/layouts/ContentLayout.astro'
+import ArticleKnowledge from '@/components/blog/ArticleKnowledge.astro'
+import ArticleOverview from '@/components/blog/ArticleOverview.astro'
 import ArticleRail from '@/components/blog/ArticleRail.astro'
-import Backlinks from '@/components/blog/Backlinks.astro'
 import CategoryBreadcrumbs from '@/components/blog/CategoryBreadcrumbs.astro'
-import OutgoingLinks from '@/components/blog/OutgoingLinks.astro'
 import SeriesNav from '@/components/blog/SeriesNav.astro'
 import type { Backlink } from '@/utils/backlinks'
 import { getPostSlug } from '@/utils/content-paths'
@@ -52,6 +52,18 @@ const socialImage = heroImage
 const articleDate = updatedDate?.toISOString() ?? publishDate.toISOString()
 const primaryColor = data.heroImage?.color ?? '#B19CD9'
 const currentPostSlug = getPostSlug(Astro.props.post)
+const seriesMembers = data.series
+  ? posts
+      .filter((candidate) => candidate.data.series === data.series)
+      .sort((a, b) => {
+        const orderA = a.data.seriesOrder ?? Number.MAX_SAFE_INTEGER
+        const orderB = b.data.seriesOrder ?? Number.MAX_SAFE_INTEGER
+        if (orderA !== orderB) return orderA - orderB
+        return a.data.publishDate.getTime() - b.data.publishDate.getTime()
+      })
+  : []
+const seriesPosition = seriesMembers.findIndex((member) => member.id === id) + 1
+const hasSeries = seriesMembers.length > 1 && seriesPosition > 0
 ---
 
 <PageLayout
@@ -60,6 +72,8 @@ const currentPostSlug = getPostSlug(Astro.props.post)
   back='/blog'
   mode='article'
   graphTarget='#blog-graph-view'
+  articleHasSeries={hasSeries}
+  articleSeriesTarget='#series-navigation'
 >
   <Fragment slot='left-sidebar'>
     <ArticleRail
@@ -75,6 +89,13 @@ const currentPostSlug = getPostSlug(Astro.props.post)
   <Fragment slot='header'>
     <CategoryBreadcrumbs post={Astro.props.post} />
     <Hero {data} {remarkPluginFrontmatter} />
+    <ArticleOverview
+      description={description}
+      {headings}
+      seriesTitle={data.seriesTitle ?? data.series}
+      seriesPosition={hasSeries ? seriesPosition : undefined}
+      seriesLength={hasSeries ? seriesMembers.length : undefined}
+    />
   </Fragment>
 
   <slot />
@@ -82,19 +103,11 @@ const currentPostSlug = getPostSlug(Astro.props.post)
   <div slot='content-after' class='mt-8 flex flex-col gap-3 sm:gap-6 border-t pt-8'>
     <SeriesNav post={Astro.props.post} {posts} />
 
-    {/* Wikilinks: Outgoing & Backlinks */}
-    {
-      (outgoingLinks.length > 0 || backlinks.length > 0) && (
-        <div id='wikilinks-section' class='wikilinks-container flex flex-col gap-3'>
-          {outgoingLinks.length > 0 && <OutgoingLinks links={outgoingLinks} />}
-          {backlinks.length > 0 && <Backlinks {backlinks} {currentPostSlug} />}
-        </div>
-      )
-    }
-    <GraphView
-      currentSlug={`blog/${currentPostSlug}`}
-      id='blog-graph-view'
-      class='blog-graph-view'
+    <ArticleKnowledge
+      {backlinks}
+      {currentPostSlug}
+      graphSlug={`blog/${currentPostSlug}`}
+      {outgoingLinks}
     />
 
     {/* Article recommend */}
@@ -221,6 +234,10 @@ const currentPostSlug = getPostSlug(Astro.props.post)
     }
   }
 
+  function revealCollapsedAncestors(target: Element) {
+    target.closest('details:not([open])')?.setAttribute('open', '')
+  }
+
   function setupRelatedNavigation() {
     if (document.documentElement.dataset.relatedNavigationReady === 'true') return
     document.documentElement.dataset.relatedNavigationReady = 'true'
@@ -236,6 +253,7 @@ const currentPostSlug = getPostSlug(Astro.props.post)
       if (!target) return
 
       event.preventDefault()
+      revealCollapsedAncestors(target)
       target.scrollIntoView({ behavior: 'smooth', block: 'center' })
 
       if (href === '#wikilinks-section') {

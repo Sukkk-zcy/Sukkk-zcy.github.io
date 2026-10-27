@@ -92,6 +92,31 @@ export const remarkWikilinks: Plugin<[WikilinkOptions?], Root> = function (optio
       return undefined
     }
 
+    // GFM tokenizes an unescaped alias separator in [[target|label]] as a
+    // table cell boundary before remark transforms run. Rejoin only adjacent
+    // text fragments that form a complete wikilink; otherwise the HTML table
+    // renderer truncates the extra cell and silently drops the link label.
+    visit(tree, 'tableRow', (row) => {
+      for (let i = 0; i < row.children.length - 1; i++) {
+        const cell = row.children[i]
+        const next = row.children[i + 1]
+        const last = cell.children.at(-1)
+        const first = next.children[0]
+        if (
+          last?.type === 'text' &&
+          first?.type === 'text' &&
+          /\[\[[^\]|]+$/.test(last.value) &&
+          /^[^\]]+\]\]/.test(first.value)
+        ) {
+          last.value += `|${first.value}`
+          cell.children.push(...next.children.slice(1))
+          row.children.splice(i + 1, 1)
+          // A cell can contain several wikilinks whose pipes split the row.
+          i--
+        }
+      }
+    })
+
     visit(tree, 'text', (node: Text, idx, parent) => {
       if (!parent || idx === undefined) return
 

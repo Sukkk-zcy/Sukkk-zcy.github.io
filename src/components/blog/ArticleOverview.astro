@@ -1,0 +1,120 @@
+---
+import type { MarkdownHeading } from 'astro'
+
+interface Props {
+  description: string
+  headings: MarkdownHeading[]
+  seriesTitle?: string
+  seriesPosition?: number
+  seriesLength?: number
+}
+
+const { description, headings, seriesTitle, seriesPosition, seriesLength } = Astro.props
+const route = headings.filter(({ depth }) => depth === 2).slice(0, 3)
+const hasSeries = Boolean(seriesTitle && seriesPosition && seriesLength && seriesLength > 1)
+---
+
+<section class='article-overview' data-article-overview aria-labelledby='article-overview-title'>
+  <div class='overview-heading'>
+    <span>READING GUIDE</span>
+    <h2 id='article-overview-title'>阅读导览</h2>
+  </div>
+
+  <div class='overview-grid'>
+    <div class='overview-summary'>
+      <h3>本文概要</h3>
+      <p>{description}</p>
+      {
+        hasSeries && (
+          <p class='overview-series'>
+            {seriesTitle} · 第 {seriesPosition} / {seriesLength} 篇
+          </p>
+        )
+      }
+    </div>
+
+    {
+      route.length > 0 && (
+        <div class='overview-route'>
+          <h3>阅读路线</h3>
+          <ol>
+            {route.map((heading, index) => <li>{`${index + 1}. ${heading.text}`}</li>)}
+          </ol>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .article-overview {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 1.5rem;
+    padding: clamp(1rem, 2vw, 1.25rem);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    background: hsl(var(--muted) / 0.34);
+  }
+
+  .overview-heading {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+  }
+
+  .overview-heading span {
+    color: hsl(var(--primary));
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .overview-heading h2,
+  .overview-grid h3 {
+    margin: 0;
+    color: hsl(var(--foreground));
+  }
+
+  .overview-heading h2 {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .overview-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(12rem, 0.85fr);
+    gap: 1rem;
+  }
+
+  .overview-grid h3 {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .overview-summary p,
+  .overview-route ol {
+    margin: 0.45rem 0 0;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.82rem;
+    line-height: 1.65;
+  }
+
+  .overview-series {
+    color: hsl(var(--primary)) !important;
+    font-size: 0.74rem !important;
+  }
+
+  .overview-route ol {
+    display: grid;
+    gap: 0.18rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 640px) {
+    .overview-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

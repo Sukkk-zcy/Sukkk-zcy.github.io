@@ -43,6 +43,7 @@ interface RenderOptions {
 }
 
 const initialized = new WeakSet<HTMLElement>()
+const deferredRoots = new WeakSet<HTMLElement>()
 let contentIndexPromise: Promise<ContentIndex> | null = null
 
 function loadContentIndex() {
@@ -410,6 +411,19 @@ async function setupGraphView(root: HTMLElement) {
 
 export function initGraphView() {
   document.querySelectorAll<HTMLElement>('[data-graph-view]').forEach((root) => {
+    const collapsedDetails = root.closest<HTMLDetailsElement>('details:not([open])')
+    if (collapsedDetails) {
+      if (deferredRoots.has(root)) return
+      deferredRoots.add(root)
+      collapsedDetails.addEventListener(
+        'toggle',
+        () => {
+          if (collapsedDetails.open) setupGraphView(root)
+        },
+        { once: true }
+      )
+      return
+    }
     setupGraphView(root)
   })
 }

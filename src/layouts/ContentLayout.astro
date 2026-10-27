@@ -16,6 +16,8 @@ interface Props {
   mode?: 'default' | 'article' | 'centered' | 'wide'
   commentTarget?: string
   graphTarget?: string
+  articleHasSeries?: boolean
+  articleSeriesTarget?: string
 }
 
 const {
@@ -28,6 +30,8 @@ const {
   mode = 'default',
   commentTarget,
   graphTarget,
+  articleHasSeries = false,
+  articleSeriesTarget = '#series-navigation',
   ...props
 } = Astro.props
 
@@ -120,6 +124,16 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     </article>
   </main>
 
+  {
+    mode === 'article' && (
+      <nav class='article-mobile-actions' aria-label='文章阅读工具'>
+        <button type='button' data-mobile-toc>目录</button>
+        <span data-mobile-reading-progress aria-live='off'>0%</span>
+        {articleHasSeries && <a href={articleSeriesTarget}>系列</a>}
+      </nav>
+    )
+  }
+
   <div
     class={cn(
       'bottom mt-6 items-start gap-x-10 md:flex',
@@ -198,7 +212,8 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
       hasSidebar && (
         <button
           slot='other-icons'
-          aria-label='Toggle sidebar'
+          aria-label='打开目录'
+          title='打开目录'
           class='size-10 flex items-center justify-center rounded-full border-2 border-transparent bg-muted text-muted-foreground duration-300 hover:border-border/75 md:hidden sm:size-12'
           id='sidebar-btn'
         >
@@ -245,6 +260,9 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
       )
       const progress = maxScrollable === 0 ? 0 : Math.min(1, Math.max(0, scrollTop / maxScrollable))
       progressBar.style.transform = `scaleX(${progress})`
+      document.querySelectorAll<HTMLElement>('[data-mobile-reading-progress]').forEach((label) => {
+        label.textContent = `${Math.round(progress * 100)}%`
+      })
       ticking = false
     }
 
@@ -270,6 +288,18 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     })
   }
 
+  function setupMobileActions() {
+    document.querySelectorAll<HTMLButtonElement>('[data-mobile-toc]').forEach((button) => {
+      if (button.dataset.ready === 'true') return
+      button.dataset.ready = 'true'
+      button.addEventListener('click', () => document.getElementById('sidebar-btn')?.click())
+    })
+  }
+
+  function revealCollapsedAncestors(target: Element) {
+    target.closest('details:not([open])')?.setAttribute('open', '')
+  }
+
   function setupGraphJump() {
     document.querySelectorAll<HTMLButtonElement>('[data-graph-jump]').forEach((button) => {
       if (button.dataset.ready === 'true') return
@@ -278,6 +308,7 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
         const target = document.querySelector(button.dataset.graphJump || '')
         if (!target) return
 
+        revealCollapsedAncestors(target)
         target.scrollIntoView({ behavior: 'smooth', block: 'center' })
         target.classList.remove('graph-view-locate-highlight')
         void (target as HTMLElement).offsetWidth
@@ -290,11 +321,13 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
   setupSidebar()
   setupReadingProgress()
   setupCommentJump()
+  setupMobileActions()
   setupGraphJump()
   document.addEventListener('astro:page-load', () => {
     setupSidebar()
     setupReadingProgress()
     setupCommentJump()
+    setupMobileActions()
     setupGraphJump()
   })
 </script>
@@ -306,7 +339,7 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     right: 0;
     left: 0;
     z-index: 50;
-    height: 3px;
+    height: 2px;
     pointer-events: none;
   }
 
@@ -337,10 +370,62 @@ const isSingleColumn = mode === 'centered' || mode === 'wide'
     width: 100%;
     height: 100%;
     background: hsl(var(--primary));
-    box-shadow: 0 0 12px hsl(var(--primary) / 0.45);
+    box-shadow: none;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 60ms ease-out;
+  }
+
+  .article-mobile-actions {
+    display: none;
+  }
+
+  @media (max-width: 769px) {
+    .article-mobile-actions {
+      position: fixed;
+      z-index: 30;
+      right: 4.75rem;
+      bottom: calc(0.75rem + env(safe-area-inset-bottom));
+      left: 1rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      overflow: hidden;
+      border: 1px solid hsl(var(--border));
+      border-radius: 0.8rem;
+      background: hsl(var(--background) / 0.94);
+      box-shadow: 0 0.4rem 1.5rem hsl(var(--foreground) / 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .article-mobile-actions > * {
+      display: grid;
+      min-height: 2.4rem;
+      place-items: center;
+      border: 0;
+      border-right: 1px solid hsl(var(--border));
+      color: hsl(var(--foreground));
+      background: transparent;
+      font: inherit;
+      font-size: 0.78rem;
+      text-decoration: none;
+    }
+
+    .article-mobile-actions > *:last-child {
+      border-right: 0;
+    }
+
+    .article-mobile-actions button {
+      cursor: pointer;
+    }
+
+    .article-mobile-actions > *:focus-visible {
+      outline: 2px solid hsl(var(--primary));
+      outline-offset: -2px;
+    }
+
+    :global(#action-buttons) {
+      bottom: calc(4.25rem + env(safe-area-inset-bottom));
+    }
   }
 
   @media (min-width: 770px) {

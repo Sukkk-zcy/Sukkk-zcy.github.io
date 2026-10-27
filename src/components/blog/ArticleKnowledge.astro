@@ -1,0 +1,102 @@
+---
+import { GraphView } from 'astro-pure/components/pages'
+import type { Backlink } from '@/utils/backlinks'
+import Backlinks from '@/components/blog/Backlinks.astro'
+import OutgoingLinks from '@/components/blog/OutgoingLinks.astro'
+
+interface Props {
+  backlinks: Backlink[]
+  currentPostSlug: string
+  graphSlug: string
+  outgoingLinks: Backlink[]
+}
+
+const { backlinks, currentPostSlug, graphSlug, outgoingLinks } = Astro.props
+const linkCount = backlinks.length + outgoingLinks.length
+---
+
+<details class='article-knowledge'>
+  <summary>
+    <span>
+      <strong>知识关联</strong>
+      <small>{linkCount > 0 ? `${linkCount} 条关联链接 · 含局部知识图谱` : '查看局部知识图谱'}</small>
+    </span>
+    <span class='knowledge-toggle' aria-hidden='true'>展开</span>
+  </summary>
+
+  <div class='article-knowledge-content'>
+    {
+      linkCount > 0 && (
+        <div id='wikilinks-section' class='wikilinks-container flex flex-col gap-3'>
+          {outgoingLinks.length > 0 && <OutgoingLinks links={outgoingLinks} />}
+          {backlinks.length > 0 && <Backlinks {backlinks} {currentPostSlug} />}
+        </div>
+      )
+    }
+    <GraphView currentSlug={graphSlug} id='blog-graph-view' class='blog-graph-view' />
+  </div>
+</details>
+
+<style>
+  .article-knowledge {
+    overflow: clip;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    background: hsl(var(--background));
+  }
+
+  .article-knowledge summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .article-knowledge summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .article-knowledge summary:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: -2px;
+  }
+
+  .article-knowledge strong,
+  .article-knowledge small {
+    display: block;
+  }
+
+  .article-knowledge strong {
+    color: hsl(var(--foreground));
+    font-size: 0.9rem;
+  }
+
+  .article-knowledge small {
+    margin-top: 0.2rem;
+    color: hsl(var(--muted-foreground));
+    font-size: 0.74rem;
+  }
+
+  .knowledge-toggle {
+    color: hsl(var(--primary));
+    font-size: 0.75rem;
+  }
+
+  details[open] .knowledge-toggle {
+    font-size: 0;
+  }
+
+  details[open] .knowledge-toggle::after {
+    content: '收起';
+    font-size: 0.75rem;
+  }
+
+  .article-knowledge-content {
+    display: grid;
+    gap: 0.9rem;
+    padding: 0 0.9rem 0.9rem;
+  }
+</style>

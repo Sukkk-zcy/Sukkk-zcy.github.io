@@ -9,7 +9,7 @@ const rehypeWrapContentTables: Plugin<[], Root> = () => {
   return (tree) => {
     // console.log('tree', tree)
     // Find all tables and check their parent
-    visit(tree, 'element', (node: Element, index: number | undefined, parent?: Element | Root) => {
+    visit(tree, 'element', (node, index, parent) => {
       if (
         // Check if this is a table element
         node.tagName === 'table' &&

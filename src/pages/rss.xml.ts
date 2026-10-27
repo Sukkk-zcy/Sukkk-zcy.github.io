@@ -2,56 +2,54 @@ import type { AstroGlobal, ImageMetadata } from 'astro'
 import { getImage } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
 import rss from '@astrojs/rss'
-import type { Root } from 'mdast'
-import rehypeStringify from 'rehype-stringify'
-import remarkParse from 'remark-parse'
-import remarkRehype from 'remark-rehype'
-import { unified } from 'unified'
-import { visit } from 'unist-util-visit'
 import config from 'virtual:config'
 
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
 import { getPostPath } from '@/utils/content-paths'
+import { renderRssContent, resolveRssImagePath } from '@/utils/rss-content'
+import { buildWikilinkIndex } from '@/utils/wikilink-map'
 
-// Get dynamic import of images as a map collection
 const imagesGlob = import.meta.glob<{ default: ImageMetadata }>(
-  '/src/content/blog/**/*.{jpeg,jpg,png,gif,avif,webp}' // add more image formats if needed
+  '/src/**/*.{jpeg,jpg,png,gif,avif,webp,svg}'
 )
+const imageLoaders = new Map(
+  Object.entries(imagesGlob).map(([key, loader]) => [
+    process.platform === 'win32' ? key.toLowerCase() : key,
+    loader
+  ])
+)
+// One index and image cache per RSS module, not one filesystem scan per article.
+const wikilinkIndex = buildWikilinkIndex()
+const optimizedImages = new Map<string, Promise<string>>()
 
 const renderContent = async (post: CollectionEntry<'blog'>, site: URL) => {
-  // Replace image links with the correct path
-  function remarkReplaceImageLink() {
-    /**
-     * @param {Root} tree
-     */
-    return async (tree: Root) => {
-      const promises: Promise<void>[] = []
-      visit(tree, 'image', (node) => {
-        if (node.url.startsWith('/images')) {
-          node.url = `${site}${node.url.replace('/', '')}`
-        } else {
-          const imagePathPrefix = `/src/content/blog/${post.id}/${node.url.replace('./', '')}`
-          const promise = imagesGlob[imagePathPrefix]?.().then(async (res) => {
-            const imagePath = res?.default
-            if (imagePath) {
-              node.url = `${site}${(await getImage({ src: imagePath })).src.replace('/', '')}`
-            }
-          })
-          if (promise) promises.push(promise)
-        }
-      })
-      await Promise.all(promises)
+  const hero = post.data.heroImage
+  const heroUrl = hero
+    ? typeof hero.src === 'string'
+      ? hero.src
+      : (await getImage({ src: hero.src })).src
+    : undefined
+
+  return renderRssContent({
+    body: post.body,
+    filePath: post.filePath,
+    postUrl: new URL(getPostPath(post), site),
+    wikilinkIndex,
+    heroImage: heroUrl ? { url: heroUrl, alt: hero?.alt } : undefined,
+    resolveImage: async (url) => {
+      const sourcePath = resolveRssImagePath(post.filePath, url)
+      if (!sourcePath) return undefined
+      const key = process.platform === 'win32' ? sourcePath.toLowerCase() : sourcePath
+      const loader = imageLoaders.get(key)
+      if (!loader) return undefined
+      let optimized = optimizedImages.get(key)
+      if (!optimized) {
+        optimized = loader().then(async ({ default: src }) => (await getImage({ src })).src)
+        optimizedImages.set(key, optimized)
+      }
+      return optimized
     }
-  }
-
-  const file = await unified()
-    .use(remarkParse)
-    .use(remarkReplaceImageLink)
-    .use(remarkRehype)
-    .use(rehypeStringify)
-    .process(post.body)
-
-  return String(file)
+  })
 }
 
 const GET = async (context: AstroGlobal) => {
@@ -59,26 +57,19 @@ const GET = async (context: AstroGlobal) => {
   const siteUrl = context.site ?? new URL(import.meta.env.SITE)
 
   return rss({
-    // Basic configs
     trailingSlash: false,
-    xmlns: { h: 'http://www.w3.org/TR/html4/' },
     stylesheet: '/scripts/pretty-feed-v3.xsl',
-
-    // Contents
     title: config.title,
     description: config.description,
-    site: import.meta.env.SITE,
+    site: siteUrl,
     items: await Promise.all(
       allPostsByDate.map(async (post) => ({
+        ...post.data,
         pubDate: post.data.publishDate,
         link: getPostPath(post),
-        customData:
-          post.data.heroImage
-            ? `<h:img src="${typeof post.data.heroImage.src === 'string' ? post.data.heroImage.src : post.data.heroImage.src.src}" />
-          <enclosure url="${typeof post.data.heroImage.src === 'string' ? post.data.heroImage.src : post.data.heroImage.src.src}" />`
-            : '',
-        content: await renderContent(post, siteUrl),
-        ...post.data
+        // A normal RSS content field lets the serializers escape hero URLs/alt text.
+        // Do not emit an enclosure without a known byte length and media type.
+        content: await renderContent(post, siteUrl)
       }))
     )
   })

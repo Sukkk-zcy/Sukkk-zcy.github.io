@@ -38,19 +38,35 @@ const previous = currentIndex > 0 ? members[currentIndex - 1] : undefined
 const next = currentIndex >= 0 && currentIndex < members.length - 1 ? members[currentIndex + 1] : undefined
 const displayTitle = seriesTitle ?? series ?? ''
 const position = currentIndex >= 0 ? currentIndex + 1 : seriesOrder
+const progress = position ? Math.round((position / members.length) * 100) : 0
 ---
 
 {
   hasSeries && (
-    <nav class:list={['series-nav rounded-xl border px-3 py-3 sm:px-4', className]} aria-label={`${displayTitle} 系列导航`}>
+    <nav
+      id='series-navigation'
+      class:list={['series-nav rounded-xl border px-3 py-3 sm:px-4', className]}
+      aria-label={`${displayTitle} 系列导航`}
+    >
       <div class='series-header'>
         <h3 class='series-title'>{displayTitle}</h3>
-        {position && (
-          <span class='series-progress'>
-            第 {position} / {members.length} 篇
-          </span>
-        )}
+        {position && <span class='series-progress'>第 {position} / {members.length} 篇</span>}
       </div>
+      {
+        position && (
+          <div
+            class='series-progress-track'
+            role='progressbar'
+            aria-label={`${displayTitle} 阅读进度`}
+            aria-valuemin='1'
+            aria-valuemax={members.length}
+            aria-valuenow={position}
+            aria-valuetext={`第 ${position} / ${members.length} 篇`}
+          >
+            <span style={`width:${progress}%`}></span>
+          </div>
+        )
+      }
 
       <ol class='series-list'>
         {members.map((member, index) => {
@@ -125,6 +141,20 @@ const position = currentIndex >= 0 ? currentIndex + 1 : seriesOrder
     color: hsl(var(--muted-foreground));
     font-family: var(--font-mono);
     font-size: 0.75rem;
+  }
+
+  .series-progress-track {
+    height: 0.25rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: hsl(var(--border) / 0.72);
+  }
+
+  .series-progress-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: hsl(var(--primary));
   }
 
   .series-list {

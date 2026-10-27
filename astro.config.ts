@@ -1,16 +1,13 @@
-import { rehypeHeadingIds } from '@astrojs/markdown-remark'
+import { unified } from '@astrojs/markdown-remark'
 import sitemap from '@astrojs/sitemap'
 //import vercel from '@astrojs/vercel'
 import AstroPureIntegration from 'astro-pure'
-import { defineConfig } from 'astro/config'
-import rehypeKatex from 'rehype-katex'
-import remarkMath from 'remark-math'
+import { defineConfig, svgoOptimizer } from 'astro/config'
 import mermaid from 'astro-mermaid'
 // import { typst } from 'astro-typst'
 // Local integrations
-import rehypeAutolinkHeadings from './src/plugins/rehype-auto-link-headings.ts'
+import { createMarkdownPlugins } from './src/plugins/markdown-config.ts'
 import p4Grammar from './src/plugins/p4-grammar.ts'
-import remarkWikilinks from './src/plugins/remark-wikilinks.ts'
 import { buildWikilinkIndex } from './src/utils/wikilink-map.ts'
 // Shiki
 import {
@@ -31,6 +28,12 @@ import config from './src/site.config.ts'
 // /blog/<category>/<slug> route instead of a bare-filename redirect page.
 const wikilinkIndex = buildWikilinkIndex()
 
+// Astro's unified processor renders Markdown files, while @astrojs/mdx extends
+// the legacy plugin arrays for the blog's .mdx content. Keep both pipelines in
+// sync so Mermaid, math, wikilinks, and heading anchors behave identically.
+const { remarkPlugins: markdownRemarkPlugins, rehypePlugins: markdownRehypePlugins } =
+  createMarkdownPlugins(wikilinkIndex)
+
 // https://astro.build/config
 export default defineConfig({
   // [Performance]
@@ -43,7 +46,8 @@ export default defineConfig({
   // base: '/astro-pure/',
   trailingSlash: 'never',
   // root: './my-project-directory',
-  server: { host: true },
+  // Keep local development private; expose to the LAN only with an explicit --host.
+  server: { host: '127.0.0.1' },
   // https://docs.astro.build/en/guides/prefetch/
   prefetch: {
     defaultStrategy: 'viewport'
@@ -72,22 +76,17 @@ export default defineConfig({
 
   // [Markdown]
   markdown: {
-    remarkPlugins: [
-      remarkMath,
-      [remarkWikilinks, { basePath: '/blog', index: wikilinkIndex }]
-    ],
-    rehypePlugins: [
-      [rehypeKatex, {}],
-      rehypeHeadingIds,
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: 'append',
-          properties: { className: ['anchor'] },
-          content: { type: 'text', value: '#' }
-        }
-      ]
-    ],
+    // Astro 6.4+ only runs Markdown extensions registered on its unified
+    // processor. This also lets astro-mermaid append its transform before
+    // Shiki turns code blocks into highlighted HTML.
+    processor: unified({
+      remarkPlugins: markdownRemarkPlugins,
+      rehypePlugins: markdownRehypePlugins
+    }),
+    // @astrojs/mdx extends these arrays when compiling blog posts. Astro 6.4+
+    // deprecates them for plain Markdown, which uses `processor` above.
+    remarkPlugins: markdownRemarkPlugins,
+    rehypePlugins: markdownRehypePlugins,
     // https://docs.astro.build/en/guides/syntax-highlighting/
     shikiConfig: {
       themes: {
@@ -141,6 +140,8 @@ export default defineConfig({
     }),
     // astro-pure will automatically add mdx & unocss
     // mdx(),
+    // typst(),
+    AstroPureIntegration(config),
     // https://github.com/astro-community/astro-mermaid
     mermaid({
       // 布局与视觉升级：base 主题 + 与博客主色调（紫调）一致的浅色配色
@@ -236,8 +237,6 @@ export default defineConfig({
         }
       }
     }),
-    // typst(),
-    AstroPureIntegration(config)
   ],
 
   // [Experimental]
@@ -247,7 +246,7 @@ export default defineConfig({
     contentIntellisense: true,
     // Enable SVGO optimization for SVG assets
     // https://docs.astro.build/en/reference/experimental-flags/svg-optimization/
-    svgo: true,
+    svgOptimizer: svgoOptimizer(),
     // Enables using the new Rust-based compiler for Astro files.
     // https://docs.astro.build/en/reference/experimental-flags/rust-compiler/
     rustCompiler: false,

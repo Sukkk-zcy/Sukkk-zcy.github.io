@@ -1,4 +1,58 @@
-<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/scripts/pretty-feed-v3.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Sukkk</title><description>记录技术笔记和成长历程</description><link>https://sukkk-zcy.github.io</link><item><title>WSL Dashboard：WSL 实例图形化管理工具推荐</title><link>https://sukkk-zcy.github.io/blog/devtools/wsl-dashboard-guide</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/wsl-dashboard-guide</guid><description>WSL Dashboard 是一个基于 Rust + Slint 的 WSL 图形化管理工具，轻量低内存，支持实例管理、端口转发、USB 透传等。</description><pubDate>Sat, 01 Aug 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet href="/scripts/pretty-feed-v3.xsl" type="text/xsl"?><rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Sukkk</title><description>记录技术笔记和成长历程</description><link>https://sukkk-zcy.github.io</link><item><title>博客发布流水线测试</title><link>https://sukkk-zcy.github.io/blog/devtools/blog-deploy-pipeline-test</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/blog-deploy-pipeline-test</guid><description>一篇用于验证博客构建与部署流水线的测试文章，覆盖表格、Mermaid 图表与代码块渲染。</description><pubDate>Sat, 14 Nov 2026 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;这是一篇测试文章，用于验证博客的构建与发布流水线是否正常工作。如果你在站点上看到它，说明部署成功了。&lt;/p&gt;
+&lt;h2&gt;测试目的&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;验证 &lt;code&gt;.mdx&lt;/code&gt; 内容管线（frontmatter 校验、分类归档）&lt;/li&gt;
+&lt;li&gt;验证表格、Mermaid 图表、代码块的渲染&lt;/li&gt;
+&lt;li&gt;验证 GitHub Pages 部署流程&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;发布流程&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&quot;language-mermaid&quot;&gt;flowchart LR
+    A[撰写 .mdx] --&gt; B[npm test]
+    B --&gt; C[npm run check]
+    C --&gt; D[npm run build]
+    D --&gt; E[复制到 deploy-temp]
+    E --&gt; F[&quot;git push -f → gh-pages&quot;]
+    F --&gt; G[GitHub Pages 上线]
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;校验清单&lt;/h2&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;检查项&lt;/th&gt;
+&lt;th&gt;命令&lt;/th&gt;
+&lt;th&gt;预期结果&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;回归测试&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;npm test&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;全部通过&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;类型检查&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;npm run check&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;0 errors&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;静态构建&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;npm run build&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;页面正常生成&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;部署产物&lt;/td&gt;
+&lt;td&gt;&lt;code&gt;deploy-temp&lt;/code&gt;&lt;/td&gt;
+&lt;td&gt;含 &lt;code&gt;.nojekyll&lt;/code&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;代码块渲染&lt;/h2&gt;
+&lt;pre&gt;&lt;code class=&quot;language-powershell&quot;&gt;Set-Location &apos;E:\BLOG&apos;
+$env:NODE_OPTIONS = &apos;--max-old-space-size=8192&apos;
+npm run build
+&lt;/code&gt;&lt;/pre&gt;
+&lt;h2&gt;结语&lt;/h2&gt;
+&lt;p&gt;测试完成后本文章可以随时删除，不会影响站点其他内容。&lt;/p&gt;</content:encoded><category>Devtools</category></item><item><title>WSL Dashboard：WSL 实例图形化管理工具推荐</title><link>https://sukkk-zcy.github.io/blog/devtools/wsl-dashboard-guide</link><guid isPermaLink="true">https://sukkk-zcy.github.io/blog/devtools/wsl-dashboard-guide</guid><description>WSL Dashboard 是一个基于 Rust + Slint 的 WSL 图形化管理工具，轻量低内存，支持实例管理、端口转发、USB 透传等。</description><pubDate>Sat, 01 Aug 2026 00:00:00 GMT</pubDate><content:encoded>&lt;h2&gt;前言&lt;/h2&gt;
 &lt;p&gt;我之前的 &lt;a href=&quot;https://sukkk-zcy.github.io/blog/sdn/sdn-04-mininet-experiment&quot;&gt;Mininet 网络实验&lt;/a&gt; 就是在 &lt;strong&gt;WSL2 + Ubuntu 24.04&lt;/strong&gt; 上跑的，平时做嵌入式开发和环境搭建也离不开 WSL。但用的时间越长，越觉得 WSL 的「命令行管理」方式不太顺手：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;想启动 / 关闭某个发行版，得记 &lt;code&gt;wsl --terminate&lt;/code&gt;、&lt;code&gt;wsl --shutdown&lt;/code&gt; 这一堆命令&lt;/li&gt;
